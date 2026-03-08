@@ -80,7 +80,7 @@ export default async function ScanPage({
              </div>
           </div>
 
-          <AddScanForm businessId={business.id} customerId={customerId} rewardId={rewardId} />
+          <AddScanForm businessId={business.id} businessSlug={business.slug} customerId={customerId} rewardId={rewardId} />
 
         </div>
 

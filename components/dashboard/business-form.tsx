@@ -5,8 +5,9 @@ import { useForm, useWatch, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useRouter } from "next/navigation";
-import { createBusiness } from "@/app/actions/business";
+import { createBusiness, updateBusiness } from "@/app/actions/business";
 import { CldUploadWidget } from "next-cloudinary";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
@@ -24,47 +25,97 @@ import {
   FieldLabel,
   FieldError,
 } from "@/components/ui/field";
-import { CopyPlus, ImagePlus, Instagram, Store, MessageCircle, Music2 } from "lucide-react";
+import { CopyPlus, ImagePlus, Instagram, Store, MessageCircle, Music2, Save } from "lucide-react";
 import Image from "next/image";
 
 const businessSchema = yup.object({
   name: yup.string().required("El nombre del negocio es requerido").min(3, "Mínimo 3 caracteres"),
   type: yup.string().required("Debe seleccionar una categoría"),
   image_url: yup.string().url("Debe ser una URL válida").required("La imagen es requerida"),
+  country_id: yup.string().required("El país es requerido"),
+  city: yup.string().required("La ciudad es requerida"),
+  city_id: yup.string().required("Selecciona una ciudad de la lista"),
+  address: yup.string().required("La dirección es requerida"),
   tiktok_url: yup.string().url("Debe ser una URL válida").optional().default(""),
   whatsapp_url: yup.string().optional().default(""),
   instagram_url: yup.string().url("Debe ser una URL válida").optional().default(""),
 });
 
-type BusinessFormData = yup.InferType<typeof businessSchema>;
+interface BusinessFormData {
+  name: string;
+  type: string;
+  image_url: string;
+  country_id: string;
+  city: string;
+  city_id: string;
+  address: string;
+  tiktok_url: string;
+  whatsapp_url: string;
+  instagram_url: string;
+}
 
-export function BusinessForm({ categories }: { categories: { id: string; name: string }[] }) {
+export function BusinessForm({ 
+  categories, 
+  cities: allCities,
+  countries,
+  initialData 
+}: { 
+  categories: { id: string; name: string }[];
+  cities: { id: string; name: string; country_id: string }[];
+  countries: { id: string; name: string }[];
+  initialData?: {
+    id: string;
+    name: string;
+    type: string;
+    image_url: string;
+    country_id: string;
+    city: string;
+    city_id: string;
+    address: string;
+    tiktok_url?: string | null;
+    whatsapp_url?: string | null;
+    instagram_url?: string | null;
+  }
+}) {
   const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const isEditing = !!initialData;
 
   const form = useForm<BusinessFormData>({
     resolver: yupResolver(businessSchema),
     defaultValues: {
-      name: "",
-      type: "",
-      image_url: "",
-      tiktok_url: "",
-      whatsapp_url: "",
-      instagram_url: "",
+      name: initialData?.name || "",
+      type: initialData?.type || "",
+      image_url: initialData?.image_url || "",
+      country_id: initialData?.country_id || "",
+      city: initialData?.city || "",
+      city_id: initialData?.city_id || "",
+      address: initialData?.address || "",
+      tiktok_url: initialData?.tiktok_url || "",
+      whatsapp_url: initialData?.whatsapp_url || "",
+      instagram_url: initialData?.instagram_url || "",
     },
   });
 
-  const { register, control, handleSubmit, formState: { errors, isSubmitting } } = form;
+  const { register, control, handleSubmit, formState: { errors, isSubmitting }, setValue } = form;
+
+  // Reactivo: Filtrar ciudades por país seleccionado
+  const selectedCountryId = useWatch({ control, name: "country_id" });
+  const filteredCities = allCities.filter(city => city.country_id === selectedCountryId);
 
   const onSubmit = async (data: BusinessFormData) => {
     setSubmitError(null);
     
-    const result = await createBusiness(data);
+    const result = isEditing 
+      ? await updateBusiness(initialData!.id, data)
+      : await createBusiness(data);
 
     if (result.error) {
       setSubmitError(result.error);
     } else {
+      toast.success(isEditing ? "Negocio actualizado" : "Negocio creado");
       router.push("/dashboard");
+      router.refresh();
     }
   };
 
@@ -75,13 +126,18 @@ export function BusinessForm({ categories }: { categories: { id: string; name: s
       <div className="px-8 pt-8 pb-4 text-center space-y-4">
         <div className="inline-flex items-center justify-center px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-2">
           <Store className="w-4 h-4 text-primary mr-2" />
-          <span className="text-xs font-semibold uppercase tracking-wider text-primary">NUEVA SUCURSAL</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+            {isEditing ? "EDITAR PERFIL" : "NUEVA SUCURSAL"}
+          </span>
         </div>
         <h1 className="text-3xl md:text-4xl font-black tracking-tight text-foreground bg-clip-text">
-          Registrar Negocio
+          {isEditing ? "Editar Negocio" : "Registrar Negocio"}
         </h1>
         <p className="text-muted-foreground text-lg max-w-md mx-auto">
-          Completa los datos de tu empresa para empezar a fidelizar clientes hoy mismo.
+          {isEditing 
+            ? "Actualiza la información pública y redes sociales de tu negocio."
+            : "Completa los datos de tu empresa para empezar a fidelizar clientes hoy mismo."
+          }
         </p>
       </div>
       
@@ -175,6 +231,86 @@ export function BusinessForm({ categories }: { categories: { id: string; name: s
               />
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Controller
+                control={control}
+                name="country_id"
+                render={({ field }) => (
+                  <Field data-invalid={!!errors.country_id}>
+                    <FieldLabel>País</FieldLabel>
+                    <Select 
+                      onValueChange={(val) => {
+                        field.onChange(val);
+                        // Resetear ciudad al cambiar país
+                        setValue("city_id", "");
+                        setValue("city", "", { shouldValidate: true });
+                      }} 
+                      value={field.value || ""}
+                    >
+                      <SelectTrigger aria-invalid={!!errors.country_id}>
+                        <SelectValue placeholder="Selecciona país...">
+                          {countries.find(c => c.id === field.value)?.name}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {countries.map((country) => (
+                          <SelectItem key={country.id} value={country.id}>
+                            {country.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FieldError errors={[errors.country_id]} />
+                  </Field>
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="city_id"
+                render={({ field }) => (
+                  <Field data-invalid={!!errors.city_id}>
+                    <FieldLabel>Ciudad</FieldLabel>
+                    <Select 
+                      onValueChange={(val) => {
+                        field.onChange(val);
+                        const cityName = filteredCities.find(c => c.id === val)?.name || "";
+                        setValue("city", cityName, { shouldValidate: true });
+                      }} 
+                      value={field.value || ""}
+                      disabled={!selectedCountryId}
+                    >
+                      <SelectTrigger aria-invalid={!!errors.city_id}>
+                        <SelectValue placeholder={selectedCountryId ? "Selecciona ciudad..." : "Primero elige un país..."}>
+                          {filteredCities.find(c => c.id === field.value)?.name}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filteredCities.map((city) => (
+                          <SelectItem key={city.id} value={city.id}>
+                            {city.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FieldError errors={[errors.city_id]} />
+                  </Field>
+                )}
+              />
+            </div>
+
+            <Field data-invalid={!!errors.address}>
+              <FieldLabel>Dirección Exacta</FieldLabel>
+              <InputGroup>
+                <InputGroupInput 
+                  placeholder="Ej. Calle Falsa 123, Providencia" 
+                  {...register("address")} 
+                  aria-invalid={!!errors.address}
+                />
+              </InputGroup>
+              <FieldError errors={[errors.address]} />
+            </Field>
+
             <div className="space-y-4 pt-4 border-t">
               <h3 className="text-sm font-medium text-muted-foreground">Redes Sociales (Opcional)</h3>
               
@@ -253,8 +389,8 @@ export function BusinessForm({ categories }: { categories: { id: string; name: s
               "Guardando..."
             ) : (
               <>
-                <CopyPlus className="w-4 h-4 mr-2" />
-                Crear Negocio
+                {isEditing ? <Save className="w-4 h-4 mr-2" /> : <CopyPlus className="w-4 h-4 mr-2" />}
+                {isEditing ? "Guardar Cambios" : "Crear Negocio"}
               </>
             )}
           </Button>

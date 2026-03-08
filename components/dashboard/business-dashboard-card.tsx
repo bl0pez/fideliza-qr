@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink, LayoutDashboard, Settings2, Ticket, QrCode } from "lucide-react";
+import { ExternalLink, LayoutDashboard, Settings2, Ticket, QrCode, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -69,6 +69,13 @@ export function BusinessDashboardCard({ business }: BusinessDashboardCardProps) 
               <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary transition-colors">
                 <QrCode className="h-4 w-4" />
                 <span className="sr-only">Escanear</span>
+              </Button>
+            </Link>
+
+            <Link href={`/dashboard/businesses/${business.slug}/edit`}>
+              <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary transition-colors">
+                <Pencil className="h-4 w-4" />
+                <span className="sr-only">Editar perfil</span>
               </Button>
             </Link>
 

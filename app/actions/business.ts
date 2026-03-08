@@ -9,6 +9,10 @@ export async function createBusiness(data: {
   name: string;
   type: string;
   image_url: string;
+  country_id: string;
+  city: string;
+  city_id: string;
+  address: string;
   tiktok_url?: string;
   whatsapp_url?: string;
   instagram_url?: string;
@@ -85,6 +89,10 @@ export async function createBusiness(data: {
     name: data.name,
     type: data.type,
     image_url: data.image_url,
+    country_id: data.country_id,
+    city: data.city,
+    city_id: data.city_id,
+    address: data.address,
     tiktok_url: data.tiktok_url || null,
     whatsapp_url: data.whatsapp_url || null,
     instagram_url: data.instagram_url || null,
@@ -130,4 +138,80 @@ export async function getUserBusinesses() {
     ...b,
     rewards_count: b.rewards?.[0]?.count || 0
   }));
+}
+
+export async function getBusinessBySlug(slug: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("*")
+    .eq("slug", slug)
+    .eq("owner_id", user.id)
+    .single();
+
+  return business;
+}
+
+export async function updateBusiness(id: string, data: {
+  name: string;
+  type: string;
+  image_url: string;
+  country_id: string;
+  city: string;
+  city_id: string;
+  address: string;
+  tiktok_url?: string;
+  whatsapp_url?: string;
+  instagram_url?: string;
+}) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "No autorizado" };
+  }
+
+  // Verificar propiedad
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("slug, owner_id")
+    .eq("id", id)
+    .single();
+
+  if (!business || business.owner_id !== user.id) {
+    return { error: "No tienes permiso para editar este negocio." };
+  }
+
+  // Si el nombre cambió, podemos decidir si cambiar el slug o no. 
+  // Por SEO y enlaces compartidos, es mejor NO cambiar el slug automáticamente.
+  
+  const { error } = await supabase
+    .from("businesses")
+    .update({
+      name: data.name,
+      type: data.type,
+      image_url: data.image_url,
+      country_id: data.country_id,
+      city: data.city,
+      city_id: data.city_id,
+      address: data.address,
+      tiktok_url: data.tiktok_url || null,
+      whatsapp_url: data.whatsapp_url || null,
+      instagram_url: data.instagram_url || null,
+    })
+    .eq("id", id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath(ROUTES.dashboard);
+  revalidatePath(`/dashboard/businesses/${business.slug}`);
+  revalidatePath(`/${business.slug}`);
+
+  return { success: true };
 }
