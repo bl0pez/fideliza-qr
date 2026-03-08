@@ -15,6 +15,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { createClient } from "@/utils/supabase/server";
+import { APP_NAME } from "@/lib/constants";
 
 const items = [
   {
@@ -49,7 +50,7 @@ export default async function DashboardLayout({
           <SidebarHeader className="p-4">
             <div className="flex items-center gap-2 px-2">
               <Store className="h-6 w-6 text-primary" />
-              <span className="text-lg font-bold tracking-tight">FideliAdmin</span>
+              <span className="text-lg font-bold tracking-tight">{APP_NAME} Admin</span>
             </div>
           </SidebarHeader>
           <SidebarContent>

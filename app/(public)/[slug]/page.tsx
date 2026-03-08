@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getPublicBusinessData } from "@/app/actions/public";
+import { APP_NAME } from "@/lib/constants";
 
 interface PublicBusinessPageProps {
   params: Promise<{ slug: string }>;
@@ -35,8 +36,8 @@ export async function generateMetadata({ params }: PublicBusinessPageProps): Pro
   if (!business) return { title: "Negocio no encontrado" };
 
   return {
-    title: `${business.name} | Fideliza QR`,
-    description: `Descubre las recompensas de ${business.name} (${business.type}) en Fideliza QR.`,
+    title: `${business.name} | ${APP_NAME}`,
+    description: `Descubre las recompensas de ${business.name} (${business.type}) en ${APP_NAME}.`,
   };
 }
 
@@ -78,28 +79,30 @@ export default async function PublicBusinessPage({ params }: PublicBusinessPageP
       <main className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10 -mt-12 space-y-8">
         
         {/* Tarjeta de Información del Negocio */}
-        <div className="bg-card border border-border rounded-2xl p-6 shadow-2xl flex flex-col items-center text-center md:flex-row md:text-left justify-between gap-6 backdrop-blur-xl">
-          <div className="flex flex-col items-center md:items-start">
-             <Badge variant="secondary" className="mb-3 bg-secondary text-secondary-foreground uppercase tracking-[0.2em] font-bold text-xs px-3 py-1">
-               {business.type}
-             </Badge>
-             <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-2">
-               {business.name}
-             </h1>
-             <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
-               <MapPin className="h-4 w-4" />
-               <span>Encuéntranos en la ciudad</span>
-             </div>
-          </div>
-          
-          {/* Compartir Button */}
-          <div className="shrink-0 w-full md:w-auto">
-            <Button variant="outline" className="w-full md:w-auto bg-background text-foreground hover:bg-secondary border-border shadow-xs">
-              <Share2 className="h-4 w-4 mr-2" />
-              Compartir Perfil
-            </Button>
-          </div>
-        </div>
+        <Card className="border-border rounded-2xl shadow-2xl backdrop-blur-xl overflow-hidden">
+          <CardContent className="p-6 flex flex-col items-center text-center md:flex-row md:text-left justify-between gap-6">
+            <div className="flex flex-col items-center md:items-start">
+               <Badge variant="secondary" className="mb-3 bg-secondary text-secondary-foreground uppercase tracking-[0.2em] font-bold text-xs px-3 py-1">
+                 {business.type}
+               </Badge>
+               <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-2">
+                 {business.name}
+               </h1>
+               <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
+                 <MapPin className="h-4 w-4" />
+                 <span>Encuéntranos en la ciudad</span>
+               </div>
+            </div>
+            
+            {/* Compartir Button */}
+            <div className="shrink-0 w-full md:w-auto">
+              <Button variant="outline" className="w-full md:w-auto bg-background text-foreground hover:bg-secondary border-border shadow-xs">
+                <Share2 className="h-4 w-4 mr-2" />
+                Compartir Perfil
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* 
           ====================================================
@@ -170,63 +173,69 @@ export default async function PublicBusinessPage({ params }: PublicBusinessPageP
             
             {!user ? (
               // ESTADO 1: NO LOGUEADO
-              <div className="bg-card p-6 rounded-3xl border border-border text-center space-y-5 shadow-2xl">
-                 <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2">
-                   <Ticket className="h-7 w-7 text-primary" />
-                 </div>
-                 <div>
-                   <h4 className="font-bold text-xl text-foreground">Únete al club</h4>
-                   <p className="text-sm text-muted-foreground px-4 mt-2">Inicia sesión y suscríbete para empezar a acumular visitas en {business.name}.</p>
-                 </div>
-                <Link href="/login" className="block w-full pt-2">
-                  <Button className="w-full h-14 rounded-2xl bg-foreground hover:bg-foreground/90 text-background font-black text-lg transition-all hover:scale-[1.02] active:scale-[0.98]">
-                    INICIAR SESIÓN
-                  </Button>
-                </Link>
-              </div>
+              <Card className="rounded-3xl border-border text-center shadow-2xl">
+                <CardContent className="p-6 space-y-5">
+                   <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2">
+                     <Ticket className="h-7 w-7 text-primary" />
+                   </div>
+                   <div>
+                     <h4 className="font-bold text-xl text-foreground">Únete al club</h4>
+                     <p className="text-sm text-muted-foreground px-4 mt-2">Inicia sesión y suscríbete para empezar a acumular visitas en {business.name}.</p>
+                   </div>
+                  <Link href="/login" className="block w-full pt-2">
+                    <Button size="lg" className="w-full">
+                      INICIAR SESIÓN
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
             ) : !subscription ? (
                // ESTADO 2: LOGUEADO PERO NO SUSCRITO
-               <div className="bg-primary/5 p-6 rounded-3xl border border-primary/30 text-center space-y-4 shadow-xl shadow-primary/5 relative overflow-hidden group">
-                 <div className="absolute inset-0 bg-linear-to-b from-primary/10 to-transparent opacity-50 pointer-events-none" />
-                 <h4 className="font-bold text-2xl text-primary relative z-10 pt-2">¡Empieza a ganar!</h4>
-                 <p className="text-sm text-muted-foreground relative z-10 w-4/5 mx-auto">
-                   Conviértete en miembro frecuente y obtén beneficios únicos. Activa tu suscripción gratis.
-                 </p>
-                 <div className="relative z-10 pt-4">
-                   {/* Client Component que inserta la suscripción */}
-                   <SubscribeButton businessId={business.id} slug={slug} />
-                 </div>
-              </div>
+               <Card className="bg-primary/5 rounded-3xl border-primary/30 text-center shadow-xl shadow-primary/5 relative overflow-hidden group">
+                 <CardContent className="p-6 space-y-4">
+                   <div className="absolute inset-0 bg-linear-to-b from-primary/10 to-transparent opacity-50 pointer-events-none" />
+                   <h4 className="font-bold text-2xl text-primary relative z-10 pt-2">¡Empieza a ganar!</h4>
+                   <p className="text-sm text-muted-foreground relative z-10 w-4/5 mx-auto">
+                     Conviértete en miembro frecuente y obtén beneficios únicos. Activa tu suscripción gratis.
+                   </p>
+                   <div className="relative z-10 pt-4">
+                     {/* Client Component que inserta la suscripción */}
+                     <SubscribeButton businessId={business.id} slug={slug} />
+                   </div>
+                 </CardContent>
+              </Card>
             ) : (
               // ESTADO 3: SUSCRITO (Panel Premium de Visitas)
-              <div className="bg-card p-6 rounded-3xl border border-primary/20 space-y-5 shadow-2xl shadow-primary/10">
-                 {/* Contenedor de Visitas */}
-                 <div className="bg-background border border-border rounded-2xl p-5 md:p-6 flex items-center justify-between">
-                   <div>
-                     <p className="text-[10px] sm:text-xs text-muted-foreground font-bold uppercase tracking-[0.2em] mb-1">Tus Visitas</p>
-                     <p className="text-5xl sm:text-6xl font-black text-foreground leading-none tracking-tighter">
-                       {subscription.scans_count || 0}
-                     </p>
-                   </div>
-                   <div className="text-right flex flex-col items-end">
-                     <p className="text-[10px] sm:text-xs text-primary/80 font-bold uppercase tracking-widest mb-1">Meta actual</p>
-                     <div className="flex items-center gap-1.5 bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
-                       <Ticket className="h-4 w-4 text-primary" />
-                       <p className="text-sm sm:text-base font-black text-primary tabular-nums">
-                         {business.rewards_available}
+              <Card className="rounded-3xl border-primary/20 shadow-2xl shadow-primary/10">
+                <CardContent className="p-6 space-y-5">
+                   {/* Contenedor de Visitas */}
+                   <div className="bg-background border border-border rounded-2xl p-5 md:p-6 flex items-center justify-between">
+                     <div>
+                       <p className="text-[10px] sm:text-xs text-muted-foreground font-bold uppercase tracking-[0.2em] mb-1">Tus Visitas</p>
+                       <p className="text-5xl sm:text-6xl font-black text-foreground leading-none tracking-tighter">
+                         {subscription.scans_count || 0}
                        </p>
                      </div>
+                     <div className="text-right flex flex-col items-end">
+                       <p className="text-[10px] sm:text-xs text-primary/80 font-bold uppercase tracking-widest mb-1">Meta actual</p>
+                       <div className="flex items-center gap-1.5 bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
+                         <Ticket className="h-4 w-4 text-primary" />
+                         <p className="text-sm sm:text-base font-black text-primary tabular-nums">
+                           {business.rewards_available}
+                         </p>
+                       </div>
+                     </div>
                    </div>
-                 </div>
-                 
-                 <Button className="w-full h-14 md:h-16 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-black text-lg shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
-                   <QrCode className="mr-2 h-6 w-6" />
-                   MOSTRAR CÓDIGO QR
-                 </Button>
-                 <p className="text-center text-muted-foreground text-xs md:text-sm">
-                   Muestra este código en caja para sumar una visita.
-                 </p>
-              </div>
+                   
+                   <Button className="w-full h-14 md:h-16 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-black text-lg shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                     <QrCode className="mr-2 h-6 w-6" />
+                     MOSTRAR CÓDIGO QR
+                   </Button>
+                   <p className="text-center text-muted-foreground text-xs md:text-sm">
+                     Muestra este código en caja para sumar una visita.
+                   </p>
+                </CardContent>
+              </Card>
             )}
           </div>
         </div>
@@ -235,16 +244,16 @@ export default async function PublicBusinessPage({ params }: PublicBusinessPageP
         <div className="pt-12 border-t border-border/50 text-center">
             <p className="text-muted-foreground text-[10px] font-medium uppercase tracking-widest flex items-center justify-center gap-2">
               <span className="w-4 h-px bg-border"></span>
-              Powered by Fideliza QR
+              Powered by {APP_NAME}
               <span className="w-4 h-px bg-border"></span>
             </p>
         </div>
       </main>
 
       {/* Floating Share Button */}
-      <button className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-zinc-900 border border-zinc-800 shadow-2xl flex items-center justify-center text-white hover:bg-zinc-800 transition-colors z-50">
+      <Button size="icon" className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-zinc-900 border border-zinc-800 shadow-2xl flex items-center justify-center text-white hover:bg-zinc-800 transition-colors z-50">
         <Share2 className="h-6 w-6" />
-      </button>
+      </Button>
     </div>
   );
 }

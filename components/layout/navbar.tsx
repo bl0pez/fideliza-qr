@@ -2,6 +2,7 @@ import { Ticket, LogIn } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { DropdownMenuAvatar } from "@/components/auth/dropdown-menu-avatar";
+import { APP_NAME } from "@/lib/constants";
 
 export async function Navbar() {
   const supabase = await createClient();
@@ -21,7 +22,7 @@ export async function Navbar() {
     <nav className="sticky top-0 z-50 flex items-center justify-between px-4 py-3 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="flex items-center gap-2">
         <Ticket className="text-primary w-8 h-8" />
-        <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">FideliLocal</span>
+        <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">{APP_NAME}</span>
       </div>
       <div className="flex items-center gap-3">
         {user ? (

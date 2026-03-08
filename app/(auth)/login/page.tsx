@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { APP_NAME } from "@/lib/constants";
 
 // Definimos el esquema de validación con Yup, acorde a la regla del usuario
 const loginSchema = yup.object().shape({
@@ -79,7 +80,7 @@ export default function LoginPage() {
             <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          FideliLocal
+          {APP_NAME}
         </h2>
       </div>
 

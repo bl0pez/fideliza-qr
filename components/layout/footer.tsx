@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Ticket } from "lucide-react";
+import { APP_NAME } from "@/lib/constants";
 
 export function Footer() {
   return (
@@ -8,7 +9,7 @@ export function Footer() {
         <div>
           <div className="flex items-center gap-2 mb-4">
             <Ticket className="text-primary w-6 h-6" />
-            <span className="text-lg font-bold">FideliLocal</span>
+            <span className="text-lg font-bold">{APP_NAME}</span>
           </div>
           <p className="text-slate-500 text-sm">Empoderando a los negocios locales a través de la tecnología y la fidelización.</p>
         </div>
@@ -25,7 +26,7 @@ export function Footer() {
           </div>
         </div>
         <div className="pt-8 border-t border-slate-200 dark:border-slate-800 text-center">
-          <p className="text-slate-400 text-xs">© 2024 FideliLocal. Todos los derechos reservados.</p>
+          <p className="text-slate-400 text-xs">© 2024 {APP_NAME}. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>
