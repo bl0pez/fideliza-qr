@@ -8,32 +8,21 @@ import { CustomerQrModal } from "@/components/public/customer-qr-modal";
 import { RedeemQrModal } from "@/components/public/redeem-qr-modal";
 import { 
   Instagram, 
-  MessageCircle, 
-  Share2, 
   MapPin, 
   Ticket, 
   ExternalLink,
-  Phone
+  Phone,
+  MessageCircle
 } from "lucide-react";
+import { ShareProfileButton } from "@/components/public/share-profile-button";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { getPublicBusinessData } from "@/app/actions/public";
+import { getPublicBusinessData, PublicReward } from "@/app/actions/public";
 import { APP_NAME } from "@/lib/constants";
 
 interface PublicBusinessPageProps {
   params: Promise<{ slug: string }>;
-}
-
-interface Reward {
-  id: string;
-  business_id: string;
-  title: string;
-  description: string | null;
-  requirements: string | null;
-  scans_required: number;
-  expires_at: string | null;
-  is_active: boolean;
 }
 
 export async function generateMetadata({ params }: PublicBusinessPageProps): Promise<Metadata> {
@@ -100,18 +89,23 @@ export default async function PublicBusinessPage({ params }: PublicBusinessPageP
                <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-2">
                  {business.name}
                </h1>
-               <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
-                 <MapPin className="h-4 w-4" />
-                 <span>Encuéntranos en la ciudad</span>
-               </div>
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
+                  <MapPin className="h-4 w-4 text-primary shrink-0" />
+                  <span className="line-clamp-1">
+                    {business.city}
+                    {business.countries && (
+                      <>, {Array.isArray(business.countries) ? business.countries[0]?.name : business.countries.name}</>
+                    )}
+                    {business.address ? ` • ${business.address}` : ""}
+                  </span>
+                </div>
             </div>
             
-            {/* Compartir Button */}
             <div className="shrink-0 w-full md:w-auto">
-              <Button variant="outline" className="w-full md:w-auto bg-background text-foreground hover:bg-secondary border-border shadow-xs">
-                <Share2 className="h-4 w-4 mr-2" />
-                Compartir Perfil
-              </Button>
+              <ShareProfileButton 
+                businessName={business.name} 
+                className="w-full md:w-auto bg-background text-foreground hover:bg-secondary border-border shadow-xs"
+              />
             </div>
           </CardContent>
         </Card>
@@ -234,7 +228,7 @@ export default async function PublicBusinessPage({ params }: PublicBusinessPageP
                       <div className="space-y-3 pt-2">
                         <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground text-center">Recompensas Disponibles</p>
                         <div className="grid gap-2">
-                          {rewards.map((reward: Reward) => {
+                          {rewards.map((reward: PublicReward) => {
                             const reached = subscription.scans_count >= reward.scans_required;
                             const progress = Math.min(100, (subscription.scans_count / reward.scans_required) * 100);
                             
@@ -305,9 +299,13 @@ export default async function PublicBusinessPage({ params }: PublicBusinessPageP
       </main>
 
       {/* Floating Share Button */}
-      <Button size="icon" className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-zinc-900 border border-zinc-800 shadow-2xl flex items-center justify-center text-white hover:bg-zinc-800 transition-colors z-50">
-        <Share2 className="h-6 w-6" />
-      </Button>
+      <ShareProfileButton 
+        businessName={business.name}
+        variant="secondary"
+        size="icon"
+        showText={false}
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-zinc-900 border border-zinc-800 shadow-2xl flex items-center justify-center text-white hover:bg-zinc-800 transition-colors z-50 p-0"
+      />
     </div>
   );
 }
