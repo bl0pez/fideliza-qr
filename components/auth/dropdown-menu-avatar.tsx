@@ -14,7 +14,8 @@ import {
   LogOutIcon,
   Settings,
   User,
-  LayoutDashboard
+  LayoutDashboard,
+  Ticket
 } from "lucide-react"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
@@ -78,6 +79,12 @@ export function DropdownMenuAvatar({ user, role }: DropdownMenuAvatarProps) {
             <User className="mr-2 h-4 w-4" />
             <span>Perfil</span>
           </DropdownMenuItem>
+          <Link href="/rewards" className="w-full">
+            <DropdownMenuItem className="cursor-pointer">
+              <Ticket className="mr-2 h-4 w-4" />
+              <span>Mis Tarjetas</span>
+            </DropdownMenuItem>
+          </Link>
           <DropdownMenuItem className="cursor-pointer">
             <Settings className="mr-2 h-4 w-4" />
             <span>Configuración</span>

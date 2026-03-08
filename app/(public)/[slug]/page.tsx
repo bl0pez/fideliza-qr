@@ -4,6 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { SubscribeButton } from "@/components/public/subscribe-button";
+import { CustomerQrModal } from "@/components/public/customer-qr-modal";
+import { RedeemQrModal } from "@/components/public/redeem-qr-modal";
 import { 
   Instagram, 
   MessageCircle, 
@@ -11,8 +13,7 @@ import {
   MapPin, 
   Ticket, 
   ExternalLink,
-  Phone,
-  QrCode
+  Phone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,17 @@ import { APP_NAME } from "@/lib/constants";
 
 interface PublicBusinessPageProps {
   params: Promise<{ slug: string }>;
+}
+
+interface Reward {
+  id: string;
+  business_id: string;
+  title: string;
+  description: string | null;
+  requirements: string | null;
+  scans_required: number;
+  expires_at: string | null;
+  is_active: boolean;
 }
 
 export async function generateMetadata({ params }: PublicBusinessPageProps): Promise<Metadata> {
@@ -45,7 +57,7 @@ export default async function PublicBusinessPage({ params }: PublicBusinessPageP
   const { slug } = await params;
   
   // Ocupar las Server Actions explícitamente como pidió el usuario
-  const { business, user, subscription } = await getPublicBusinessData(slug);
+  const { business, user, subscription, rewards } = await getPublicBusinessData(slug);
 
   if (!business) {
     notFound();
@@ -206,36 +218,78 @@ export default async function PublicBusinessPage({ params }: PublicBusinessPageP
               </Card>
             ) : (
               // ESTADO 3: SUSCRITO (Panel Premium de Visitas)
-              <Card className="rounded-3xl border-primary/20 shadow-2xl shadow-primary/10">
-                <CardContent className="p-6 space-y-5">
-                   {/* Contenedor de Visitas */}
-                   <div className="bg-background border border-border rounded-2xl p-5 md:p-6 flex items-center justify-between">
-                     <div>
-                       <p className="text-[10px] sm:text-xs text-muted-foreground font-bold uppercase tracking-[0.2em] mb-1">Tus Visitas</p>
-                       <p className="text-5xl sm:text-6xl font-black text-foreground leading-none tracking-tighter">
-                         {subscription.scans_count || 0}
-                       </p>
-                     </div>
-                     <div className="text-right flex flex-col items-end">
-                       <p className="text-[10px] sm:text-xs text-primary/80 font-bold uppercase tracking-widest mb-1">Meta actual</p>
-                       <div className="flex items-center gap-1.5 bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
-                         <Ticket className="h-4 w-4 text-primary" />
-                         <p className="text-sm sm:text-base font-black text-primary tabular-nums">
-                           {business.rewards_available}
-                         </p>
-                       </div>
-                     </div>
-                   </div>
-                   
-                   <Button className="w-full h-14 md:h-16 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-black text-lg shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
-                     <QrCode className="mr-2 h-6 w-6" />
-                     MOSTRAR CÓDIGO QR
-                   </Button>
-                   <p className="text-center text-muted-foreground text-xs md:text-sm">
-                     Muestra este código en caja para sumar una visita.
-                   </p>
-                </CardContent>
-              </Card>
+              <div className="space-y-4">
+                <Card className="rounded-3xl border-primary/20 shadow-2xl shadow-primary/10 bg-primary/5">
+                  <CardContent className="p-6 space-y-5">
+                    {/* Contenedor de Visitas */}
+                    <div className="bg-background border border-primary/20 shadow-inner rounded-3xl p-6 text-center">
+                      <p className="text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-2">Total de Visitas Activas</p>
+                      <p className="text-7xl font-black text-primary leading-none tracking-tighter mix-blend-multiply dark:mix-blend-screen drop-shadow-xs">
+                        {subscription.scans_count || 0}
+                      </p>
+                    </div>
+
+                    {/* Meta/Recompensas Dispobles */}
+                    {rewards && rewards.length > 0 ? (
+                      <div className="space-y-3 pt-2">
+                        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground text-center">Recompensas Disponibles</p>
+                        <div className="grid gap-2">
+                          {rewards.map((reward: Reward) => {
+                            const reached = subscription.scans_count >= reward.scans_required;
+                            const progress = Math.min(100, (subscription.scans_count / reward.scans_required) * 100);
+                            
+                            return (
+                              <div key={reward.id} className="bg-background border border-border rounded-xl p-4 overflow-hidden relative">
+                                {/* Barra de Progreso de fondo */}
+                                <div 
+                                  className={`absolute top-0 left-0 bottom-0 opacity-10 transition-all duration-1000 ${reached ? 'bg-emerald-500' : 'bg-primary'}`} 
+                                  style={{ width: `${progress}%` }} 
+                                />
+                                
+                                <div className="relative z-10 flex items-center justify-between gap-4">
+                                  <div className="flex-1">
+                                    <h4 className={`font-bold text-sm ${reached ? 'text-emerald-500' : 'text-foreground'}`}>
+                                      {reward.title}
+                                    </h4>
+                                    <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">
+                                      {subscription.scans_count} / {reward.scans_required} escaneos
+                                    </p>
+                                  </div>
+                                  <div className="shrink-0 flex items-center gap-1.5 bg-secondary/50 px-2 py-1 rounded-md border border-border shadow-xs">
+                                     <Ticket className={`h-3 w-3 ${reached ? 'text-emerald-500' : 'text-muted-foreground'}`} />
+                                     <span className="text-xs font-bold tabular-nums">{reward.scans_required}</span>
+                                  </div>
+                                </div>
+                                {/* Action Area for reached rewards */}
+                                {reached && (
+                                  <div className="relative z-10 w-full animate-in fade-in slide-in-from-top-2">
+                                    <RedeemQrModal 
+                                      businessId={business.id} 
+                                      userId={user.id} 
+                                      rewardId={reward.id} 
+                                      rewardTitle={reward.title} 
+                                      scansRequired={reward.scans_required} 
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-4 text-muted-foreground bg-background rounded-xl border border-dashed border-border">
+                        <Ticket className="h-6 w-6 mx-auto mb-2 opacity-50" />
+                        <p className="text-xs font-medium">No hay recompensas activas, pero sigue sumando.</p>
+                      </div>
+                    )}
+                    
+                    <div className="pt-2">
+                      <CustomerQrModal businessId={business.id} userId={user.id} />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             )}
           </div>
         </div>

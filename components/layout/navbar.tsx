@@ -26,16 +26,22 @@ export async function Navbar() {
       </div>
       <div className="flex items-center gap-3">
         {user ? (
-          <DropdownMenuAvatar 
-            role={role}
-            user={{
-              email: user.email,
-              user_metadata: {
-                avatar_url: user.user_metadata?.avatar_url,
-                full_name: user.user_metadata?.full_name
-              }
-            }} 
-          />
+          <>
+            <Link href="/rewards" className="hidden sm:flex items-center gap-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors bg-secondary/50 hover:bg-secondary px-3 py-2 rounded-full border border-border">
+              <Ticket className="w-4 h-4" />
+              <span>Mis Tarjetas</span>
+            </Link>
+            <DropdownMenuAvatar 
+              role={role}
+              user={{
+                email: user.email,
+                user_metadata: {
+                  avatar_url: user.user_metadata?.avatar_url,
+                  full_name: user.user_metadata?.full_name
+                }
+              }} 
+            />
+          </>
         ) : (
           <Link href="/login" className="flex items-center justify-center w-10 h-10 rounded-full bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer">
             <LogIn className="w-5 h-5" />
