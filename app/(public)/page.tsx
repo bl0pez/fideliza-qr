@@ -49,7 +49,9 @@ export default function HomePage() {
             Ver todos
           </Link>
         </div>
-        <FeaturedBusinesses />
+        <Suspense fallback={<FeaturedBusinessesSkeleton />}>
+          <FeaturedBusinesses />
+        </Suspense>
       </section>
 
       <HowItWorks />

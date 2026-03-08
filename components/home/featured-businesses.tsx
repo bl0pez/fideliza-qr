@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getBusinesses } from "@/lib/data/api";
 import BusinessCarousel from "./business-carousel";
 
