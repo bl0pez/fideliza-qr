@@ -16,7 +16,7 @@ interface Business {
   name: string;
   type: string;
   image_url: string;
-  rewards_available: number;
+  rewards_count: number;
   slug: string;
   plan_id: string;
   scans_this_month: number;

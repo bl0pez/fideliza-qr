@@ -21,17 +21,19 @@ export function CreateBusinessButton({ disabled = false }: CreateBusinessButtonP
     return (
       <TooltipProvider>
         <Tooltip>
-          <TooltipTrigger>
-            <div>
-              <Button 
-                disabled
-                className="flex items-center gap-2 bg-slate-100 text-slate-400 cursor-not-allowed border-slate-200"
-              >
-                <Lock className="w-4 h-4" />
-                Crear Negocio
-              </Button>
-            </div>
-          </TooltipTrigger>
+          <TooltipTrigger
+            render={(props) => (
+              <div {...props}>
+                <Button 
+                  disabled
+                  className="flex items-center gap-2 bg-slate-100 text-slate-400 cursor-not-allowed border-slate-200"
+                >
+                  <Lock className="w-4 h-4" />
+                  Crear Negocio
+                </Button>
+              </div>
+            )}
+          />
           <TooltipContent className="bg-slate-900 text-white font-medium p-3 rounded-xl max-w-xs text-center border-none shadow-xl">
             <p>Has alcanzado el límite de sucursales de tu plan actual. Sube a Pro para agregar más.</p>
           </TooltipContent>

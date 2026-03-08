@@ -1,4 +1,5 @@
 import { Zap, AlertCircle, TrendingUp } from "lucide-react";
+import Link from "next/link";
 
 interface PlanUsageCardProps {
   planName: string;
@@ -31,9 +32,11 @@ export function PlanUsageCard({
           </div>
           <h3 className="text-2xl font-black text-slate-900 tracking-tighter">Plan {planName}</h3>
         </div>
-        <button className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-black text-[10px] hover:bg-primary transition-all shadow-lg shadow-black/10 uppercase tracking-widest">
-          MEJORAR PLAN
-        </button>
+        <Link href="/dashboard/settings/billing">
+          <button className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-black text-[10px] hover:bg-primary transition-all shadow-lg shadow-black/10 uppercase tracking-widest">
+            MEJORAR PLAN
+          </button>
+        </Link>
       </div>
 
       <div className="space-y-6">

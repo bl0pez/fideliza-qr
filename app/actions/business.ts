@@ -119,10 +119,15 @@ export async function getUserBusinesses() {
         name,
         max_branches,
         max_scans_monthly
-      )
+      ),
+      rewards:rewards(count)
     `)
     .eq('owner_id', user.id)
     .order('created_at', { ascending: false });
 
-  return businesses;
+  // Transform to include actual rewards count
+  return (businesses || []).map(b => ({
+    ...b,
+    rewards_count: b.rewards?.[0]?.count || 0
+  }));
 }

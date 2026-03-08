@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink, LayoutDashboard, Settings2, Ticket } from "lucide-react";
+import { ExternalLink, LayoutDashboard, Settings2, Ticket, QrCode } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -13,7 +13,7 @@ interface BusinessDashboardCardProps {
     name: string;
     type: string;
     image_url: string;
-    rewards_available: number;
+    rewards_count?: number;
     slug: string;
   };
 }
@@ -50,24 +50,34 @@ export function BusinessDashboardCard({ business }: BusinessDashboardCardProps) 
               <Ticket className="h-4 w-4 text-primary" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] uppercase font-semibold tracking-tight leading-none text-muted-foreground/70">Recompensas</span>
+              <span className="text-[10px] uppercase font-semibold tracking-tight leading-none text-muted-foreground/70">Premios Creados</span>
               <span className="text-lg font-bold text-foreground tabular-nums">
-                {business.rewards_available}
+                {business.rewards_count || 0}
               </span>
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <Link href={`/${business.slug}`} target="_blank">
-              <Button size="icon" variant="ghost" className="h-9 w-9 rounded-full hover:bg-primary/10 hover:text-primary transition-colors">
+              <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary transition-colors">
                 <ExternalLink className="h-4 w-4" />
                 <span className="sr-only">Ver tarjeta pública</span>
               </Button>
             </Link>
-            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-full hover:bg-primary/10 hover:text-primary transition-colors">
-              <Settings2 className="h-4 w-4" />
-              <span className="sr-only">Editar perfil</span>
-            </Button>
+            
+            <Link href={`/dashboard/businesses/${business.slug}/scanner`}>
+              <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary transition-colors">
+                <QrCode className="h-4 w-4" />
+                <span className="sr-only">Escanear</span>
+              </Button>
+            </Link>
+
+            <Link href={`/dashboard/businesses/${business.slug}`}>
+              <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary transition-colors">
+                <Settings2 className="h-4 w-4" />
+                <span className="sr-only">Configurar</span>
+              </Button>
+            </Link>
           </div>
         </div>
       </CardContent>
