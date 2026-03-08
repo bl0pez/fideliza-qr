@@ -2,7 +2,7 @@ import { getCustomerWallet, WalletSubscription, WalletReward } from "@/app/actio
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { APP_NAME } from "@/lib/constants";
-import { Ticket, Store, Wallet, ChevronRight } from "lucide-react";
+import { Ticket, Store, Wallet, ChevronRight, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { RedeemQrModal } from "@/components/public/redeem-qr-modal";
 import { CustomerQrModal } from "@/components/public/customer-qr-modal";
@@ -125,7 +125,12 @@ export default async function RewardsWalletPage() {
                                   </div>
                                 </div>
                                 
-                                {reached ? (
+                                {reward.is_limit_reached ? (
+                                  <div className="mt-3 w-full p-3 bg-zinc-100 rounded-xl flex items-center justify-center gap-2 border border-dashed text-zinc-400">
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                                    <span className="text-xs font-bold uppercase tracking-widest">Ya canjeado</span>
+                                  </div>
+                                ) : reached ? (
                                   <div className="mt-3 w-full animate-in fade-in slide-in-from-top-1">
                                     <RedeemQrModal 
                                       businessId={sub.business_id} 

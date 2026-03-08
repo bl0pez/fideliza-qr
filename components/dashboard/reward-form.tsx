@@ -28,6 +28,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { createReward } from "@/app/actions/rewards";
 
@@ -43,6 +50,7 @@ const rewardSchema = yup.object().shape({
     .positive("Debe ser mayor a 0")
     .integer("Debe ser un número entero"),
   expires_at: yup.date().optional().nullable().default(null),
+  max_redemptions_per_user: yup.number().optional().nullable().default(null),
 });
 
 type RewardFormValues = yup.InferType<typeof rewardSchema>;
@@ -70,6 +78,7 @@ export function RewardForm({ businessId }: RewardFormProps) {
       requirements: "",
       scans_required: 10,
       expires_at: null,
+      max_redemptions_per_user: null,
     },
   });
 
@@ -84,6 +93,7 @@ export function RewardForm({ businessId }: RewardFormProps) {
         requirements: data.requirements,
         scans_required: data.scans_required,
         expires_at: data.expires_at ? data.expires_at.toISOString() : undefined,
+        max_redemptions_per_user: data.max_redemptions_per_user,
       });
 
       if (result.error) {
@@ -94,7 +104,7 @@ export function RewardForm({ businessId }: RewardFormProps) {
       toast.success("¡Recompensa creada exitosamente!");
       setOpen(false);
       reset();
-    } catch (error: unknown) {
+    } catch (_err: unknown) {
         toast.error("Ocurrió un error inesperado al guardar la recompensa.");
     }
   };
@@ -161,7 +171,7 @@ export function RewardForm({ businessId }: RewardFormProps) {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {expiresAtValue ? format(expiresAtValue, "PPP", { locale: es }) : <span>Sin caducidad</span>}
+                    {expiresAtValue ? format(expiresAtValue as Date, "PPP", { locale: es }) : <span>Sin caducidad</span>}
                   </Button>}>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -177,6 +187,28 @@ export function RewardForm({ businessId }: RewardFormProps) {
                 </PopoverContent>
               </Popover>
             </div>
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="max_redemptions" className="text-foreground font-semibold">Límite de canjes por cliente</Label>
+            <Select 
+              onValueChange={(val) => setValue("max_redemptions_per_user", val === "unlimited" ? null : parseInt(val))}
+              defaultValue={"unlimited"}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecciona un límite" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="unlimited">Ilimitado (Puede canjear siempre que complete visitas)</SelectItem>
+                <SelectItem value="1">Canje único (Solo una vez por cliente)</SelectItem>
+                <SelectItem value="2">Máximo 2 canjes</SelectItem>
+                <SelectItem value="3">Máximo 3 canjes</SelectItem>
+                <SelectItem value="5">Máximo 5 canjes</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-[10px] text-muted-foreground italic">
+              Ideal para promociones de bienvenida o cupones de un solo uso.
+            </p>
           </div>
 
           <div className="space-y-1">

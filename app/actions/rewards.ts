@@ -10,6 +10,7 @@ export async function createReward(data: {
   requirements?: string;
   scans_required: number;
   expires_at?: string;
+  max_redemptions_per_user?: number | null;
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -28,6 +29,7 @@ export async function createReward(data: {
         requirements: data.requirements,
         scans_required: data.scans_required,
         expires_at: data.expires_at || null,
+        max_redemptions_per_user: data.max_redemptions_per_user ?? null,
       }
     ])
     .select()
@@ -99,16 +101,31 @@ export async function redeemReward(businessId: string, customerUserId: string, r
     return { error: "No tienes permiso para autorizar canjes en este negocio." };
   }
 
-  // 2. Get the reward details to know how much it costs
+  // 2. Get the reward details to know how much it costs and its limits
   const { data: reward } = await supabase
     .from("rewards")
-    .select("id, title, scans_required")
+    .select("id, title, scans_required, max_redemptions_per_user")
     .eq("id", rewardId)
     .eq("business_id", businessId)
     .single();
 
   if (!reward) {
     return { error: "La recompensa no existe o no pertenece a este negocio." };
+  }
+
+  // 2.5 Check if the user has already reached the redemption limit
+  if (reward.max_redemptions_per_user !== null) {
+    const { count: redemptionsCount } = await supabase
+      .from("reward_redemptions")
+      .select("*", { count: 'exact', head: true })
+      .eq("user_id", customerUserId)
+      .eq("reward_id", rewardId);
+
+    if ((redemptionsCount || 0) >= reward.max_redemptions_per_user) {
+      return { 
+        error: `Este cliente ya ha canjeado el máximo de veces (${reward.max_redemptions_per_user}) esta recompensa.` 
+      };
+    }
   }
 
   // 3. Verify the customer has enough scans from the specific reward progress table

@@ -12,31 +12,43 @@ export async function getPublicBusinessData(slug: string) {
   ]);
 
   if (!business) {
-    return { business: null, user: null, subscription: null };
+    return { business: null, user: null, subscription: null, rewards: [] };
   }
 
-  let subscription = null;
-  
-  // Fetch rewards
+  // Fetch rewards with limits
   const { data: rewards } = await supabase
     .from("rewards")
-    .select("*")
+    .select("*, max_redemptions_per_user")
     .eq("business_id", business.id)
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
-  if (user) {
-    const { data } = await supabase
-      .from("business_customers")
-      .select("*")
-      .eq("business_id", business.id)
-      .eq("user_id", user.id)
-      .maybeSingle();
+  let subscription = null;
+  const userRedemptions: Record<string, number> = {};
+
+  if (user && rewards) {
+    // Parallel fetch for subscription and redemptions
+    const [subResult, redemptionsResult] = await Promise.all([
+      supabase.from("business_customers").select("*").eq("business_id", business.id).eq("user_id", user.id).maybeSingle(),
+      supabase.from("reward_redemptions").select("reward_id").eq("business_id", business.id).eq("user_id", user.id)
+    ]);
       
-    subscription = data;
+    subscription = subResult.data;
+    
+    // Count redemptions per reward
+    (redemptionsResult.data || []).forEach(r => {
+      userRedemptions[r.reward_id] = (userRedemptions[r.reward_id] || 0) + 1;
+    });
   }
 
-  return { business, user, subscription, rewards: rewards || [] };
+  // Map rewards including user specific status
+  const mappedRewards = (rewards || []).map(r => ({
+    ...r,
+    user_redemptions_count: userRedemptions[r.id] || 0,
+    is_limit_reached: r.max_redemptions_per_user !== null && (userRedemptions[r.id] || 0) >= r.max_redemptions_per_user
+  }));
+
+  return { business, user, subscription, rewards: mappedRewards };
 }
 
 export interface WalletReward {
@@ -46,8 +58,11 @@ export interface WalletReward {
   description?: string;
   scans_required: number;
   is_active: boolean;
+  max_redemptions_per_user: number | null;
   created_at?: string;
   scans_count?: number;
+  user_redemptions_count?: number;
+  is_limit_reached?: boolean;
 }
 
 export interface WalletSubscription {
@@ -100,7 +115,7 @@ export async function getCustomerWallet(): Promise<{ subscriptions?: WalletSubsc
   
   const { data: rewards, error: reqError } = await supabase
     .from("rewards")
-    .select("*")
+    .select("*, max_redemptions_per_user")
     .in("business_id", businessIds)
     .eq("is_active", true)
     .order("scans_required", { ascending: true });
@@ -109,18 +124,18 @@ export async function getCustomerWallet(): Promise<{ subscriptions?: WalletSubsc
     console.error("Error fetching wallet rewards:", reqError);
   }
 
-  // 2.5 Fetch reward progress for this user
-  const { data: progressData, error: progressError } = await supabase
-    .from("reward_progress")
-    .select("reward_id, scans_count")
-    .eq("user_id", user.id)
-    .in("business_id", businessIds);
+  // 2.5 Fetch reward progress and redemptions for this user
+  const [progressResult, redemptionsResult] = await Promise.all([
+    supabase.from("reward_progress").select("reward_id, scans_count").eq("user_id", user.id).in("business_id", businessIds),
+    supabase.from("reward_redemptions").select("reward_id").eq("user_id", user.id).in("business_id", businessIds)
+  ]);
 
-  if (progressError) {
-    console.error("Error fetching reward progress:", progressError);
-  }
-
-  const progressMap = new Map((progressData || []).map(p => [p.reward_id, p.scans_count]));
+  const progressMap = new Map((progressResult.data || []).map(p => [p.reward_id, p.scans_count]));
+  
+  const redemptionCounts: Record<string, number> = {};
+  (redemptionsResult.data || []).forEach(r => {
+    redemptionCounts[r.reward_id] = (redemptionCounts[r.reward_id] || 0) + 1;
+  });
 
   // 3. Attach the rewards to each subscription for easy frontend rendering
   const walletData: WalletSubscription[] = subscriptions.map((sub) => {
@@ -132,10 +147,17 @@ export async function getCustomerWallet(): Promise<{ subscriptions?: WalletSubsc
       scans_count: sub.scans_count,
       business_id: sub.business_id,
       businesses: businessData as { name: string; slug: string; image_url: string | null } | null,
-      available_rewards: (rewards || []).filter(r => r.business_id === sub.business_id).map(r => ({
-        ...r,
-        scans_count: progressMap.get(r.id) || 0
-      }))
+      available_rewards: (rewards || []).filter(r => r.business_id === sub.business_id).map(r => {
+        const userRedemptions = redemptionCounts[r.id] || 0;
+        const reachedLimit = r.max_redemptions_per_user !== null && userRedemptions >= r.max_redemptions_per_user;
+        
+        return {
+          ...r,
+          scans_count: progressMap.get(r.id) || 0,
+          user_redemptions_count: userRedemptions,
+          is_limit_reached: reachedLimit
+        };
+      })
     };
   });
 
