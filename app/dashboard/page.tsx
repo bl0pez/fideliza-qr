@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { CreateBusinessButton } from "@/components/dashboard/create-business-button";
 import { BusinessDashboardCard } from "@/components/dashboard/business-dashboard-card";
+import { PlanUsageCard } from "@/components/dashboard/plan-usage-card";
 import { getDashboardStats } from "@/app/actions/dashboard";
 
 interface Business {
@@ -14,33 +15,70 @@ interface Business {
   image_url: string;
   rewards_available: number;
   slug: string;
+  plan_id: string;
+  scans_this_month: number;
+  plans: {
+    id: string;
+    name: string;
+    max_branches: number;
+    max_scans_monthly: number;
+  }
 }
 
 export default async function DashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Fetch businesses owned by this user
+  // Fetch businesses owned by this user with plan details
   const { data: businesses } = await supabase
     .from('businesses')
-    .select('*')
+    .select(`
+      *,
+      plans (
+        id,
+        name,
+        max_branches,
+        max_scans_monthly
+      )
+    `)
     .eq('owner_id', user?.id || '')
     .order('created_at', { ascending: false });
 
+  // Use the first business as the primary for plan limits (standard for SaaS with 1 owner)
+  const primaryBusiness = (businesses as unknown as Business[])?.[0];
+
   const { totalCustomers, totalRewardsDelivered } = await getDashboardStats();
+
+  // Calculate days until monthly reset (end of current month)
+  const now = new Date();
+  const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const daysUntilReset = lastDayOfMonth.getDate() - now.getDate();
 
   return (
     <div className="space-y-8 pb-10">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-3xl font-extrabold tracking-tight italic">
-            Bienvenido, <span className="text-primary">{user?.user_metadata?.full_name?.split(' ')[0] || "Dueño"}</span>
-          </h2>
-          <p className="text-muted-foreground text-lg">
-            Aquí tienes un resumen de tus negocios y fidelización.
-          </p>
+      <div className="flex flex-col lg:flex-row justify-between items-start gap-8">
+        <div className="space-y-4 max-w-2xl">
+          <div className="space-y-2">
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter leading-none text-slate-900 italic">
+              Bienvenido, <span className="bg-linear-to-r from-primary to-orange-500 bg-clip-text text-transparent">{user?.user_metadata?.full_name?.split(' ')[0] || "Dueño"}</span>
+            </h2>
+            <p className="text-slate-500 text-lg font-medium">
+              Aquí tienes un resumen de tus negocios y fidelización.
+            </p>
+          </div>
+          <CreateBusinessButton />
         </div>
-        <CreateBusinessButton />
+        
+        <div className="w-full lg:w-auto shrink-0">
+          <PlanUsageCard 
+            planName={primaryBusiness?.plans?.name || "Básico"}
+            usage={primaryBusiness?.scans_this_month || 0}
+            limit={primaryBusiness?.plans?.max_scans_monthly || 50}
+            branchesUsage={businesses?.length || 0}
+            branchesLimit={primaryBusiness?.plans?.max_branches || 1}
+            daysUntilReset={daysUntilReset}
+          />
+        </div>
       </div>
 
       {/* Stats Section */}

@@ -48,16 +48,33 @@ export async function addScanToCustomer(businessId: string, customerUserId: stri
     return { error: "No autorizado." };
   }
 
-  // 1. Verificar que el usuario que ejecuta esto es el DUEÑO del negocio
+  // 1. Verificar que el usuario que ejecuta esto es el DUEÑO del negocio y ver sus límites
   const { data: business } = await supabase
     .from("businesses")
-    .select("id, name")
+    .select(`
+      id, 
+      name, 
+      scans_this_month,
+      plans (
+        max_scans_monthly
+      )
+    `)
     .eq("id", businessId)
     .eq("owner_id", user.id)
     .single();
 
   if (!business) {
     return { error: "No tienes permiso para escanear en este negocio." };
+  }
+
+  // 2. Verificar si el negocio ha alcanzado su límite mensual
+  const planLimits = business.plans as unknown as { max_scans_monthly: number };
+  if (planLimits && planLimits.max_scans_monthly !== -1) {
+    if ((business.scans_this_month || 0) >= planLimits.max_scans_monthly) {
+      return { 
+        error: `Has alcanzado el límite mensual de ${planLimits.max_scans_monthly} escaneos de tu plan Básico. Sube a Pro para seguir recibiendo clientes.` 
+      };
+    }
   }
 
   // 2. Incrementar la visita del cliente EN reward_progress
@@ -103,6 +120,17 @@ export async function addScanToCustomer(businessId: string, customerUserId: stri
       });
       
     if (insertError) return { error: "Error al registrar la primera visita: " + insertError.message };
+  }
+
+  // 3. Incrementar el contador mensual del NEGOCIO
+  const { error: businessUpdateError } = await supabase
+    .from("businesses")
+    .update({ scans_this_month: (business.scans_this_month || 0) + 1 })
+    .eq("id", businessId);
+
+  if (businessUpdateError) {
+    // No bloqueamos el proceso si esto falla, pero lo logueamos
+    console.error("Error updating business scan counter:", businessUpdateError);
   }
 
   // Purge cached pages so both the owner dashboard AND the client wallet refresh
