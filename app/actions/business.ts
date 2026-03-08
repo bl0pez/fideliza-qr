@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";
+import { DEFAULT_PLAN_ID, BUSINESS_INITIAL_REWARDS, ROUTES, PLAN_DEFAULTS } from "@/lib/constants";
 
 export async function createBusiness(data: {
   name: string;
@@ -47,7 +48,7 @@ export async function createBusiness(data: {
   const businessCount = existingBusinesses?.length || 0;
   
   // Si ya tiene negocios, buscamos el plan con el mayor límite de sucursales
-  let maxBranchesAllowed = 1; // Por defecto Básico
+  let maxBranchesAllowed: number = PLAN_DEFAULTS[DEFAULT_PLAN_ID].maxBranches; // Por defecto Básico
   if (existingBusinesses && existingBusinesses.length > 0) {
     maxBranchesAllowed = Math.max(...existingBusinesses.map(b => (b.plans as unknown as { max_branches: number })?.max_branches || 1));
   }
@@ -87,10 +88,10 @@ export async function createBusiness(data: {
     tiktok_url: data.tiktok_url || null,
     whatsapp_url: data.whatsapp_url || null,
     instagram_url: data.instagram_url || null,
-    rewards_available: 0, // Inicia siempre en 0
+    rewards_available: BUSINESS_INITIAL_REWARDS,
     owner_id: user.id, // Obtenido directo desde la cookie de sesión por seguridad
     slug: uniqueSlug, // Guardamos el slug único
-    plan_id: 'basic', // Por defecto inicia en básico al crear desde el panel
+    plan_id: DEFAULT_PLAN_ID,
   });
 
   if (error) {
@@ -98,7 +99,7 @@ export async function createBusiness(data: {
   }
 
   // Purgar la caché de la página del dashboard para que muestre el nuevo dato inmediatamente
-  revalidatePath("/dashboard");
+  revalidatePath(ROUTES.dashboard);
 
   return { success: true };
 }

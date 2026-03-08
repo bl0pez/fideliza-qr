@@ -2,6 +2,8 @@ import { createClient } from "@/utils/supabase/server";
 import { Store, Ticket, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PLAN_DEFAULTS, PLAN_IDS } from "@/lib/constants";
+
 
 import { CreateBusinessButton } from "@/components/dashboard/create-business-button";
 import { BusinessDashboardCard } from "@/components/dashboard/business-dashboard-card";
@@ -73,9 +75,9 @@ export default async function DashboardPage() {
           <PlanUsageCard 
             planName={primaryBusiness?.plans?.name || "Básico"}
             usage={primaryBusiness?.scans_this_month || 0}
-            limit={primaryBusiness?.plans?.max_scans_monthly || 50}
+            limit={primaryBusiness?.plans?.max_scans_monthly || PLAN_DEFAULTS[PLAN_IDS.basic].maxScansMonthly}
             branchesUsage={businesses?.length || 0}
-            branchesLimit={primaryBusiness?.plans?.max_branches || 1}
+            branchesLimit={primaryBusiness?.plans?.max_branches || PLAN_DEFAULTS[PLAN_IDS.basic].maxBranches}
             daysUntilReset={daysUntilReset}
           />
         </div>
