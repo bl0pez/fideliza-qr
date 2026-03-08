@@ -17,8 +17,8 @@ export const metadata = {
   title: `Gestión de Negocio | ${APP_NAME}`,
 };
 
-export default async function BusinessDashboardPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id: businessId } = await params;
+export default async function BusinessDashboardPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -27,17 +27,19 @@ export default async function BusinessDashboardPage({ params }: { params: Promis
     notFound();
   }
 
-  // 1. Obtener detalles del negocio
+  // 1. Obtener detalles del negocio por slug
   const { data: business } = await supabase
     .from("businesses")
     .select("*")
-    .eq("id", businessId)
+    .eq("slug", slug)
     .eq("owner_id", user.id)
     .single();
 
   if (!business) {
     notFound();
   }
+
+  const businessId = business.id;
 
   // 2. Obtener las recompensas creadas para este negocio
   const rewards = await getBusinessRewards(businessId);
@@ -62,7 +64,7 @@ export default async function BusinessDashboardPage({ params }: { params: Promis
             className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
             nativeButton={false}
             render={
-              <Link href={`/dashboard/businesses/${businessId}/scanner`}>
+              <Link href={`/dashboard/businesses/${slug}/scanner`}>
                 <ScanLine className="mr-2 h-4 w-4" /> Abrir Escáner
               </Link>
             }

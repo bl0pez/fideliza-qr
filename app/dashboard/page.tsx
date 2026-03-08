@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { CreateBusinessButton } from "@/components/dashboard/create-business-button";
 import { BusinessDashboardCard } from "@/components/dashboard/business-dashboard-card";
+import { getDashboardStats } from "@/app/actions/dashboard";
 
 interface Business {
   id: string;
@@ -25,6 +26,8 @@ export default async function DashboardPage() {
     .select('*')
     .eq('owner_id', user?.id || '')
     .order('created_at', { ascending: false });
+
+  const { totalCustomers, totalRewardsDelivered } = await getDashboardStats();
 
   return (
     <div className="space-y-8 pb-10">
@@ -65,7 +68,7 @@ export default async function DashboardPage() {
             <Ticket className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold tabular-nums">0</div>
+            <div className="text-3xl font-bold tabular-nums">{totalRewardsDelivered}</div>
             <p className="text-xs text-muted-foreground mt-1">
               A clientes recurrentes
             </p>
@@ -80,7 +83,7 @@ export default async function DashboardPage() {
             <Users className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold tabular-nums">0</div>
+            <div className="text-3xl font-bold tabular-nums">{totalCustomers}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Escaneos únicos
             </p>

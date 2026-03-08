@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 import "./globals.css";
+import { plusJakartaSans } from "@/app/config/fonts";
 
-const inter = Inter({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
+
 
 export const metadata: Metadata = {
   title: APP_NAME,
@@ -21,9 +18,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} antialiased`}>
+      <body className={`${plusJakartaSans.variable} antialiased`}>
         {children}
-        <Toaster />
+        <Toaster position="top-right" richColors/>
       </body>
     </html>
   );

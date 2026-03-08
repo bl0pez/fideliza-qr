@@ -73,7 +73,7 @@ export function BusinessDashboardCard({ business }: BusinessDashboardCardProps) 
       </CardContent>
 
       <CardFooter>
-        <Link href={`/dashboard/businesses/${business.id}`} className="w-full">
+        <Link href={`/dashboard/businesses/${business.slug}`} className="w-full">
           <Button className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-md shadow-primary/20 transition-all active:scale-[0.98] group/btn">
             <LayoutDashboard className="h-4 w-4 transition-transform group-hover/btn:scale-110 mr-2" />
             Gestionar Fidelización

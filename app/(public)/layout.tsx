@@ -10,7 +10,9 @@ export default function PublicLayout({
   return (
     <div>
       <Navbar />
-      {children}
+      <main className="container mx-auto">
+        {children}
+      </main>
       <Footer />
       <BottomNav />
     </div>

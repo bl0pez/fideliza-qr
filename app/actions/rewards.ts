@@ -111,32 +111,33 @@ export async function redeemReward(businessId: string, customerUserId: string, r
     return { error: "La recompensa no existe o no pertenece a este negocio." };
   }
 
-  // 3. Verify the customer has enough scans
-  const { data: subscription } = await supabase
-    .from("business_customers")
+  // 3. Verify the customer has enough scans from the specific reward progress table
+  const { data: progress } = await supabase
+    .from("reward_progress")
     .select("id, scans_count")
     .eq("business_id", businessId)
     .eq("user_id", customerUserId)
-    .single();
+    .eq("reward_id", rewardId)
+    .maybeSingle();
 
-  if (!subscription) {
-    return { error: "El cliente no está suscrito a tu negocio." };
+  if (!progress) {
+    return { error: "El cliente no tiene visitas registradas para esta recompensa." };
   }
 
-  if (subscription.scans_count < reward.scans_required) {
-    return { error: `El cliente no tiene suficientes visitas. Necesita ${reward.scans_required} pero tiene ${subscription.scans_count}.` };
+  if (progress.scans_count < reward.scans_required) {
+    return { error: `El cliente no tiene suficientes visitas. Necesita ${reward.scans_required} pero tiene ${progress.scans_count}.` };
   }
 
   // 4. Perform the deduction and save the redemption record
   // Note: We use the supabase client to update the count and create the log.
   // In a high-concurrency app we'd use a postgres function (RPC) to prevent race conditions,
   // but this is safe enough for point-of-sale scanning where double-scans are rare.
-  const newScansCount = subscription.scans_count - reward.scans_required;
+  const newScansCount = progress.scans_count - reward.scans_required;
 
   const { error: updateError } = await supabase
-    .from("business_customers")
+    .from("reward_progress")
     .update({ scans_count: newScansCount })
-    .eq("id", subscription.id);
+    .eq("id", progress.id);
 
   if (updateError) {
     return { error: "Error al descontar las visitas: " + updateError.message };

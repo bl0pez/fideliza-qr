@@ -5,7 +5,7 @@ import { APP_NAME } from "@/lib/constants";
 export function Footer() {
   return (
     <footer className="bg-secondary px-6 py-12 border-t border-border mb-16">
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-8 container mx-auto">
         <div>
           <div className="flex items-center gap-2 mb-4">
             <Ticket className="text-primary w-6 h-6" />

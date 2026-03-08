@@ -13,9 +13,9 @@ export const metadata = {
 export default async function ScannerPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { id: businessId } = await params;
+  const { slug } = await params;
 
   const supabase = await createClient();
   const {
@@ -23,14 +23,14 @@ export default async function ScannerPage({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect(`/login?redirect=/dashboard/businesses/${businessId}/scanner`);
+    redirect(`/login?redirect=/dashboard/businesses/${slug}/scanner`);
   }
 
-  // Verify ownership
+  // Verify ownership by slug
   const { data: business } = await supabase
     .from("businesses")
     .select("id, name")
-    .eq("id", businessId)
+    .eq("slug", slug)
     .eq("owner_id", user.id)
     .single();
 
@@ -68,7 +68,7 @@ export default async function ScannerPage({
             className="text-muted-foreground hover:text-foreground"
             nativeButton={false}
             render={
-              <Link href={`/dashboard/businesses/${businessId}`}>
+              <Link href={`/dashboard/businesses/${slug}`}>
                 <ArrowLeft className="mr-2 h-4 w-4" /> Volver al panel
               </Link>
             }

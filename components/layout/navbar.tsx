@@ -19,8 +19,9 @@ export async function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 flex items-center justify-between px-4 py-3 bg-background/80 backdrop-blur-md border-b border-border">
-      <div className="flex items-center gap-2">
+    <nav className="sticky top-0 z-50 px-4 py-3 bg-background/80 backdrop-blur-md border-b border-border">
+      <div className="container mx-auto flex items-center justify-between">
+        <div className="flex items-center gap-2">
         <Ticket className="text-primary w-8 h-8" />
         <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">{APP_NAME}</span>
       </div>
@@ -47,6 +48,7 @@ export async function Navbar() {
             <LogIn className="w-5 h-5" />
           </Link>
         )}
+      </div>
       </div>
     </nav>
   );
