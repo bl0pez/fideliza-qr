@@ -1,56 +1,233 @@
-# Paleta de colores (usar exactamente estos valores)
+# Paleta de colores
 
-- **Nordic — #19322F** (Color principal oscuro)
-- **Mosque — #006655** (Color primario de acción)
-- **Hint of Green — #D9ECC8** (Fondo suave / tarjetas destacadas)
-- **Clear Day — #EEF6F6** (Fondo general de la app)
+La aplicación utiliza un sistema de colores basado en **OKLCH** compatible con **shadcn/ui**.
 
-## Uso dentro del proyecto SaaS de tarjetas de fidelización
+Todos los estilos deben utilizar **las variables CSS del tema**, no colores hardcodeados.
 
-- **Fondo principal de la aplicación y landing:** Clear Day
-- **Botones principales** como _Crear tarjeta_, _Crear cuenta_, _Agregar sello_: Mosque
-- **Headers / navegación / sidebar del dashboard:** Nordic
-- **Tarjetas destacadas** como features, pasos y promociones: Hint of Green
-- **Texto principal** de todo el sitio y dashboard: Nordic
+## Tokens de color principales
 
-Esta paleta debe transmitir:
+```
+--background
+--foreground
+--card
+--card-foreground
+--primary
+--primary-foreground
+--secondary
+--secondary-foreground
+--muted
+--muted-foreground
+--accent
+--accent-foreground
+--destructive
+--border
+--input
+--ring
+```
 
-- tecnología
-- confianza
-- simplicidad para negocios locales
-- estética moderna tipo SaaS
+El sistema incluye soporte automático para **modo claro y modo oscuro**.
+
+---
+
+# Uso de colores dentro del producto
+
+## Fondo principal
+
+Usar:
+
+```
+bg-background
+```
+
+Este color se utiliza para:
+
+- fondo general de la aplicación
+- páginas principales
+- contenedores principales
+
+---
+
+## Texto principal
+
+Usar:
+
+```
+text-foreground
+```
+
+Para:
+
+- títulos
+- párrafos
+- labels
+- navegación
+
+---
+
+## Botones principales
+
+Usar:
+
+```
+bg-primary
+text-primary-foreground
+```
+
+Ejemplos de acciones:
+
+- Crear cuenta
+- Suscribirse a negocio
+- Crear programa de fidelización
+- Agregar sello
+- Guardar cambios
+
+---
+
+## Tarjetas
+
+Las tarjetas deben usar:
+
+```
+bg-card
+text-card-foreground
+border-border
+```
+
+Ejemplos:
+
+- tarjetas de negocio
+- tarjetas de recompensas
+- tarjetas de estadísticas
+- tarjetas de promociones
+
+---
+
+## Elementos secundarios
+
+Usar:
+
+```
+bg-secondary
+text-secondary-foreground
+```
+
+Para:
+
+- botones secundarios
+- contenedores informativos
+- badges suaves
+
+---
+
+## Elementos suaves o deshabilitados
+
+Usar:
+
+```
+bg-muted
+text-muted-foreground
+```
+
+Para:
+
+- textos secundarios
+- estados vacíos
+- información adicional
+
+---
+
+# Estilo visual del producto
+
+El diseño debe transmitir:
+
+- producto SaaS moderno
+- simplicidad
+- claridad visual
+- experiencia mobile-first
+- estética minimalista
+
+Inspiración visual similar a:
+
+- Stripe
+- Linear
+- Vercel
+- Notion
 
 ---
 
 # Tipografía
 
-Uso obligatorio de **SF Pro Display**.
+Uso obligatorio de:
 
-## Reglas de uso
+**SF Pro Display**
 
-- **Títulos principales:** SF Pro Display Bold
-- **Subtítulos:** SF Pro Display Semibold
-- **Texto normal:** SF Pro Display Regular
-- **Botones y navegación:** SF Pro Display Medium
+Jerarquía:
 
-Objetivo: lograr una **jerarquía visual clara y moderna**, similar a productos SaaS como Stripe o Linear.
+## Títulos principales
+
+```
+SF Pro Display Bold
+```
+
+Usado en:
+
+- Hero
+- títulos de página
+- títulos de sección
 
 ---
 
-# Prioridades
+## Subtítulos
 
-- Trabaja pensando en **reutilizar componentes y estilos** para todo el proyecto.
+```
+SF Pro Display Semibold
+```
 
-- Crea **componentes reutilizables** para cualquier elemento que se repita como:
-  - tarjetas de funcionalidades
-  - tarjetas de precios
-  - tarjetas de promociones
-  - botones
-  - secciones de pasos
+Usado en:
 
-- Mantén **consistencia visual entre la landing page y el dashboard**.
+- encabezados de tarjetas
+- títulos de componentes
 
-- **No hagas configuraciones ni instalaciones de librerías sin consultar primero.**
+---
+
+## Texto normal
+
+```
+SF Pro Display Regular
+```
+
+Usado en:
+
+- descripciones
+- contenido general
+
+---
+
+## Botones y navegación
+
+```
+SF Pro Display Medium
+```
+
+---
+
+# Prioridades de desarrollo
+
+- Trabajar siempre pensando en **reutilizar componentes**.
+- Mantener consistencia visual entre **landing, dashboard y páginas internas**.
+- Usar siempre **tokens del theme** en lugar de colores directos.
+
+Ejemplo correcto:
+
+```
+className="bg-primary text-primary-foreground"
+```
+
+Ejemplo incorrecto:
+
+```
+className="bg-purple-600"
+```
 
 ---
 
@@ -58,17 +235,27 @@ Objetivo: lograr una **jerarquía visual clara y moderna**, similar a productos 
 
 Para mantener el proyecto limpio y escalable:
 
-- **Carpetas, archivos, funciones y variables deben estar nombrados en inglés.**
-- Usar **camelCase** para variables y funciones.
-- Usar **PascalCase** para componentes.
-- Usar **kebab-case** para rutas cuando sea necesario.
+- Carpetas en **kebab-case**
+- Variables y funciones en **camelCase**
+- Componentes en **PascalCase**
+
+---
 
 ## Ejemplos
 
-```ts
-const customerList = [];
+Variables:
 
-function createLoyaltyCard() {}
+```ts
+const businessList = [];
+const featuredBusinesses = [];
+```
+
+Funciones:
+
+```ts
+function createLoyaltyProgram() {}
+
+function subscribeToBusiness() {}
 
 function addStampToCustomer() {}
 ```
@@ -76,8 +263,8 @@ function addStampToCustomer() {}
 Componentes:
 
 ```tsx
-LoyaltyCard.tsx;
-PricingCard.tsx;
+BusinessCard.tsx;
+RewardCard.tsx;
 FeatureCard.tsx;
 PrimaryButton.tsx;
 Navbar.tsx;
@@ -88,7 +275,7 @@ Sidebar.tsx;
 
 # Estructura de carpetas recomendada
 
-Las carpetas deben organizarse **por páginas o dominios del producto**.
+Organizar el proyecto **por dominios del producto**.
 
 ```
 src/
@@ -97,8 +284,9 @@ src/
       page.tsx
       components/
         HeroSection.tsx
-        FeaturesSection.tsx
-        PricingSection.tsx
+        BusinessSearch.tsx
+        FeaturedBusinesses.tsx
+        HowItWorks.tsx
         FooterSection.tsx
 
     dashboard/
@@ -107,11 +295,17 @@ src/
         StatsCard.tsx
         ActivityChart.tsx
 
-    loyalty-cards/
+    businesses/
       page.tsx
       components/
-        LoyaltyCardItem.tsx
-        CreateLoyaltyCardForm.tsx
+        BusinessCard.tsx
+        BusinessProfile.tsx
+
+    rewards/
+      page.tsx
+      components/
+        RewardCard.tsx
+        LoyaltyStampCard.tsx
 
     customers/
       page.tsx
@@ -119,18 +313,14 @@ src/
         CustomerTable.tsx
         CustomerRow.tsx
 
-    analytics/
-      page.tsx
-      components/
-        AnalyticsChart.tsx
-        AnalyticsSummary.tsx
-
   components/
     ui/
       Button.tsx
       Card.tsx
       Input.tsx
+      Badge.tsx
       Modal.tsx
+      Tabs.tsx
 
   styles/
     globals.css
@@ -140,8 +330,6 @@ src/
 
 # Componentes reutilizables clave
 
-Se deben crear componentes reutilizables para mantener consistencia en todo el sistema.
-
 ## Botones
 
 ```
@@ -150,14 +338,19 @@ SecondaryButton
 IconButton
 ```
 
+---
+
 ## Tarjetas
 
 ```
-FeatureCard
-PricingCard
-LoyaltyCard
+BusinessCard
+RewardCard
+LoyaltyStampCard
 StatsCard
+FeatureCard
 ```
+
+---
 
 ## Elementos de interfaz
 
@@ -166,27 +359,52 @@ Navbar
 Sidebar
 Footer
 SectionContainer
+SearchBar
 ```
 
-Estos componentes deben ser **reutilizables entre la landing page y el dashboard**.
+Estos componentes deben ser reutilizables en:
+
+- landing
+- dashboard
+- páginas de negocio
+- páginas de recompensas
 
 ---
 
 # Contexto del producto
 
-El diseño debe estar pensado para un **SaaS de fidelización para negocios locales**, donde los negocios puedan:
+El sistema es un **SaaS de fidelización para negocios locales**.
 
+Los negocios podrán:
+
+- crear **programas de fidelización**
 - crear **tarjetas de sellos digitales**
-- registrar **clientes**
-- escanear **códigos QR para agregar sellos**
-- ver **estadísticas de fidelización**
-- gestionar **recompensas para sus clientes**
+- crear **cupones y promociones**
+- gestionar **clientes suscritos**
+- escanear **QR de clientes**
+- ver **estadísticas del programa**
 
-## Tipos de negocios que usarán el sistema
+---
+
+# Experiencia del cliente
+
+Los clientes podrán:
+
+- buscar negocios
+- suscribirse a negocios
+- ver recompensas disponibles
+- acumular sellos
+- canjear recompensas
+
+---
+
+# Tipos de negocios objetivo
+
+La plataforma está pensada para:
 
 - cafeterías
 - barberías
 - restaurantes
-- lavados de autos
 - panaderías
+- lavados de autos
 - tiendas locales

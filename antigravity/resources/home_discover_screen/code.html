@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        border: "oklch(0.922 0 0)",
+                        input: "oklch(0.922 0 0)",
+                        ring: "oklch(0.541 0.281 293.009)",
+                        background: "oklch(1 0 0)",
+                        foreground: "oklch(0.141 0.005 285.823)",
+                        primary: {
+                            DEFAULT: "oklch(0.541 0.281 293.009)",
+                            foreground: "oklch(0.985 0 0)",
+                        },
+                        secondary: {
+                            DEFAULT: "oklch(0.967 0.001 286.375)",
+                            foreground: "oklch(0.141 0.005 285.823)",
+                        },
+                        destructive: {
+                            DEFAULT: "oklch(0.577 0.245 27.325)",
+                            foreground: "oklch(0.985 0 0)",
+                        },
+                        muted: {
+                            DEFAULT: "oklch(0.967 0.001 286.375)",
+                            foreground: "oklch(0.556 0.001 286.375)",
+                        },
+                        accent: {
+                            DEFAULT: "oklch(0.967 0.001 286.375)",
+                            foreground: "oklch(0.141 0.005 285.823)",
+                        },
+                        popover: {
+                            DEFAULT: "oklch(1 0 0)",
+                            foreground: "oklch(0.141 0.005 285.823)",
+                        },
+                        card: {
+                            DEFAULT: "oklch(1 0 0)",
+                            foreground: "oklch(0.141 0.005 285.823)",
+                        },
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-foreground antialiased pb-20 font-display">
+<!-- Navbar -->
+<nav class="sticky top-0 z-50 flex items-center justify-between px-4 py-3 bg-background/80 backdrop-blur-md border-b border-border">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-3xl">loyalty</span>
+<span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">FideliLocal</span>
+</div>
+</nav>
+<!-- Hero Section -->
+<header class="px-4 pt-8 pb-6 bg-gradient-to-b from-primary/10 to-transparent">
+<h1 class="text-4xl font-extrabold tracking-tight leading-tight mb-4">
+            Descubre recompensas en tus <span class="text-primary">negocios favoritos</span>
+</h1>
+<p class="text-muted-foreground text-lg mb-8 leading-relaxed">
+            Suscríbete a negocios locales y acumula recompensas con tarjetas de sellos digitales y cupones.
+        </p>
+<!-- Search Bar -->
+<div class="relative mb-6">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full pl-12 pr-4 py-4 rounded-xl border border-border bg-card shadow-sm focus:ring-2 focus:ring-primary text-base" placeholder="Buscar cafeterías, barberías, restaurantes..." type="text"/>
+</div>
+<!-- Quick Categories -->
+<div class="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
+<button class="flex-none px-4 py-2 rounded-full bg-secondary text-secondary-foreground border border-border text-sm font-medium hover:border-primary transition-colors">Cafeterías</button>
+<button class="flex-none px-4 py-2 rounded-full bg-secondary text-secondary-foreground border border-border text-sm font-medium hover:border-primary transition-colors">Barberías</button>
+<button class="flex-none px-4 py-2 rounded-full bg-secondary text-secondary-foreground border border-border text-sm font-medium hover:border-primary transition-colors">Restaurantes</button>
+<button class="flex-none px-4 py-2 rounded-full bg-secondary text-secondary-foreground border border-border text-sm font-medium hover:border-primary transition-colors">Panaderías</button>
+</div>
+</header>
+<!-- Featured Businesses -->
+<section class="py-8">
+<div class="px-4 flex justify-between items-end mb-6">
+<h2 class="text-2xl font-bold">Negocios destacados</h2>
+<a class="text-primary text-sm font-semibold" href="#">Ver todos</a>
+</div>
+<div class="flex gap-4 overflow-x-auto hide-scrollbar px-4">
+<!-- Business Card 1 -->
+<div class="flex-none w-72 bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+<div class="h-40 bg-slate-200 relative">
+<img alt="Café local acogedor" class="w-full h-full object-cover" data-alt="Interior de una cafetería moderna y acogedora" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7PNP8fhtvfez41Q7b24iUa1Hxi0futyGFDfuCynE0_6j4XBtHQ1Dk_WOprK-3uy2DCcpiFv-70FmR7Gocdw4JiKVvXG-REIlWGlJ_MbaD3_lvxBqgx33UviftQZqXqK6XCRfrTtuTI--C2Da2nYexPaADP98jxb-A72sPNJz6iayK7ZnTBDk6Umh2eOPdCTRDK5VCqMJOwBWAKJS4QDsU8szL7sF2-Zt4zc0xiSpcjsr9KfMf-NSSW19sGtvqvWWW0WKMQVlFPw"/>
+<span class="absolute top-3 left-3 bg-primary text-primary-foreground px-2 py-1 rounded-lg text-xs font-bold">Cafetería</span>
+</div>
+<div class="p-4">
+<h3 class="font-bold text-lg mb-1">Central Coffee</h3>
+<p class="text-sm text-slate-600 dark:text-slate-400 mb-4">5 recompensas disponibles</p>
+<button class="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold hover:opacity-90 transition-colors">Ver recompensas</button>
+</div>
+</div>
+<!-- Business Card 2 -->
+<div class="flex-none w-72 bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+<div class="h-40 bg-slate-200 relative">
+<img alt="Barbería clásica" class="w-full h-full object-cover" data-alt="Barbería clásica con sillas de cuero vintage" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAy4gzHEHxfqNxeImq9xGznAnOBtTfw1srCmJNhytpb_XkCaZ93TUyTE_mWKNYRFLIuDUpR4BnbmCWRw-jWkOky_kPnimLrai1BE60jEbM3xhb_fJaMMuCWbpavuuiwH-pUG1IA60KVRJEww0eWPx_i1mz1jXmQ5k5e2RGg7IYEj1Vnx1r80Evlxab6lQ5HzCp0BugQv0v1FtLhJZpdWRLVdLqkl7tv_TiJU83lqeL0nDcIPRS4_dev1OKjHFSTp50v7rbXY6gn4w"/>
+<span class="absolute top-3 left-3 bg-primary text-primary-foreground px-2 py-1 rounded-lg text-xs font-bold">Barbería</span>
+</div>
+<div class="p-4">
+<h3 class="font-bold text-lg mb-1">Urban Style Cuts</h3>
+<p class="text-sm text-slate-600 dark:text-slate-400 mb-4">3 recompensas disponibles</p>
+<button class="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold hover:opacity-90 transition-colors">Ver recompensas</button>
+</div>
+</div>
+</div>
+</section>
+<!-- How it Works -->
+<section class="py-12 px-4 bg-secondary/30">
+<h2 class="text-2xl font-bold mb-8 text-center">Cómo funciona</h2>
+<div class="space-y-6">
+<div class="flex items-start gap-4 p-4 rounded-xl border border-border bg-card">
+<div class="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 font-bold text-lg">1</div>
+<div>
+<h3 class="font-bold text-lg">Buscar negocio</h3>
+<p class="text-slate-600 dark:text-slate-400">Encuentra tus lugares locales favoritos en nuestro mapa o buscador.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 rounded-xl border border-border bg-card">
+<div class="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 font-bold text-lg">2</div>
+<div>
+<h3 class="font-bold text-lg">Suscribirte al negocio</h3>
+<p class="text-slate-600 dark:text-slate-400">Únete a su programa de fidelización con un solo toque desde tu móvil.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 rounded-xl border border-border bg-card">
+<div class="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 font-bold text-lg">3</div>
+<div>
+<h3 class="font-bold text-lg">Acumular recompensas</h3>
+<p class="text-slate-600 dark:text-slate-400">Escanea tu código en cada visita y canjea tus puntos por premios.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Reward Types -->
+<section class="py-12 px-4">
+<h2 class="text-2xl font-bold mb-8">Beneficios para ti</h2>
+<div class="grid grid-cols-1 gap-4">
+<div class="bg-primary text-primary-foreground p-6 rounded-2xl relative overflow-hidden">
+<span class="material-symbols-outlined absolute -right-4 -bottom-4 text-white/10 text-9xl">confirmation_number</span>
+<h3 class="text-xl font-bold mb-2">Cupones</h3>
+<p class="text-white/80">Descuentos exclusivos y ofertas relámpago en tus próximas compras.</p>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-primary/15 border border-primary/30 text-primary p-6 rounded-2xl flex flex-col justify-between">
+<span class="material-symbols-outlined text-3xl mb-4">stars</span>
+<h3 class="font-bold mb-2">Sellos</h3>
+<p class="text-xs text-primary/80 font-medium">Tarjeta digital: la 10ª es gratis.</p>
+</div>
+<div class="bg-slate-900 text-white p-6 rounded-2xl flex flex-col justify-between">
+<span class="material-symbols-outlined text-3xl mb-4">campaign</span>
+<h3 class="font-bold mb-2">Promos</h3>
+<p class="text-xs text-white/70">Eventos VIP y accesos anticipados.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Business CTA -->
+<section class="m-4 p-8 rounded-3xl bg-primary/10 border border-primary/20 text-center">
+<span class="material-symbols-outlined text-primary text-5xl mb-4">storefront</span>
+<h2 class="text-2xl font-bold text-foreground mb-4">¿Tienes un negocio?</h2>
+<p class="text-muted-foreground mb-8">Crea tu programa de fidelización en minutos y haz que tus clientes vuelvan una y otra vez.</p>
+<button class="w-full bg-primary text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+            Crear programa de fidelización
+        </button>
+</section>
+<!-- Footer -->
+<footer class="bg-secondary px-6 py-12 border-t border-border">
+<div class="flex flex-col gap-8">
+<div>
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary text-2xl">loyalty</span>
+<span class="text-lg font-bold">FideliLocal</span>
+</div>
+<p class="text-slate-500 text-sm">Empoderando a los negocios locales a través de la tecnología y la fidelización.</p>
+</div>
+<div class="grid grid-cols-2 gap-8">
+<div class="flex flex-col gap-4">
+<p class="font-bold text-sm uppercase tracking-widest text-slate-400">Plataforma</p>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary transition-colors" href="#">Explorar</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary transition-colors" href="#">Cómo funciona</a>
+</div>
+<div class="flex flex-col gap-4">
+<p class="font-bold text-sm uppercase tracking-widest text-slate-400">Compañía</p>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary transition-colors" href="#">Para negocios</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary transition-colors" href="#">Contacto</a>
+</div>
+</div>
+<div class="pt-8 border-t border-slate-200 dark:border-slate-800 text-center">
+<p class="text-slate-400 text-xs">© 2024 FideliLocal. Todos los derechos reservados.</p>
+</div>
+</div>
+</footer><nav class="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border px-6 py-3 flex justify-between items-center z-50 shadow-lg">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined font-variation-fill-1">home</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Inicio</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Explorar</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">credit_card</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Tarjetas</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Perfil</span>
+</a>
+</nav>
+</body></html>

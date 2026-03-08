@@ -6,7 +6,7 @@ La plataforma permitirá que los negocios creen y gestionen **programas de fidel
 
 El proyecto se desarrollará utilizando **NextJS (App Router)**, **TailwindCSS** y **shadcn/ui**.
 
-El proyecto **ya está creado y con Tailwind instalado**, pero actualmente **no tiene estilos ni funcionalidades implementadas**.
+El proyecto **ya está creado y con Tailwind, shadcn/ui instalado**, pero actualmente **no tiene estilos ni funcionalidades implementadas**.
 
 El objetivo es **implementar el diseño y las funcionalidades básicas de la plataforma**, construyendo una aplicación moderna, minimalista y escalable orientada a un **producto SaaS para fidelización de clientes en negocios locales**.
 
