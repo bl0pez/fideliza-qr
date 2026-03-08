@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Business } from "@/lib/data/mock";
+import { Business } from "@/lib/data/api";
 
 interface BusinessCardProps {
   business: Business;
@@ -10,7 +10,7 @@ export function BusinessCard({ business }: BusinessCardProps) {
     <div className="flex-none w-72 bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
       <div className="h-40 bg-slate-200 relative">
         <Image 
-          src={business.imageUrl} 
+          src={business.image_url} 
           alt={`Imagen de ${business.name}`} 
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -22,7 +22,7 @@ export function BusinessCard({ business }: BusinessCardProps) {
       </div>
       <div className="p-4">
         <h3 className="font-bold text-lg mb-1">{business.name}</h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{business.rewardsAvailable} recompensas disponibles</p>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{business.rewards_available} recompensas disponibles</p>
         <button className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold hover:opacity-90 transition-colors shadow">
           Ver recompensas
         </button>

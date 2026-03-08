@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Business } from "@/lib/data/mock";
+import { Business } from "@/lib/data/api";
 import { BusinessCard } from "@/components/ui/business-card";
 
 interface FeaturedBusinessesProps {

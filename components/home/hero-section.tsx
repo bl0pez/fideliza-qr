@@ -1,11 +1,8 @@
-import { Category } from "@/lib/data/mock";
 import { Search } from "lucide-react";
+import { Suspense } from "react";
+import { CategoriesList } from "./categories-list";
 
-interface HeroSectionProps {
-  categories: Category[];
-}
-
-export function HeroSection({ categories }: HeroSectionProps) {
+export function HeroSection() {
   return (
     <header className="px-4 pt-8 pb-6 bg-linear-to-b from-primary/10 to-transparent">
       <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight mb-4">
@@ -26,16 +23,15 @@ export function HeroSection({ categories }: HeroSectionProps) {
       </div>
 
       {/* Quick Categories */}
-      <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
-        {categories.map((category) => (
-          <button 
-            key={category.id} 
-            className="flex-none px-4 py-2 rounded-full bg-secondary text-secondary-foreground border border-border text-sm font-medium hover:border-primary transition-colors"
-          >
-            {category.name}
-          </button>
-        ))}
-      </div>
+      <Suspense fallback={
+        <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
+          {[1,2,3,4,5].map(i => (
+             <div key={i} className="flex-none w-24 h-10 rounded-full bg-slate-200 animate-pulse"></div>
+          ))}
+        </div>
+      }>
+        <CategoriesList />
+      </Suspense>
     </header>
   );
 }
