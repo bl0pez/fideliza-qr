@@ -32,6 +32,32 @@ export async function createBusiness(data: {
     return { error: "No tienes permisos para crear negocios." };
   }
 
+  // 1. Validar límite de sucursales según el plan actual
+  const { data: existingBusinesses } = await supabase
+    .from("businesses")
+    .select(`
+      id,
+      plan_id,
+      plans (
+        max_branches
+      )
+    `)
+    .eq("owner_id", user.id);
+
+  const businessCount = existingBusinesses?.length || 0;
+  
+  // Si ya tiene negocios, buscamos el plan con el mayor límite de sucursales
+  let maxBranchesAllowed = 1; // Por defecto Básico
+  if (existingBusinesses && existingBusinesses.length > 0) {
+    maxBranchesAllowed = Math.max(...existingBusinesses.map(b => (b.plans as unknown as { max_branches: number })?.max_branches || 1));
+  }
+
+  if (businessCount >= maxBranchesAllowed) {
+    return { 
+      error: `Has alcanzado el límite de ${maxBranchesAllowed} sucursal(es) de tu plan. Sube a Pro para tener más.` 
+    };
+  }
+
   // Generar un slug único basado en el nombre
   const baseSlug = slugify(data.name, { lower: true, strict: true });
   let uniqueSlug = baseSlug;
@@ -64,6 +90,7 @@ export async function createBusiness(data: {
     rewards_available: 0, // Inicia siempre en 0
     owner_id: user.id, // Obtenido directo desde la cookie de sesión por seguridad
     slug: uniqueSlug, // Guardamos el slug único
+    plan_id: 'basic', // Por defecto inicia en básico al crear desde el panel
   });
 
   if (error) {

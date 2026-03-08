@@ -15,11 +15,11 @@ export default async function RedeemScanPage({
 }: {
   searchParams: Promise<{ b?: string; u?: string; r?: string }>;
 }) {
-  const { b: businessId, u: customerId, r: rewardId } = await searchParams;
+  const { b: businessSlug, u: customerId, r: rewardId } = await searchParams;
 
-  if (!businessId || !customerId || !rewardId) {
+  if (!businessSlug || !customerId || !rewardId) {
     return (
-      <InvalidRedeemPage message="Faltan parámetros en el código QR. QR Invalido." />
+      <InvalidRedeemPage message="Faltan parámetros en el código QR. QR Inválido." />
     );
   }
 
@@ -27,22 +27,24 @@ export default async function RedeemScanPage({
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect(`/login?redirect=/scan/redeem?b=${businessId}&u=${customerId}&r=${rewardId}`);
+    redirect(`/login?redirect=/scan/redeem?b=${businessSlug}&u=${customerId}&r=${rewardId}`);
   }
 
-  // 1. Verify owner
+  // 1. Resolver el ID del negocio desde el slug y verificar si el usuario es dueño
   const { data: business } = await supabase
     .from("businesses")
-    .select("id, name")
-    .eq("id", businessId)
+    .select("id, slug, name")
+    .eq("slug", businessSlug)
     .eq("owner_id", user.id)
     .single();
 
   if (!business) {
     return (
-      <InvalidRedeemPage message="No tienes permisos para autorizar canjes en este negocio." />
+      <InvalidRedeemPage message="No tienes permisos para autorizar canjes en este negocio o el negocio no existe." />
     );
   }
+
+  const businessId = business.id;
 
   // 2. Fetch reward details
   const { data: reward } = await supabase
@@ -122,7 +124,7 @@ export default async function RedeemScanPage({
 
         <div className="text-center">
           <Button variant="ghost" className="text-muted-foreground hover:text-foreground" nativeButton={false} render={
-            <Link href={`/dashboard/businesses/${businessId}`}>
+            <Link href={`/dashboard/businesses/${business.slug}`}>
                <ArrowLeft className="mr-2 h-4 w-4" /> Cancelar y Volver
             </Link>
           } />

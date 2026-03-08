@@ -10,21 +10,21 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Gift, QrCode } from "lucide-react"
+import { Gift } from "lucide-react"
 
 interface RedeemQrModalProps {
-  businessId: string
+  businessSlug: string
   userId: string
   rewardId: string
   rewardTitle: string
   scansRequired: number
 }
 
-export function RedeemQrModal({ businessId, userId, rewardId, rewardTitle, scansRequired }: RedeemQrModalProps) {
+export function RedeemQrModal({ businessSlug, userId, rewardId, rewardTitle, scansRequired }: RedeemQrModalProps) {
   // Construct the secure scanning URL for the business owner
   // We use the full origin (e.g. https://fidelilocal.com) so the QR works reliably with native cameras
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  const scanUrl = `${baseUrl}/scan/redeem?b=${businessId}&u=${userId}&r=${rewardId}`
+  const scanUrl = `${baseUrl}/scan/redeem?b=${businessSlug}&u=${userId}&r=${rewardId}`
 
   return (
     <Dialog>

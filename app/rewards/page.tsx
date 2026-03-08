@@ -133,7 +133,7 @@ export default async function RewardsWalletPage() {
                                 ) : reached ? (
                                   <div className="mt-3 w-full animate-in fade-in slide-in-from-top-1">
                                     <RedeemQrModal 
-                                      businessId={sub.business_id} 
+                                      businessSlug={business.slug}
                                       userId={user.id} 
                                       rewardId={reward.id} 
                                       rewardTitle={reward.title} 
@@ -143,7 +143,7 @@ export default async function RewardsWalletPage() {
                                 ) : (
                                   <div className="mt-3 w-full">
                                     <CustomerQrModal 
-                                      businessId={sub.business_id} 
+                                      businessSlug={business.slug}
                                       userId={user.id} 
                                       rewardId={reward.id} 
                                       rewardTitle={reward.title} 

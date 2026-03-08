@@ -15,11 +15,11 @@ export default async function ScanPage({
 }: {
   searchParams: Promise<{ b?: string; u?: string; r?: string }>;
 }) {
-  const { b: businessId, u: customerId, r: rewardId } = await searchParams;
+  const { b: businessSlug, u: customerId, r: rewardId } = await searchParams;
 
-  if (!businessId || !customerId || !rewardId) {
+  if (!businessSlug || !customerId || !rewardId) {
     return (
-      <InvalidScanPage message="Faltan parámetros en el código QR. Forma correcta: ?b=...&u=...&r=..." />
+      <InvalidScanPage message="Faltan parámetros en el código QR. Forma correcta: ?b=SLUG&u=USER_ID&r=REWARD_ID" />
     );
   }
 
@@ -28,22 +28,24 @@ export default async function ScanPage({
 
   if (!user) {
     // Si no está logueado, redirigir al login y luego regresar aquí
-    redirect(`/login?redirect=/scan?b=${businessId}&u=${customerId}`);
+    redirect(`/login?redirect=/scan?b=${businessSlug}&u=${customerId}&r=${rewardId}`);
   }
 
-  // 1. Verificar si el usuario actual es dueño de este negocio
+  // 1. Resolver el ID del negocio desde el slug y verificar si el usuario es dueño
   const { data: business } = await supabase
     .from("businesses")
-    .select("id, name, rewards_available")
-    .eq("id", businessId)
+    .select("id, slug, name, rewards_available")
+    .eq("slug", businessSlug)
     .eq("owner_id", user.id)
     .single();
 
   if (!business) {
     return (
-      <InvalidScanPage message="No tienes permisos para registrar visitas en este negocio. Solo el propietario puede hacerlo." />
+      <InvalidScanPage message="No tienes permisos para registrar visitas en este negocio o el negocio no existe." />
     );
   }
+
+  const businessId = business.id;
 
   // 2. Verificar datos del cliente y su suscripción actual
   const { data: subscription } = await supabase
@@ -115,7 +117,7 @@ export default async function ScanPage({
 
         <div className="text-center">
           <Button variant="ghost" className="text-muted-foreground hover:text-foreground" nativeButton={false} render={
-            <Link href={`/dashboard/businesses/${businessId}`}>
+            <Link href={`/dashboard/businesses/${business.slug}`}>
                <ArrowLeft className="mr-2 h-4 w-4" /> Volver al panel del negocio
             </Link>
           } />

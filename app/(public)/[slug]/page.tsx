@@ -264,7 +264,7 @@ export default async function PublicBusinessPage({ params }: PublicBusinessPageP
                                 {reached && (
                                   <div className="relative z-10 w-full animate-in fade-in slide-in-from-top-2">
                                     <RedeemQrModal 
-                                      businessId={business.id} 
+                                      businessSlug={slug} 
                                       userId={user.id} 
                                       rewardId={reward.id} 
                                       rewardTitle={reward.title} 
@@ -285,7 +285,7 @@ export default async function PublicBusinessPage({ params }: PublicBusinessPageP
                     )}
                     
                     <div className="pt-2">
-                      <CustomerQrModal businessId={business.id} userId={user.id} />
+                      <CustomerQrModal businessSlug={slug} userId={user.id} />
                     </div>
                   </CardContent>
                 </Card>

@@ -19,6 +19,37 @@ export async function createReward(data: {
     return { error: "No autorizado" };
   }
 
+  // 1. Validar límites del plan
+  const { data: business } = await supabase
+    .from("businesses")
+    .select(`
+      id, 
+      slug,
+      plans (
+        max_card_types
+      )
+    `)
+    .eq("id", data.business_id)
+    .single();
+
+  if (!business) {
+    return { error: "Negocio no encontrado." };
+  }
+
+  const planLimits = business.plans as unknown as { max_card_types: number };
+  
+  // Contar recompensas actuales
+  const { count: currentRewardsCount } = await supabase
+    .from("rewards")
+    .select("*", { count: "exact", head: true })
+    .eq("business_id", data.business_id);
+
+  if (planLimits && (currentRewardsCount || 0) >= planLimits.max_card_types) {
+    return { 
+      error: `Has alcanzado el límite de ${planLimits.max_card_types} tipos de tarjetas de tu plan. Sube de plan para crear más.` 
+    };
+  }
+
   const { data: newReward, error } = await supabase
     .from("rewards")
     .insert([
@@ -40,7 +71,8 @@ export async function createReward(data: {
     return { error: "No se pudo crear la recompensa. " + error.message };
   }
 
-  revalidatePath(`/dashboard/businesses/${data.business_id}`);
+  revalidatePath(`/dashboard/businesses/${business.slug}`);
+  revalidatePath(`/${business.slug}`);
   
   return { success: true, reward: newReward };
 }
@@ -68,6 +100,12 @@ export async function deleteReward(rewardId: string, businessId: string) {
 
   if (!user) return { error: "No autorizado" };
 
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("slug")
+    .eq("id", businessId)
+    .single();
+
   const { error } = await supabase
     .from("rewards")
     .delete()
@@ -77,7 +115,10 @@ export async function deleteReward(rewardId: string, businessId: string) {
     return { error: "Error al eliminar: " + error.message };
   }
 
-  revalidatePath(`/dashboard/businesses/${businessId}`);
+  if (business) {
+    revalidatePath(`/dashboard/businesses/${business.slug}`);
+    revalidatePath(`/${business.slug}`);
+  }
   return { success: true };
 }
 
@@ -92,7 +133,7 @@ export async function redeemReward(businessId: string, customerUserId: string, r
   // 1. Verify the current user is the owner of the business
   const { data: business } = await supabase
     .from("businesses")
-    .select("id, name")
+    .select("id, slug, name")
     .eq("id", businessId)
     .eq("owner_id", user.id)
     .single();
@@ -178,7 +219,7 @@ export async function redeemReward(businessId: string, customerUserId: string, r
 
   // Purge cached pages so both the owner dashboard AND the client wallet refresh
   revalidatePath("/rewards");
-  revalidatePath(`/dashboard/businesses/${businessId}`);
+  revalidatePath(`/dashboard/businesses/${business.slug}`);
 
   return { success: true, rewardTitle: reward.title, remainingScans: newScansCount };
 }

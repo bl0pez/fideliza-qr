@@ -53,6 +53,7 @@ export async function addScanToCustomer(businessId: string, customerUserId: stri
     .from("businesses")
     .select(`
       id, 
+      slug,
       name, 
       scans_this_month,
       plans (
@@ -135,7 +136,8 @@ export async function addScanToCustomer(businessId: string, customerUserId: stri
 
   // Purge cached pages so both the owner dashboard AND the client wallet refresh
   revalidatePath("/rewards");
-  revalidatePath(`/dashboard/businesses/${businessId}`);
+  revalidatePath(`/dashboard/businesses/${business.slug}`);
+  revalidatePath(`/${business.slug}`);
 
   return { success: true, newCount, businessName: business.name };
 }

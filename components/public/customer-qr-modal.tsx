@@ -14,21 +14,21 @@ import {
 } from "@/components/ui/dialog";
 
 interface CustomerQrModalProps {
-  businessId: string;
+  businessSlug: string;
   userId: string;
   rewardId?: string;
   rewardTitle?: string;
 }
 
-export function CustomerQrModal({ businessId, userId, rewardId, rewardTitle }: CustomerQrModalProps) {
+export function CustomerQrModal({ businessSlug, userId, rewardId, rewardTitle }: CustomerQrModalProps) {
   // Control global de apertura del modal
   const [open, setOpen] = useState(false);
 
   // Construimos una URL de escaneo absoluta simulada (en producción debería usar process.env.NEXT_PUBLIC_SITE_URL o el host)
   // Como estamos en un client component, podemos usar window.location.origin
   const scanUrl = typeof window !== 'undefined' 
-    ? `${window.location.origin}/scan?b=${businessId}&u=${userId}${rewardId ? `&r=${rewardId}` : ''}`
-    : `https://fidelilocal.vercel.app/scan?b=${businessId}&u=${userId}${rewardId ? `&r=${rewardId}` : ''}`;
+    ? `${window.location.origin}/scan?b=${businessSlug}&u=${userId}${rewardId ? `&r=${rewardId}` : ''}`
+    : `https://fidelilocal.vercel.app/scan?b=${businessSlug}&u=${userId}${rewardId ? `&r=${rewardId}` : ''}`;
 
   useEffect(() => {
     const handleScanEvent = (e: CustomEvent<{ rewardId: string }>) => {
