@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { Business } from "@/lib/data/api";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle2, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 interface BusinessCardProps {
   business: Business;
@@ -9,28 +10,52 @@ interface BusinessCardProps {
 
 export function BusinessCard({ business }: BusinessCardProps) {
   return (
-    <Card className="pt-0">
-      <div className="h-40 bg-slate-200 relative">
+    <Link href={`/${business.id}`} className="group block">
+      <div className="relative overflow-hidden rounded-[2rem] bg-white transition-all duration-500 hover:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border-transparent">
+        {/* Image Container with Zoom Effect */}
+        <div className="relative h-56 md:h-64 overflow-hidden">
           <Image 
             src={business.image_url} 
             alt={`Imagen de ${business.name}`} 
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover"
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
           />
-          <span className="absolute top-3 left-3 bg-primary text-primary-foreground px-2 py-1 rounded-lg text-xs font-bold shadow-md">
-            {business.type}
-          </span>
+          <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+          
+          <div className="absolute top-4 left-4 flex gap-2">
+            <Badge className="bg-white/20 backdrop-blur-md border-white/20 text-white font-bold hover:bg-white/30">
+              {business.type}
+            </Badge>
+          </div>
+
+          <div className="absolute bottom-4 left-4 right-4">
+             <div className="flex items-center gap-1.5 text-white/90 text-xs font-bold uppercase tracking-wider">
+                <CheckCircle2 className="w-3.5 h-3.5 text-primary fill-primary/20" />
+                <span>Negocio Verificado</span>
+             </div>
+          </div>
         </div>
-      <CardContent>
-          <h3 className="font-bold text-lg mb-1">{business.name}</h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{business.rewards_available} recompensas disponibles</p>
-      </CardContent>
-      <CardFooter>
-        <Button size="lg" className="w-full">
-          Ver recompensas
-        </Button>
-      </CardFooter>
-    </Card>
+
+        {/* Content Area */}
+        <div className="p-6 space-y-4">
+          <div>
+            <h3 className="text-2xl font-black tracking-tight text-slate-900 group-hover:text-primary transition-colors duration-300 line-clamp-1">
+              {business.name}
+            </h3>
+            <p className="text-slate-500 font-medium text-sm mt-1">
+              {business.rewards_available} recompensas exclusivas
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between pt-2 border-t border-slate-50">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Ver beneficios</span>
+            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-300">
+              <ArrowRight className="w-5 h-5" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Link>
   );
 }

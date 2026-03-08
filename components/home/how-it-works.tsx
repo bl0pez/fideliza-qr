@@ -1,27 +1,46 @@
+import { Search, UserPlus, Gift } from "lucide-react";
+
 export function HowItWorks() {
   return (
-    <section className="py-12 px-4 bg-secondary/30">
-      <h2 className="text-xl md:text-2xl font-bold mb-8 text-center">Cómo funciona</h2>
-      <div className="space-y-6">
-        <div className="flex items-start gap-4 p-4 rounded-xl border border-border bg-card shadow-sm">
-          <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 font-bold text-lg">1</div>
-          <div>
-            <h3 className="font-bold text-lg">Buscar negocio</h3>
-            <p className="text-slate-600 dark:text-slate-400">Encuentra tus lugares locales favoritos en nuestro mapa o buscador.</p>
+    <section className="py-20 px-4 bg-slate-50/50">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-16 space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest">
+            <span>Guía rápida</span>
           </div>
+          <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 leading-none">Cómo funciona</h2>
+          <p className="text-slate-500 text-lg max-w-lg mx-auto">Conoce el proceso simple para empezar a ganar beneficios hoy mismo.</p>
         </div>
-        <div className="flex items-start gap-4 p-4 rounded-xl border border-border bg-card shadow-sm">
-          <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 font-bold text-lg">2</div>
-          <div>
-            <h3 className="font-bold text-lg">Suscribirte al negocio</h3>
-            <p className="text-slate-600 dark:text-slate-400">Únete a su programa de fidelización con un solo toque desde tu móvil.</p>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="group space-y-6 text-center md:text-left">
+            <div className="w-16 h-16 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center mx-auto md:mx-0 group-hover:bg-primary group-hover:text-white transition-all duration-500">
+              <Search className="w-8 h-8 text-primary group-hover:text-white transition-colors" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-black text-xl text-slate-900">1. Busca</h3>
+              <p className="text-slate-600 leading-relaxed">Encuentra tus lugares locales favoritos en nuestro mapa o buscador.</p>
+            </div>
           </div>
-        </div>
-        <div className="flex items-start gap-4 p-4 rounded-xl border border-border bg-card shadow-sm">
-          <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 font-bold text-lg">3</div>
-          <div>
-            <h3 className="font-bold text-lg">Acumular recompensas</h3>
-            <p className="text-slate-600 dark:text-slate-400">Escanea tu código en cada visita y canjea tus puntos por premios.</p>
+
+          <div className="group space-y-6 text-center md:text-left">
+            <div className="w-16 h-16 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center mx-auto md:mx-0 group-hover:bg-primary group-hover:text-white transition-all duration-500">
+              <UserPlus className="w-8 h-8 text-primary group-hover:text-white transition-colors" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-black text-xl text-slate-900">2. Únete</h3>
+              <p className="text-slate-600 leading-relaxed">Suscríbete al programa de fidelización con un solo toque desde tu móvil.</p>
+            </div>
+          </div>
+
+          <div className="group space-y-6 text-center md:text-left">
+            <div className="w-16 h-16 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center mx-auto md:mx-0 group-hover:bg-primary group-hover:text-white transition-all duration-500">
+              <Gift className="w-8 h-8 text-primary group-hover:text-white transition-colors" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-black text-xl text-slate-900">3. Gana</h3>
+              <p className="text-slate-600 leading-relaxed">Escanea tu código en cada visita y canjea tus puntos por premios reales.</p>
+            </div>
           </div>
         </div>
       </div>
