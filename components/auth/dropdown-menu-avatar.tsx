@@ -14,11 +14,14 @@ import {
   LogOutIcon,
   Settings,
   User,
+  LayoutDashboard
 } from "lucide-react"
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 interface DropdownMenuAvatarProps {
+  role: string;
   user: {
     email?: string;
     user_metadata?: {
@@ -28,7 +31,7 @@ interface DropdownMenuAvatarProps {
   }
 }
 
-export function DropdownMenuAvatar({ user }: DropdownMenuAvatarProps) {
+export function DropdownMenuAvatar({ user, role }: DropdownMenuAvatarProps) {
   const router = useRouter()
   const supabase = createClient()
 
@@ -63,6 +66,14 @@ export function DropdownMenuAvatar({ user }: DropdownMenuAvatarProps) {
         <DropdownMenuSeparator />
         
         <DropdownMenuGroup>
+          {role === 'business_owner' && (
+            <Link href="/dashboard">
+              <DropdownMenuItem className="cursor-pointer font-medium text-primary focus:text-primary focus:bg-primary/10">
+                <LayoutDashboard className="mr-2 h-4 w-4" />
+                <span>Panel de Negocio</span>
+              </DropdownMenuItem>
+            </Link>
+          )}
           <DropdownMenuItem className="cursor-pointer">
             <User className="mr-2 h-4 w-4" />
             <span>Perfil</span>
