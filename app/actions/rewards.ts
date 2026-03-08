@@ -158,5 +158,9 @@ export async function redeemReward(businessId: string, customerUserId: string, r
     console.error("Critical: Points deducted but redemption log failed", insertError);
   }
 
+  // Purge cached pages so both the owner dashboard AND the client wallet refresh
+  revalidatePath("/rewards");
+  revalidatePath(`/dashboard/businesses/${businessId}`);
+
   return { success: true, rewardTitle: reward.title, remainingScans: newScansCount };
 }

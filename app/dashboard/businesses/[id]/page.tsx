@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
-import { Ticket, CalendarIcon, CheckCircle2, QrCode } from "lucide-react";
+import Link from "next/link";
+import { Ticket, CalendarIcon, CheckCircle2, QrCode, ScanLine } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -56,6 +57,16 @@ export default async function BusinessDashboardPage({ params }: { params: Promis
           </p>
         </div>
         <div className="flex gap-3">
+          <Button
+            variant="default"
+            className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
+            nativeButton={false}
+            render={
+              <Link href={`/dashboard/businesses/${businessId}/scanner`}>
+                <ScanLine className="mr-2 h-4 w-4" /> Abrir Escáner
+              </Link>
+            }
+          />
           <Button variant="outline" className="border-primary/20 hover:bg-primary/10">
             <QrCode className="mr-2 h-4 w-4 text-primary" />
             Descargar QR

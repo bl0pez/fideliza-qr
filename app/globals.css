@@ -138,3 +138,18 @@
     scrollbar-width: none;
   }
 }
+
+/* QR Scanner scan-line animation */
+@keyframes scan-line {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(calc(100cqh - 2px));
+  }
+}
+
+.animate-scan-line {
+  animation: scan-line 2.5s ease-in-out infinite;
+}

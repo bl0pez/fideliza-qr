@@ -79,5 +79,9 @@ export async function addScanToCustomer(businessId: string, customerUserId: stri
     return { error: "Error al sumar la visita: " + updateError.message };
   }
 
+  // Purge cached pages so both the owner dashboard AND the client wallet refresh
+  revalidatePath("/rewards");
+  revalidatePath(`/dashboard/businesses/${businessId}`);
+
   return { success: true, newCount: customerData.scans_count + 1, businessName: business.name };
 }

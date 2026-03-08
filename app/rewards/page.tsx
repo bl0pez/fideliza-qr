@@ -7,6 +7,7 @@ import Link from "next/link";
 import { RedeemQrModal } from "@/components/public/redeem-qr-modal";
 import { CustomerQrModal } from "@/components/public/customer-qr-modal";
 import { Navbar } from "@/components/layout/navbar";
+import { RealtimeWalletListener } from "@/components/rewards/realtime-wallet-listener";
 
 export const metadata = {
   title: `Mis Tarjetas | ${APP_NAME}`,
@@ -36,6 +37,7 @@ export default async function RewardsWalletPage() {
   return (
     <div className="min-h-screen bg-zinc-50 flex flex-col">
       <Navbar />
+      <RealtimeWalletListener userId={user.id} />
 
       <main className="flex-1 max-w-2xl mx-auto w-full p-4 sm:p-6 lg:p-8 space-y-6">
         
