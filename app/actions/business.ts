@@ -103,3 +103,26 @@ export async function createBusiness(data: {
 
   return { success: true };
 }
+
+export async function getUserBusinesses() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  const { data: businesses } = await supabase
+    .from('businesses')
+    .select(`
+      *,
+      plans (
+        id,
+        name,
+        max_branches,
+        max_scans_monthly
+      )
+    `)
+    .eq('owner_id', user.id)
+    .order('created_at', { ascending: false });
+
+  return businesses;
+}

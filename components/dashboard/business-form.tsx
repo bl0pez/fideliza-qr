@@ -10,7 +10,7 @@ import { CldUploadWidget } from "next-cloudinary";
 
 import { Button } from "@/components/ui/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -71,16 +71,19 @@ export function BusinessForm({ categories }: { categories: { id: string; name: s
   const imageUrl = useWatch({ control, name: "image_url" });
 
   return (
-    <Card className="w-full max-w-2xl mx-auto shadow-sm border-muted">
-      <CardHeader>
-        <CardTitle className="text-2xl flex items-center gap-2">
-          <Store className="w-6 h-6 text-primary" />
+    <Card className="w-full max-w-2xl mx-auto shadow-2xl border border-white/20 bg-card/80 backdrop-blur-xl rounded-[2rem] overflow-hidden">
+      <div className="px-8 pt-8 pb-4 text-center space-y-4">
+        <div className="inline-flex items-center justify-center px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-2">
+          <Store className="w-4 h-4 text-primary mr-2" />
+          <span className="text-xs font-semibold uppercase tracking-wider text-primary">NUEVA SUCURSAL</span>
+        </div>
+        <h1 className="text-3xl md:text-4xl font-black tracking-tight text-foreground bg-clip-text">
           Registrar Negocio
-        </CardTitle>
-        <CardDescription>
-          Completa los datos de tu empresa para empezar a fidelizar clientes.
-        </CardDescription>
-      </CardHeader>
+        </h1>
+        <p className="text-muted-foreground text-lg max-w-md mx-auto">
+          Completa los datos de tu empresa para empezar a fidelizar clientes hoy mismo.
+        </p>
+      </div>
       
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <CardContent className="space-y-6">
@@ -108,7 +111,7 @@ export function BusinessForm({ categories }: { categories: { id: string; name: s
                     {({ open }) => (
                       <div 
                         onClick={() => open()}
-                        className="w-full h-48 border-2 border-dashed border-muted-foreground/25 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors relative overflow-hidden group"
+                        className="w-full h-48 border-2 border-dashed border-primary/30 bg-primary/5 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-primary/10 transition-all duration-300 relative overflow-hidden group"
                       >
                         {imageUrl ? (
                           <>
@@ -118,10 +121,10 @@ export function BusinessForm({ categories }: { categories: { id: string; name: s
                             </div>
                           </>
                         ) : (
-                          <div className="flex flex-col items-center text-muted-foreground">
-                            <ImagePlus className="w-10 h-10 mb-2 opacity-50" />
-                            <span>Haz clic para subir imagen</span>
-                            <span className="text-xs opacity-70 mt-1">Recomendado: 800x600px</span>
+                          <div className="flex flex-col items-center text-primary/70">
+                            <ImagePlus className="w-10 h-10 mb-3 opacity-80 group-hover:scale-110 transition-transform" />
+                            <span className="font-medium">Haz clic para subir logotipo</span>
+                            <span className="text-xs opacity-70 mt-1">Recomendado: 800x600px en formato cuadrado</span>
                           </div>
                         )}
                       </div>
@@ -231,16 +234,21 @@ export function BusinessForm({ categories }: { categories: { id: string; name: s
           )}
         </CardContent>
 
-        <CardFooter className="bg-muted/20 px-6 py-4 flex justify-end gap-3 rounded-b-xl border-t">
+        <CardFooter className="bg-muted/10 px-8 py-5 flex justify-end gap-3 rounded-b-[2rem] border-t">
           <Button 
             type="button" 
-            variant="outline" 
+            variant="ghost" 
             onClick={() => router.back()}
             disabled={isSubmitting}
+            className="hover:bg-destructive/10 hover:text-destructive transition-colors rounded-xl px-6"
           >
             Cancelar
           </Button>
-          <Button type="submit" disabled={isSubmitting} className="min-w-[120px]">
+          <Button 
+            type="submit" 
+            disabled={isSubmitting} 
+            className="min-w-[160px] rounded-xl bg-linear-to-r from-primary to-orange-500 hover:opacity-90 transition-all font-semibold shadow-md hover:shadow-primary/25 hover:-translate-y-0.5"
+          >
             {isSubmitting ? (
               "Guardando..."
             ) : (
