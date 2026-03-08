@@ -192,7 +192,7 @@ export function RewardForm({ businessId }: RewardFormProps) {
           <div className="space-y-1">
             <Label htmlFor="max_redemptions" className="text-foreground font-semibold">Límite de canjes por cliente</Label>
             <Select 
-              onValueChange={(val) => setValue("max_redemptions_per_user", val === "unlimited" ? null : parseInt(val))}
+              onValueChange={(val) => setValue("max_redemptions_per_user", val === "unlimited" ? null : parseInt(val as string))}
               defaultValue={"unlimited"}
             >
               <SelectTrigger className="w-full">

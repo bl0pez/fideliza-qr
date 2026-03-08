@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
 import { QrCode, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { AddScanForm } from "@/components/scan/add-scan-form";
 import { APP_NAME } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
+import { getScanContext } from "@/app/actions/scan";
 
 export const metadata = {
   title: `Escanear Cliente | ${APP_NAME}`,
@@ -23,62 +23,31 @@ export default async function ScanPage({
     );
   }
 
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const result = await getScanContext({ businessSlug, customerId, rewardId });
 
-  if (!user) {
-    // Si no está logueado, redirigir al login y luego regresar aquí
-    redirect(`/login?redirect=/scan?b=${businessSlug}&u=${customerId}&r=${rewardId}`);
+  if (!result.success) {
+    if (result.error === "AUTH_REQUIRED") {
+      redirect(`/login?redirect=/scan?b=${businessSlug}&u=${customerId}&r=${rewardId}`);
+    }
+    if (result.error === "BUSINESS_NOT_FOUND_OR_NOT_OWNER") {
+      return (
+        <InvalidScanPage message="No tienes permisos para registrar visitas en este negocio o el negocio no existe." />
+      );
+    }
+    if (result.error === "REWARD_NOT_FOUND") {
+      return <InvalidScanPage message="La recompensa no existe." />;
+    }
+    if (result.error === "CUSTOMER_NOT_SUBSCRIBED") {
+      return (
+        <InvalidScanPage message="Este código QR pertenece a un usuario que no está suscrito a tu negocio." />
+      );
+    }
+    return <InvalidScanPage message="Error desconocido al procesar el código QR." />;
   }
 
-  // 1. Resolver el ID del negocio desde el slug y verificar si el usuario es dueño
-  const { data: business } = await supabase
-    .from("businesses")
-    .select("id, slug, name, rewards_available")
-    .eq("slug", businessSlug)
-    .eq("owner_id", user.id)
-    .single();
-
-  if (!business) {
-    return (
-      <InvalidScanPage message="No tienes permisos para registrar visitas en este negocio o el negocio no existe." />
-    );
-  }
-
-  const businessId = business.id;
-
-  // 2. Verificar datos del cliente y su suscripción actual
-  const { data: subscription } = await supabase
-    .from("business_customers")
-    .select("id, scans_count, user_id")
-    .eq("business_id", businessId)
-    .eq("user_id", customerId)
-    .single();
-
-  if (!subscription) {
-    return (
-      <InvalidScanPage message="Este código QR pertenece a un usuario que no está suscrito a tu negocio." />
-    );
-  }
-
-  // 3. Obtener el progreso específico para la recompensa
-  const { data: progress } = await supabase
-    .from("reward_progress")
-    .select("scans_count, id")
-    .eq("business_id", businessId)
-    .eq("user_id", customerId)
-    .eq("reward_id", rewardId)
-    .maybeSingle();
-
+  const { business, reward, customerName, progress } = result;
+  
   const currentScans = progress?.scans_count || 0;
-
-  const { data: reward } = await supabase
-    .from("rewards")
-    .select("title")
-    .eq("id", rewardId)
-    .single();
-
-  const customerRef = customerId.split("-")[0].toUpperCase();
 
   return (
     <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4">
@@ -94,7 +63,7 @@ export default async function ScanPage({
         <div className="bg-white border text-center border-border shadow-xl rounded-3xl p-6 sm:p-8 space-y-6">
           <div className="space-y-1">
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Cliente</p>
-            <p className="text-xl font-bold font-mono">#{customerRef}</p>
+            <p className="text-xl font-bold">{customerName}</p>
           </div>
 
           <div className="flex items-center justify-center gap-8 py-4 border-y border-border/50">
@@ -111,7 +80,7 @@ export default async function ScanPage({
              </div>
           </div>
 
-          <AddScanForm businessId={businessId} customerId={customerId} rewardId={rewardId} />
+          <AddScanForm businessId={business.id} customerId={customerId} rewardId={rewardId} />
 
         </div>
 
