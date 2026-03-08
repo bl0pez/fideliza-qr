@@ -85,7 +85,6 @@ export default async function RewardsWalletPage() {
                       </div>
                     </Link>
                     <div className="shrink-0 flex items-center gap-2">
-                      <CustomerQrModal businessId={sub.business_id} userId={user.id} />
                       <Link href={`/${business.slug}`} className="p-2 text-muted-foreground hover:bg-black/5 rounded-full transition-colors hidden sm:flex">
                         <ChevronRight className="w-5 h-5" />
                       </Link>
@@ -97,8 +96,9 @@ export default async function RewardsWalletPage() {
                     {rewards.length > 0 ? (
                       <div className="grid gap-3">
                         {rewards.map((reward: WalletReward) => {
-                          const reached = sub.scans_count >= reward.scans_required;
-                          const progress = Math.min(100, (sub.scans_count / reward.scans_required) * 100);
+                          const currentScans = reward.scans_count || 0;
+                          const reached = currentScans >= reward.scans_required;
+                          const progress = Math.min(100, (currentScans / reward.scans_required) * 100);
                           
                           return (
                             <div key={reward.id} className="bg-zinc-50 border rounded-2xl relative overflow-hidden group">
@@ -114,7 +114,7 @@ export default async function RewardsWalletPage() {
                                       {reward.title}
                                     </h4>
                                     <p className="text-[10px] text-muted-foreground mt-0.5 font-medium">
-                                      {sub.scans_count} / {reward.scans_required} escaneos
+                                      {currentScans} / {reward.scans_required} escaneos
                                     </p>
                                   </div>
                                   <div className="shrink-0 flex flex-col items-center">
@@ -125,7 +125,7 @@ export default async function RewardsWalletPage() {
                                   </div>
                                 </div>
                                 
-                                {reached && (
+                                {reached ? (
                                   <div className="mt-3 w-full animate-in fade-in slide-in-from-top-1">
                                     <RedeemQrModal 
                                       businessId={sub.business_id} 
@@ -133,6 +133,15 @@ export default async function RewardsWalletPage() {
                                       rewardId={reward.id} 
                                       rewardTitle={reward.title} 
                                       scansRequired={reward.scans_required} 
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="mt-3 w-full">
+                                    <CustomerQrModal 
+                                      businessId={sub.business_id} 
+                                      userId={user.id} 
+                                      rewardId={reward.id} 
+                                      rewardTitle={reward.title} 
                                     />
                                   </div>
                                 )}

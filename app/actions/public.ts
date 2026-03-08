@@ -47,6 +47,7 @@ export interface WalletReward {
   scans_required: number;
   is_active: boolean;
   created_at?: string;
+  scans_count?: number;
 }
 
 export interface WalletSubscription {
@@ -108,6 +109,19 @@ export async function getCustomerWallet(): Promise<{ subscriptions?: WalletSubsc
     console.error("Error fetching wallet rewards:", reqError);
   }
 
+  // 2.5 Fetch reward progress for this user
+  const { data: progressData, error: progressError } = await supabase
+    .from("reward_progress")
+    .select("reward_id, scans_count")
+    .eq("user_id", user.id)
+    .in("business_id", businessIds);
+
+  if (progressError) {
+    console.error("Error fetching reward progress:", progressError);
+  }
+
+  const progressMap = new Map((progressData || []).map(p => [p.reward_id, p.scans_count]));
+
   // 3. Attach the rewards to each subscription for easy frontend rendering
   const walletData: WalletSubscription[] = subscriptions.map((sub) => {
     // Convert array/object from Supabase join correctly
@@ -118,7 +132,10 @@ export async function getCustomerWallet(): Promise<{ subscriptions?: WalletSubsc
       scans_count: sub.scans_count,
       business_id: sub.business_id,
       businesses: businessData as { name: string; slug: string; image_url: string | null } | null,
-      available_rewards: (rewards || []).filter(r => r.business_id === sub.business_id)
+      available_rewards: (rewards || []).filter(r => r.business_id === sub.business_id).map(r => ({
+        ...r,
+        scans_count: progressMap.get(r.id) || 0
+      }))
     };
   });
 

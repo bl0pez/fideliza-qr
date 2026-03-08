@@ -13,13 +13,13 @@ export const metadata = {
 export default async function ScanPage({
   searchParams,
 }: {
-  searchParams: Promise<{ b?: string; u?: string }>;
+  searchParams: Promise<{ b?: string; u?: string; r?: string }>;
 }) {
-  const { b: businessId, u: customerId } = await searchParams;
+  const { b: businessId, u: customerId, r: rewardId } = await searchParams;
 
-  if (!businessId || !customerId) {
+  if (!businessId || !customerId || !rewardId) {
     return (
-      <InvalidScanPage message="Faltan parámetros en el código QR. Por favor, asegúrese de escanear un QR válido." />
+      <InvalidScanPage message="Faltan parámetros en el código QR. Forma correcta: ?b=...&u=...&r=..." />
     );
   }
 
@@ -59,9 +59,23 @@ export default async function ScanPage({
     );
   }
 
-  // 3. Obtener el nombre del cliente (opcional, desde 'auth.users' si es posible)
-  // Dado que no tenemos acceso directo a los metadatos de usuario de _otros_ usuarios por RLS
-  // Podríamos mostrar un mensaje génerico o su ID ofuscado
+  // 3. Obtener el progreso específico para la recompensa
+  const { data: progress } = await supabase
+    .from("reward_progress")
+    .select("scans_count, id")
+    .eq("business_id", businessId)
+    .eq("user_id", customerId)
+    .eq("reward_id", rewardId)
+    .maybeSingle();
+
+  const currentScans = progress?.scans_count || 0;
+
+  const { data: reward } = await supabase
+    .from("rewards")
+    .select("title")
+    .eq("id", rewardId)
+    .single();
+
   const customerRef = customerId.split("-")[0].toUpperCase();
 
   return (
@@ -72,7 +86,7 @@ export default async function ScanPage({
             <QrCode className="h-8 w-8 text-primary" />
           </div>
           <h1 className="text-3xl font-black tracking-tight">{business.name}</h1>
-          <p className="text-muted-foreground">Registrar visita de fidelización</p>
+          <p className="text-muted-foreground">Registrar visita en: <strong>{reward?.title || 'Recompensa'}</strong></p>
         </div>
 
         <div className="bg-white border text-center border-border shadow-xl rounded-3xl p-6 sm:p-8 space-y-6">
@@ -84,18 +98,18 @@ export default async function ScanPage({
           <div className="flex items-center justify-center gap-8 py-4 border-y border-border/50">
              <div className="space-y-1">
                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Visitas</p>
-               <p className="text-4xl font-black text-foreground">{subscription.scans_count}</p>
+               <p className="text-4xl font-black text-foreground">{currentScans}</p>
              </div>
              <div className="h-12 w-px bg-border"></div>
              <div className="space-y-1 text-primary">
                <p className="text-xs font-bold uppercase tracking-widest text-primary/70">Nueva Visita</p>
                <p className="text-4xl font-black flex items-center justify-center gap-1">
-                  {subscription.scans_count + 1}
+                  {currentScans + 1}
                </p>
              </div>
           </div>
 
-          <AddScanForm businessId={businessId} customerId={customerId} currentCount={subscription.scans_count} />
+          <AddScanForm businessId={businessId} customerId={customerId} rewardId={rewardId} />
 
         </div>
 

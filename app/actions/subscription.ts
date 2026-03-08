@@ -38,7 +38,9 @@ export async function subscribeToBusiness(businessId: string, slug: string) {
   return { success: true };
 }
 
-export async function addScanToCustomer(businessId: string, customerUserId: string) {
+export async function addScanToCustomer(businessId: string, customerUserId: string, rewardId: string) {
+  if (!rewardId) return { error: "Falta el ID de la recompensa." };
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -58,10 +60,12 @@ export async function addScanToCustomer(businessId: string, customerUserId: stri
     return { error: "No tienes permiso para escanear en este negocio." };
   }
 
-  // 2. Incrementar la visita del cliente
+  // 2. Incrementar la visita del cliente EN reward_progress
+  
+  // First ensure they are globally subscribed to the business
   const { data: customerData, error: fetchError } = await supabase
     .from("business_customers")
-    .select("scans_count, id")
+    .select("id")
     .eq("business_id", businessId)
     .eq("user_id", customerUserId)
     .single();
@@ -70,18 +74,40 @@ export async function addScanToCustomer(businessId: string, customerUserId: stri
     return { error: "El cliente no está suscrito a tu negocio." };
   }
 
-  const { error: updateError } = await supabase
-    .from("business_customers")
-    .update({ scans_count: customerData.scans_count + 1 })
-    .eq("id", customerData.id);
+  // Get current reward progress
+  const { data: progress } = await supabase
+    .from("reward_progress")
+    .select("scans_count, id")
+    .eq("user_id", customerUserId)
+    .eq("business_id", businessId)
+    .eq("reward_id", rewardId)
+    .maybeSingle();
 
-  if (updateError) {
-    return { error: "Error al sumar la visita: " + updateError.message };
+  const newCount = (progress?.scans_count || 0) + 1;
+
+  if (progress) {
+    const { error: updateError } = await supabase
+      .from("reward_progress")
+      .update({ scans_count: newCount })
+      .eq("id", progress.id);
+      
+    if (updateError) return { error: "Error al sumar la visita: " + updateError.message };
+  } else {
+    const { error: insertError } = await supabase
+      .from("reward_progress")
+      .insert({
+        user_id: customerUserId,
+        business_id: businessId,
+        reward_id: rewardId,
+        scans_count: 1
+      });
+      
+    if (insertError) return { error: "Error al registrar la primera visita: " + insertError.message };
   }
 
   // Purge cached pages so both the owner dashboard AND the client wallet refresh
   revalidatePath("/rewards");
   revalidatePath(`/dashboard/businesses/${businessId}`);
 
-  return { success: true, newCount: customerData.scans_count + 1, businessName: business.name };
+  return { success: true, newCount, businessName: business.name };
 }

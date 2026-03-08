@@ -10,10 +10,10 @@ import { useRouter } from "next/navigation";
 interface AddScanFormProps {
   businessId: string;
   customerId: string;
-  currentCount: number;
+  rewardId: string;
 }
 
-export function AddScanForm({ businessId, customerId, currentCount }: AddScanFormProps) {
+export function AddScanForm({ businessId, customerId, rewardId }: AddScanFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const router = useRouter();
@@ -21,7 +21,7 @@ export function AddScanForm({ businessId, customerId, currentCount }: AddScanFor
   const handleScan = async () => {
     setIsSubmitting(true);
     try {
-      const result = await addScanToCustomer(businessId, customerId);
+      const result = await addScanToCustomer(businessId, customerId, rewardId);
       
       if (result.error) {
         toast.error(result.error);
@@ -37,7 +37,7 @@ export function AddScanForm({ businessId, customerId, currentCount }: AddScanFor
         router.push(`/dashboard/businesses/${businessId}`);
       }, 2000);
       
-    } catch (e) {
+    } catch {
       toast.error("Ocurrió un error al sumar la visita.");
       setIsSubmitting(false);
     }

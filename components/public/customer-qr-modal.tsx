@@ -15,21 +15,23 @@ import {
 interface CustomerQrModalProps {
   businessId: string;
   userId: string;
+  rewardId?: string;
+  rewardTitle?: string;
 }
 
-export function CustomerQrModal({ businessId, userId }: CustomerQrModalProps) {
+export function CustomerQrModal({ businessId, userId, rewardId, rewardTitle }: CustomerQrModalProps) {
   // Construimos una URL de escaneo absoluta simulada (en producción debería usar process.env.NEXT_PUBLIC_SITE_URL o el host)
   // Como estamos en un client component, podemos usar window.location.origin
   const scanUrl = typeof window !== 'undefined' 
-    ? `${window.location.origin}/scan?b=${businessId}&u=${userId}`
-    : `https://fidelilocal.vercel.app/scan?b=${businessId}&u=${userId}`;
+    ? `${window.location.origin}/scan?b=${businessId}&u=${userId}${rewardId ? `&r=${rewardId}` : ''}`
+    : `https://fidelilocal.vercel.app/scan?b=${businessId}&u=${userId}${rewardId ? `&r=${rewardId}` : ''}`;
 
   return (
     <Dialog>
       <DialogTrigger render={
         <Button className="w-full h-14 md:h-16 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-black text-lg shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
           <QrCode className="mr-2 h-6 w-6" />
-          MOSTRAR CÓDIGO QR
+          {rewardId ? 'CÓDIGO DE RECOMPENSA' : 'MOSTRAR CÓDIGO QR'}
         </Button>
       } />
       
@@ -37,7 +39,11 @@ export function CustomerQrModal({ businessId, userId }: CustomerQrModalProps) {
         <DialogHeader className="items-center mb-4">
           <DialogTitle className="text-2xl font-black">Tu Código de Cliente</DialogTitle>
           <DialogDescription className="text-base">
-            Muestra este código en caja al hacer tu compra para sumar una visita.
+            {rewardTitle ? (
+              <>Muestra este código para sumar una visita a la recompensa: <strong>{rewardTitle}</strong>.</>
+            ) : (
+              "Muestra este código en caja al hacer tu compra para sumar una visita."
+            )}
           </DialogDescription>
         </DialogHeader>
 
