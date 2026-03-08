@@ -1,6 +1,6 @@
 # 🛡️ Estrategia de Limitación por Planes
 
-Para asegurar que los negocios respeten los límites de su plan (Básico, Pro, Business), implementaremos un sistema de **"Guardián de Límites"** basado en base de datos y lógica de servidor (Next.js + Supabase).
+Para asegurar que los negocios respeten los límites de su plan (Básico, Pro), implementaremos un sistema de **"Guardián de Límites"** basado en base de datos y lógica de servidor (Next.js + Supabase).
 
 ---
 
@@ -12,7 +12,7 @@ Define qué permite cada plan. Esto nos permite cambiar los límites sin tocar e
 | Campo | Tipo | Ejemplo (Básico) | Ejemplo (Pro) |
 | :--- | :--- | :--- | :--- |
 | `id` | `text` | `basic` | `pro` |
-| `max_branches` | `int` | `1` | `2` |
+| `max_branches` | `int` | `1` | `3` |
 | `max_scans_monthly`| `int` | `50` | `-1` (ilimitado) |
 | `max_card_types` | `int` | `1` | `10` |
 | `custom_qr` | `bool` | `false` | `true` |

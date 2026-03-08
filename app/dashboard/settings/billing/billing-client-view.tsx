@@ -43,7 +43,7 @@ export function BillingClientView({ currentSubscription, availablePlans }: Billi
         toast.error(result.error || "Error al crear el link de pago.");
         setIsProcessingId(null);
       }
-    } catch (error) {
+    } catch {
        toast.error("Ocurrió un error inesperado.");
        setIsProcessingId(null);
     }
@@ -61,7 +61,7 @@ export function BillingClientView({ currentSubscription, availablePlans }: Billi
       } else {
         toast.error(result.error || "No se pudo cancelar la suscripción.");
       }
-    } catch (error) {
+    } catch {
        toast.error("Error al cancelar.");
     } finally {
        setIsProcessingId(null);
@@ -123,24 +123,28 @@ export function BillingClientView({ currentSubscription, availablePlans }: Billi
        {/* Pricing Selection */}
        <div>
          <h3 className="text-xl font-bold mb-4">Planes Disponibles</h3>
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+         <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl gap-6">
            {availablePlans.map((plan) => {
              const isCurrent = currentSubscription?.plan_id === plan.id;
-             const priceDisplay = plan.price ? `$${plan.price.toLocaleString()}/mes` : "Gratis";
+             const priceDisplay = plan.price ? `$${plan.price.toLocaleString("es-CL")}` : "Gratis";
+             const periodDisplay = plan.price ? <span className="text-sm font-bold opacity-60">/mes</span> : null;
              
              return (
-               <Card key={plan.id} className={`flex flex-col ${isCurrent ? "border-indigo-500 shadow-md ring-1 ring-indigo-500" : ""}`}>
+               <Card key={plan.id} className={`flex flex-col rounded-3xl ${isCurrent ? "border-primary shadow-md ring-1 ring-primary/50 bg-primary/5" : ""}`}>
                  <CardHeader>
-                   <CardTitle>{plan.name}</CardTitle>
-                   <CardDescription className="text-2xl font-bold text-foreground mt-2">
-                     {priceDisplay}
+                   <CardTitle className="text-2xl font-black">{plan.name}</CardTitle>
+                   <CardDescription className="flex items-baseline gap-1 mt-2">
+                     <span className="text-4xl font-black tracking-tighter text-foreground">{priceDisplay}</span>
+                     {periodDisplay}
                    </CardDescription>
                  </CardHeader>
                  <CardContent className="flex-1">
-                   <ul className="space-y-2 text-sm text-muted-foreground">
+                   <ul className="space-y-4 text-sm text-foreground font-medium">
                      {plan.features.map((feature, idx) => (
-                       <li key={idx} className="flex items-center gap-2">
-                         <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+                       <li key={idx} className="flex items-center gap-3">
+                         <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${isCurrent ? "bg-primary/20 text-primary" : "bg-primary/10 text-primary"}`}>
+                            <Check className="w-3 h-3 stroke-3" />
+                         </div>
                          <span>{feature}</span>
                        </li>
                      ))}
@@ -148,10 +152,10 @@ export function BillingClientView({ currentSubscription, availablePlans }: Billi
                  </CardContent>
                  <CardFooter>
                    {isCurrent ? (
-                     <Button variant="outline" className="w-full" disabled>Plan Actual</Button>
+                     <Button variant="outline" className="w-full rounded-xl py-6 font-bold" disabled>Plan Actual</Button>
                    ) : plan.price ? (
                      <Button 
-                       className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                       className="w-full bg-slate-900 hover:bg-primary text-white rounded-xl py-6 font-bold shadow-xl shadow-black/10 transition-all duration-300"
                        onClick={() => handleSubscribe(plan.id)}
                        disabled={!!isProcessingId}
                      >
@@ -162,7 +166,7 @@ export function BillingClientView({ currentSubscription, availablePlans }: Billi
                        )}
                      </Button>
                    ) : (
-                     <Button variant="outline" className="w-full" disabled>Plan Base</Button>
+                     <Button variant="outline" className="w-full rounded-xl py-6 font-bold" disabled>Plan Base</Button>
                    )}
                  </CardFooter>
                </Card>

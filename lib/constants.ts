@@ -31,7 +31,6 @@ export const BILLING_CURRENCY = "CLP" as const;
 export const PLAN_IDS = {
   basic: "basic",
   pro: "pro",
-  enterprise: "enterprise",
 } as const;
 
 export type PlanId = (typeof PLAN_IDS)[keyof typeof PLAN_IDS];
@@ -43,12 +42,8 @@ export const PLAN_DEFAULTS = {
     maxScansMonthly: 50,
   },
   [PLAN_IDS.pro]: {
-    maxBranches: 5,
+    maxBranches: 3,
     maxScansMonthly: 500,
-  },
-  [PLAN_IDS.enterprise]: {
-    maxBranches: 20,
-    maxScansMonthly: 5000,
   },
 } as const satisfies Record<PlanId, { maxBranches: number; maxScansMonthly: number }>;
 

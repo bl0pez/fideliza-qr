@@ -26,8 +26,23 @@ function getPreApprovalClient() {
   return new PreApproval(client);
 }
 
+export async function getCurrentSubscription() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
+  if (!user) return null;
 
+  const { data: subscription } = await supabase
+    .from("owner_subscriptions")
+    .select("*")
+    .eq("owner_id", user.id)
+    .in("status", ["active", "past_due", "canceled"])
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  return subscription || null;
+}
 export async function createSubscriptionCheckout(planId: string): Promise<CreateCheckoutResult> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
