@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,14 +21,33 @@ interface CustomerQrModalProps {
 }
 
 export function CustomerQrModal({ businessId, userId, rewardId, rewardTitle }: CustomerQrModalProps) {
+  // Control global de apertura del modal
+  const [open, setOpen] = useState(false);
+
   // Construimos una URL de escaneo absoluta simulada (en producción debería usar process.env.NEXT_PUBLIC_SITE_URL o el host)
   // Como estamos en un client component, podemos usar window.location.origin
   const scanUrl = typeof window !== 'undefined' 
     ? `${window.location.origin}/scan?b=${businessId}&u=${userId}${rewardId ? `&r=${rewardId}` : ''}`
     : `https://fidelilocal.vercel.app/scan?b=${businessId}&u=${userId}${rewardId ? `&r=${rewardId}` : ''}`;
 
+  useEffect(() => {
+    const handleScanEvent = (e: CustomEvent<{ rewardId: string }>) => {
+      // Si el escaneo es de la recompensa actual, cerrar el modal
+      if (e.detail?.rewardId === rewardId) {
+        setOpen(false);
+      }
+    };
+    
+    // Escuchar evento custom del RealtimeListener
+    window.addEventListener('reward-scanned', handleScanEvent as EventListener);
+    
+    return () => {
+      window.removeEventListener('reward-scanned', handleScanEvent as EventListener);
+    };
+  }, [rewardId]);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={
         <Button className="w-full h-14 md:h-16 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-black text-lg shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
           <QrCode className="mr-2 h-6 w-6" />

@@ -38,28 +38,62 @@ export function RealtimeWalletListener({ userId }: RealtimeWalletListenerProps) 
         {
           event: "UPDATE",
           schema: "public",
-          table: "business_customers",
+          table: "reward_progress",
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
           console.log("[Realtime] Received update:", payload);
 
-          const oldCount = (payload.old as Record<string, number>).scans_count;
-          const newCount = (payload.new as Record<string, number>).scans_count;
+          const oldCount = (payload.old as Record<string, number>)?.scans_count;
+          const newCount = (payload.new as Record<string, number>)?.scans_count;
 
-          if (newCount > oldCount) {
-            toast.success(
-              `🎉 ¡Visita registrada! Ahora tienes ${newCount} visitas.`,
-              { duration: 5000 }
-            );
-          } else if (newCount < oldCount) {
-            toast.success(
-              `🎁 ¡Premio canjeado exitosamente! Te quedan ${newCount} visitas.`,
-              { duration: 5000 }
-            );
+          if (oldCount !== undefined && newCount !== undefined) {
+             if (newCount > oldCount) {
+               toast.success(
+                 `🎉 ¡Visita registrada! Ahora tienes ${newCount} visitas en esta recompensa.`,
+                 { duration: 5000 }
+               );
+               // Broadcast the event so we can close the specific modal
+               if (typeof window !== "undefined") {
+                 window.dispatchEvent(new CustomEvent('reward-scanned', { 
+                   detail: { rewardId: (payload.new as Record<string, string>).reward_id } 
+                 }));
+               }
+             } else if (newCount < oldCount) {
+               toast.success(
+                 `🎁 ¡Premio canjeado exitosamente! Te quedan ${newCount} visitas.`,
+                 { duration: 5000 }
+               );
+             }
           }
 
           // Refresh the server components to show updated data
+          router.refresh();
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "reward_progress",
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          console.log("[Realtime] Received insert:", payload);
+          const newCount = (payload.new as Record<string, number>)?.scans_count;
+          
+          if (newCount !== undefined) {
+             toast.success(
+                `🎉 ¡Primera visita registrada! Ahora tienes ${newCount} visita/s.`,
+                { duration: 5000 }
+             );
+             if (typeof window !== "undefined") {
+               window.dispatchEvent(new CustomEvent('reward-scanned', { 
+                 detail: { rewardId: (payload.new as Record<string, string>).reward_id } 
+               }));
+             }
+          }
           router.refresh();
         }
       )
