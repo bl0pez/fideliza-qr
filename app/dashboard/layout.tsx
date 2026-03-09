@@ -1,4 +1,4 @@
-import { LayoutDashboard, Store, Settings } from "lucide-react";
+import { LayoutDashboard, Store, Settings, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import {
   Sidebar,
@@ -54,6 +54,22 @@ export default async function DashboardLayout({
             </div>
           </SidebarHeader>
           <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Sitio Público</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton>
+                      <Link href="/" className="flex items-center gap-2 text-primary font-semibold">
+                        <ArrowLeft className="h-4 w-4" />
+                        <span>Volver al inicio</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
             <SidebarGroup>
               <SidebarGroupLabel>Administración</SidebarGroupLabel>
               <SidebarGroupContent>
