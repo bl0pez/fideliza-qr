@@ -39,7 +39,7 @@ export type PlanId = (typeof PLAN_IDS)[keyof typeof PLAN_IDS];
 export const PLAN_DEFAULTS = {
   [PLAN_IDS.basic]: {
     maxBranches: 1,
-    maxScansMonthly: 50,
+    maxScansMonthly: 100,
   },
   [PLAN_IDS.pro]: {
     maxBranches: 3,
