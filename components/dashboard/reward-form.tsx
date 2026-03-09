@@ -67,7 +67,6 @@ export function RewardForm({ businessId }: RewardFormProps) {
     register,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<RewardFormValues>({
@@ -82,7 +81,7 @@ export function RewardForm({ businessId }: RewardFormProps) {
     },
   });
 
-  const expiresAtValue = watch("expires_at");
+  const [expiresAt, setExpiresAt] = useState<Date | null>(null);
 
   const onSubmit = async (data: RewardFormValues) => {
     try {
@@ -104,7 +103,8 @@ export function RewardForm({ businessId }: RewardFormProps) {
       toast.success("¡Recompensa creada exitosamente!");
       setOpen(false);
       reset();
-    } catch (_err: unknown) {
+      setExpiresAt(null);
+    } catch {
         toast.error("Ocurrió un error inesperado al guardar la recompensa.");
     }
   };
@@ -171,19 +171,21 @@ export function RewardForm({ businessId }: RewardFormProps) {
                     variant={"outline"}
                     className={cn(
                       "w-full justify-start text-left font-normal border-border",
-                      !expiresAtValue && "text-muted-foreground"
+                      !expiresAt && "text-muted-foreground"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {expiresAtValue ? format(expiresAtValue as Date, "PPP", { locale: es }) : <span>Sin caducidad</span>}
+                    {expiresAt ? format(expiresAt, "PPP", { locale: es }) : <span>Sin caducidad</span>}
                   </Button>}>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={expiresAtValue || undefined}
+                    selected={expiresAt || undefined}
                     onSelect={(date) => {
-                      setValue("expires_at", date ? date : null);
+                      const selectedDate = date ? date : null;
+                      setExpiresAt(selectedDate);
+                      setValue("expires_at", selectedDate);
                       setCalendarOpen(false);
                     }}
                     initialFocus

@@ -47,10 +47,13 @@ Estamos utilizando la arquitectura más moderna de React. No se aceptan patrones
 - **Actions:** Solo se encargan de la lógica y la persistencia.
 - **Utils:** Solo se encargan de transformaciones de datos puras.
 
-### B. Tipado Estricto (No `any`)
-
 - El uso de `any` es un fracaso de ingeniería. Define interfaces o tipos para cada respuesta de base de datos.
 - Utiliza la generación de tipos de Supabase (`supabase-mcp-server`) para mantener sincronizada la base de datos con tu código.
+
+### C. Importaciones Absolutas (`@/`)
+
+- **Regla Innegociable:** Nunca utilices rutas relativas (`../../components/...`).
+- **Mandatario:** Utiliza siempre el alias `@/` para todas las importaciones internas (ej: `@/components/...`, `@/app/actions/...`). Esto evita errores de refactorización y mantiene el código limpio.
 
 ---
 
