@@ -11,9 +11,8 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
   const { error } = await searchParams;
 
   // No hacemos nada automático aquí para evitar errores de renderizado.
-  // Todo se maneja a través de PricingSection con Server Actions.
+  // Todo se maneja a través de PricingSection con Server Actions para ser seguro.
 
-  // Sin plan → mostrar selección de planes
   return (
     <main className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 pt-8 flex items-center justify-between">
@@ -26,10 +25,10 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
         </Link>
       </div>
 
-      {error === "checkout_failed" && (
+      {error === "selection_failed" && (
         <div className="max-w-7xl mx-auto px-4 mt-4">
           <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 font-bold text-sm">
-            Hubo un problema al iniciar el proceso de pago. Por favor intenta de nuevo.
+            Hubo un problema al procesar tu selección. Por favor intenta de nuevo.
           </div>
         </div>
       )}
