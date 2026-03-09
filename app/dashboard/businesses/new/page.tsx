@@ -1,15 +1,15 @@
-import { createClient } from "@/utils/supabase/server";
 import { BusinessForm } from "@/components/dashboard/business-form";
+import { getCategories } from "@/app/actions/categories";
+import { getCities } from "@/app/actions/cities";
+import { getCountries } from "@/app/actions/countries";
 
 export default async function NewBusinessPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  // Fetch all active categories from DB
-  const { data: categories } = await supabase
-    .from('categories')
-    .select('*')
-    .order('name');
+  // Fetch data via Server Actions
+  const [categories, cities, countries] = await Promise.all([
+    getCategories(),
+    getCities(),
+    getCountries()
+  ]);
 
   return (
     <div className="container py-8 max-w-4xl">
@@ -18,7 +18,11 @@ export default async function NewBusinessPage() {
         <p className="text-muted-foreground">Configura los detalles de tu nuevo local comercial.</p>
       </div>
       
-      <BusinessForm categories={categories || []} />
+      <BusinessForm 
+        categories={categories || []} 
+        cities={cities || []} 
+        countries={countries || []}
+      />
     </div>
   );
 }

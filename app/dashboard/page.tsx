@@ -1,19 +1,22 @@
-import { createClient } from "@/utils/supabase/server";
 import { Store, Ticket, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PLAN_DEFAULTS, PLAN_IDS } from "@/lib/constants";
+
 
 import { CreateBusinessButton } from "@/components/dashboard/create-business-button";
 import { BusinessDashboardCard } from "@/components/dashboard/business-dashboard-card";
 import { PlanUsageCard } from "@/components/dashboard/plan-usage-card";
 import { getDashboardStats } from "@/app/actions/dashboard";
+import { getUserBusinesses } from "@/app/actions/business";
+import { getCurrentUser } from "@/app/actions/auth";
 
 interface Business {
   id: string;
   name: string;
   type: string;
   image_url: string;
-  rewards_available: number;
+  rewards_count: number;
   slug: string;
   plan_id: string;
   scans_this_month: number;
@@ -26,28 +29,20 @@ interface Business {
 }
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  // Fetch businesses owned by this user with plan details
-  const { data: businesses } = await supabase
-    .from('businesses')
-    .select(`
-      *,
-      plans (
-        id,
-        name,
-        max_branches,
-        max_scans_monthly
-      )
-    `)
-    .eq('owner_id', user?.id || '')
-    .order('created_at', { ascending: false });
+  const user = await getCurrentUser();
+  const rawBusinesses = await getUserBusinesses();
+  
+  const businesses = rawBusinesses as unknown as Business[];
 
   // Use the first business as the primary for plan limits (standard for SaaS with 1 owner)
-  const primaryBusiness = (businesses as unknown as Business[])?.[0];
+  const primaryBusiness = businesses?.[0];
 
   const { totalCustomers, totalRewardsDelivered } = await getDashboardStats();
+
+  // Determine if branch limit is reached
+  const branchCount = businesses?.length || 0;
+  const maxBranches = primaryBusiness?.plans?.max_branches || PLAN_DEFAULTS[PLAN_IDS.basic].maxBranches;
+  const hasReachedLimit = branchCount >= maxBranches;
 
   // Calculate days until monthly reset (end of current month)
   const now = new Date();
@@ -66,16 +61,16 @@ export default async function DashboardPage() {
               Aquí tienes un resumen de tus negocios y fidelización.
             </p>
           </div>
-          <CreateBusinessButton />
+          <CreateBusinessButton disabled={hasReachedLimit} />
         </div>
         
         <div className="w-full lg:w-auto shrink-0">
           <PlanUsageCard 
             planName={primaryBusiness?.plans?.name || "Básico"}
             usage={primaryBusiness?.scans_this_month || 0}
-            limit={primaryBusiness?.plans?.max_scans_monthly || 50}
+            limit={primaryBusiness?.plans?.max_scans_monthly || PLAN_DEFAULTS[PLAN_IDS.basic].maxScansMonthly}
             branchesUsage={businesses?.length || 0}
-            branchesLimit={primaryBusiness?.plans?.max_branches || 1}
+            branchesLimit={primaryBusiness?.plans?.max_branches || PLAN_DEFAULTS[PLAN_IDS.basic].maxBranches}
             daysUntilReset={daysUntilReset}
           />
         </div>

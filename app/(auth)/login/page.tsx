@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { APP_NAME } from "@/lib/constants";
+import { useSearchParams } from "next/navigation";
 
 // Definimos el esquema de validación con Yup, acorde a la regla del usuario
 const loginSchema = yup.object().shape({
@@ -22,6 +23,8 @@ type LoginFormValues = yup.InferType<typeof loginSchema>;
 export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<{ type: 'error' | 'success', text: string } | null>(null);
+  const searchParams = useSearchParams();
+  const nextUrl = searchParams.get("next") ?? "/dashboard";
 
   const supabase = createClient();
 
@@ -36,16 +39,14 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormValues) => {
     setMessage(null);
     try {
-      // Magic link sin contraseña para simplificar u otro método
+      const callbackUrl = `${location.origin}/auth/callback?next=${encodeURIComponent(nextUrl)}`;
       const { error } = await supabase.auth.signInWithOtp({
         email: data.email,
-        options: {
-          emailRedirectTo: `${location.origin}/auth/callback`,
-        },
+        options: { emailRedirectTo: callbackUrl },
       });
 
       if (error) throw error;
-      
+
       setMessage({ type: 'success', text: 'Revisa tu bandeja de entrada para el enlace de inicio de sesión.' });
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Error al enviar el correo.';
@@ -57,11 +58,10 @@ export default function LoginPage() {
     setGoogleLoading(true);
     setMessage(null);
     try {
+      const callbackUrl = `${location.origin}/auth/callback?next=${encodeURIComponent(nextUrl)}`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: {
-          redirectTo: `${location.origin}/auth/callback`,
-        },
+        options: { redirectTo: callbackUrl },
       });
       if (error) throw error;
     } catch (error: unknown) {

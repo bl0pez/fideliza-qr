@@ -28,7 +28,7 @@ export default function BusinessCarousel({ businesses }: Props) {
           Autoplay({ 
             delay: 4000, 
             stopOnInteraction: true,
-            pauseOnHover: true 
+            stopOnMouseEnter: true 
           })
         ]}
       >

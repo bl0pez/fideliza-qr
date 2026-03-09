@@ -1,52 +1,113 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { User } from "@supabase/supabase-js";
 
-export async function getPublicBusinessData(slug: string) {
+export interface PublicBusiness {
+  id: string;
+  name: string;
+  type: string;
+  image_url: string;
+  city: string;
+  address: string | null;
+  whatsapp_url: string | null;
+  instagram_url: string | null;
+  tiktok_url: string | null;
+  slug: string;
+  countries?: { name: string } | { name: string }[] | null;
+}
+
+export interface PublicSubscription {
+  id: string;
+  user_id: string;
+  business_id: string;
+  scans_count: number;
+  created_at: string;
+}
+
+export interface PublicReward {
+  id: string;
+  business_id: string;
+  title: string;
+  description: string | null;
+  requirements: string | null;
+  scans_required: number;
+  max_redemptions_per_user: number | null;
+  is_active: boolean;
+  expires_at: string | null;
+  user_redemptions_count: number;
+  is_limit_reached: boolean;
+}
+
+interface DatabaseReward {
+  id: string;
+  business_id: string;
+  title: string;
+  description: string | null;
+  requirements: string | null;
+  scans_required: number;
+  max_redemptions_per_user: number | null;
+  is_active: boolean;
+  expires_at: string | null;
+  created_at: string;
+}
+
+export async function getPublicBusinessData(slug: string): Promise<{
+  business: PublicBusiness | null;
+  user: User | null;
+  subscription: PublicSubscription | null;
+  rewards: PublicReward[];
+}> {
   const supabase = await createClient();
 
   // Run both queries in parallel
-  const [{ data: business }, { data: { user } }] = await Promise.all([
-    supabase.from("businesses").select("*").eq("slug", slug).single(),
+  const [{ data: businessData }, { data: { user } }] = await Promise.all([
+    supabase
+      .from("businesses")
+      .select("*, countries(name)")
+      .eq("slug", slug)
+      .single(),
     supabase.auth.getUser()
   ]);
+
+  const business = businessData as PublicBusiness | null;
 
   if (!business) {
     return { business: null, user: null, subscription: null, rewards: [] };
   }
 
   // Fetch rewards with limits
-  const { data: rewards } = await supabase
+  const { data: rewardsData } = await supabase
     .from("rewards")
     .select("*, max_redemptions_per_user")
     .eq("business_id", business.id)
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
-  let subscription = null;
+  let subscription: PublicSubscription | null = null;
   const userRedemptions: Record<string, number> = {};
 
-  if (user && rewards) {
+  if (user && rewardsData) {
     // Parallel fetch for subscription and redemptions
     const [subResult, redemptionsResult] = await Promise.all([
       supabase.from("business_customers").select("*").eq("business_id", business.id).eq("user_id", user.id).maybeSingle(),
       supabase.from("reward_redemptions").select("reward_id").eq("business_id", business.id).eq("user_id", user.id)
     ]);
       
-    subscription = subResult.data;
+    subscription = subResult.data as PublicSubscription | null;
     
     // Count redemptions per reward
-    (redemptionsResult.data || []).forEach(r => {
+    (redemptionsResult.data || []).forEach((r: { reward_id: string }) => {
       userRedemptions[r.reward_id] = (userRedemptions[r.reward_id] || 0) + 1;
     });
   }
 
   // Map rewards including user specific status
-  const mappedRewards = (rewards || []).map(r => ({
+  const mappedRewards = (rewardsData as (DatabaseReward[]) || []).map((r) => ({
     ...r,
     user_redemptions_count: userRedemptions[r.id] || 0,
     is_limit_reached: r.max_redemptions_per_user !== null && (userRedemptions[r.id] || 0) >= r.max_redemptions_per_user
-  }));
+  })) as PublicReward[];
 
   return { business, user, subscription, rewards: mappedRewards };
 }

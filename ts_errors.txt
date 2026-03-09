@@ -1,0 +1,4 @@
+.next/types/validator.ts(80,39): error TS2307: Cannot find module '../../app/dashboard/businesses/[id]/page.js' or its corresponding type declarations.
+.next/types/validator.ts(89,39): error TS2307: Cannot find module '../../app/dashboard/businesses/[id]/scanner/page.js' or its corresponding type declarations.
+.next/types/validator.ts(143,39): error TS2307: Cannot find module '../../app/~offline/page.js' or its corresponding type declarations.
+components/home/business-carousel.tsx(31,13): error TS2353: Object literal may only specify known properties, and 'pauseOnHover' does not exist in type 'Partial<CreateOptionsType<OptionsType>>'.

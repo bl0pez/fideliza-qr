@@ -9,11 +9,12 @@ import { useRouter } from "next/navigation";
 
 interface AddScanFormProps {
   businessId: string;
+  businessSlug: string;
   customerId: string;
   rewardId: string;
 }
 
-export function AddScanForm({ businessId, customerId, rewardId }: AddScanFormProps) {
+export function AddScanForm({ businessId, businessSlug, customerId, rewardId }: AddScanFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const router = useRouter();
@@ -34,7 +35,7 @@ export function AddScanForm({ businessId, customerId, rewardId }: AddScanFormPro
       
       // We can redirect the owner back to their dashboard, or clear the page
       setTimeout(() => {
-        router.push(`/dashboard/businesses/${businessId}`);
+        router.push(`/dashboard/businesses/${businessSlug}`);
       }, 2000);
       
     } catch {

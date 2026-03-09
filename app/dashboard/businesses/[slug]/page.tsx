@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { Ticket, CalendarIcon, CheckCircle2, QrCode, ScanLine } from "lucide-react";
 import { format } from "date-fns";
@@ -11,6 +10,7 @@ import { Button } from "@/components/ui/button";
 
 import { RewardForm } from "@/components/dashboard/reward-form";
 import { getBusinessRewards, deleteReward } from "@/app/actions/rewards";
+import { getBusinessBySlug } from "@/app/actions/business";
 import { APP_NAME } from "@/lib/constants";
 
 export const metadata = {
@@ -20,20 +20,8 @@ export const metadata = {
 export default async function BusinessDashboardPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    notFound();
-  }
-
-  // 1. Obtener detalles del negocio por slug
-  const { data: business } = await supabase
-    .from("businesses")
-    .select("*")
-    .eq("slug", slug)
-    .eq("owner_id", user.id)
-    .single();
+  // 1. Obtener detalles del negocio por slug (Server Action)
+  const business = await getBusinessBySlug(slug);
 
   if (!business) {
     notFound();
@@ -41,7 +29,7 @@ export default async function BusinessDashboardPage({ params }: { params: Promis
 
   const businessId = business.id;
 
-  // 2. Obtener las recompensas creadas para este negocio
+  // 2. Obtener las recompensas creadas para este negocio (Server Action)
   const rewards = await getBusinessRewards(businessId);
 
   return (

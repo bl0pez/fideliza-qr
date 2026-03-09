@@ -1,118 +1,101 @@
-import { Check, ShieldCheck } from "lucide-react";
+import { Check } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { PLAN_IDS } from "@/lib/constants";
+import { getPlans } from "@/app/actions/plans";
+import { getCurrentUser } from "@/app/actions/auth";
 
-const plans = [
-  {
-    name: "Básico",
-    price: "Gratis",
-    description: "Ideal para micro-negocios que están empezando.",
-    features: [
-      "1 Sucursal",
-      "50 escaneos de sellos/mes",
-      "1 Tipo de tarjeta activa",
-      "QR Estándar",
-      "Soporte por Comunidad"
-    ],
-    cta: "Empezar gratis",
-    popular: false,
-    color: "slate"
-  },
-  {
-    name: "Pro",
-    price: "$5.000",
-    period: "/mes",
-    description: "Para comercios que buscan profesionalizarse.",
-    features: [
-      "2 Sucursales",
-      "Escaneos ilimitados",
-      "Tarjetas personalizables",
-      "QR con tu Logo",
-      "Historial de clientes",
-      "Soporte prioritario"
-    ],
-    cta: "Elegir Pro",
-    popular: true,
-    color: "primary"
-  },
-  {
-    name: "Business",
-    price: "$24.990",
-    period: "/mes",
-    description: "Para negocios con múltiples sucursales.",
-    features: [
-      "Hasta 5 Sucursales",
-      "Escaneos ilimitados",
-      "Múltiples administradores",
-      "Estadísticas de fidelidad",
-      "Exportación de datos",
-      "Soporte 24/7"
-    ],
-    cta: "Elegir Business",
-    popular: false,
-    color: "orange"
-  }
-];
+export async function PricingSection() {
+  // Cargar usuario y planes en paralelo a través de Server Actions
+  const [user, safePlans] = await Promise.all([
+    getCurrentUser(),
+    getPlans(),
+  ]);
 
-export function PricingSection() {
+  // Determina el href del CTA segun si hay sesion activa
+  const getPlanHref = (planId: string): string => {
+    if (planId === PLAN_IDS.basic) {
+      // Plan gratuito: si ya esta logueado va al dashboard, sino al login
+      return user ? "/dashboard" : `/login?next=/dashboard`;
+    }
+    // Planes de pago: si esta logueado va directo al checkout, sino al login con redirect
+    return user
+      ? `/register?plan=${planId}`
+      : `/login?next=/register?plan=${planId}`;
+  };
+
+  const formatPrice = (price: number | null): string => {
+    if (price === null || price === 0) return "Gratis";
+    return `$${price.toLocaleString("es-CL")}`;
+  };
+
   return (
     <section className="py-24 relative overflow-hidden">
-      {/* Design System: Ambient Glows */}
+      {/* Ambient glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-96 bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
-      
+
       <div className="max-w-7xl mx-auto px-4 relative z-10">
+        {/* Heading Badge */}
         <div className="text-center mb-20 space-y-6">
-          {/* Design System: Heading Badge */}
           <div className="flex items-center justify-center gap-3">
             <div className="h-px w-8 bg-primary/20" />
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Planes y Precios</span>
             <div className="h-px w-8 bg-primary/20" />
           </div>
-          
+
           <h2 className="text-4xl md:text-7xl font-black tracking-tighter text-slate-900 leading-[0.95]">
-            Hagamos crecer <br /> 
+            Hagamos crecer <br />
             tu <span className="bg-linear-to-r from-primary to-orange-500 bg-clip-text text-transparent italic">comunidad</span>
           </h2>
-          
+
           <p className="text-slate-500 text-lg md:text-xl max-w-2xl mx-auto font-medium">
             Elige el plan que mejor se adapte a tu etapa de crecimiento. Sin contratos ocultos.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {plans.map((plan, index) => (
-            <div 
-              key={index}
+        {/* Pricing Grid */}
+        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+          {safePlans.map((plan) => (
+            <div
+              key={plan.id}
               className={`relative p-8 rounded-[2.5rem] border transition-all duration-500 hover:shadow-2xl ${
-                plan.popular 
-                ? "bg-slate-900 text-white border-primary/20 scale-105 shadow-primary/10" 
-                : "bg-white border-slate-100 text-slate-900 hover:border-primary/20 shadow-slate-200/50"
+                plan.is_popular
+                  ? "bg-slate-900 text-white border-primary/20 scale-105 shadow-primary/10"
+                  : "bg-white border-slate-100 text-slate-900 hover:border-primary/20 shadow-slate-200/50"
               }`}
             >
-              {plan.popular && (
+              {plan.is_popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                   <Badge className="bg-primary text-white font-black px-4 py-1 rounded-full shadow-lg">
-                      MÁS POPULAR
-                   </Badge>
+                  <Badge className="bg-primary text-white font-black px-4 py-1 rounded-full shadow-lg">
+                    MÁS POPULAR
+                  </Badge>
                 </div>
               )}
 
+              {/* Price header */}
               <div className="mb-8">
                 <h3 className="text-2xl font-black mb-2 tracking-tight">{plan.name}</h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-black tracking-tighter">{plan.price}</span>
-                  {plan.period && <span className="text-sm font-bold opacity-60">{plan.period}</span>}
+                  <span className="text-4xl font-black tracking-tighter">{formatPrice(plan.price)}</span>
+                  {plan.price !== null && plan.price > 0 && (
+                    <span className="text-sm font-bold opacity-60">/mes</span>
+                  )}
                 </div>
-                <p className={`mt-4 text-sm font-medium ${plan.popular ? "text-slate-400" : "text-slate-500"}`}>
-                  {plan.description}
+                <p className={`mt-3 text-sm font-medium ${plan.is_popular ? "text-slate-400" : "text-slate-500"}`}>
+                  {plan.max_branches === 1
+                    ? "Ideal para micro-negocios que están empezando."
+                    : plan.max_branches <= 3
+                    ? "Para comercios que buscan profesionalizarse."
+                    : "Para negocios con múltiples sucursales."}
                 </p>
               </div>
 
+              {/* Features */}
               <div className="space-y-4 mb-10">
-                {plan.features.map((feature, fIndex) => (
+                {(plan.features ?? []).map((feature, fIndex) => (
                   <div key={fIndex} className="flex items-center gap-3">
                     <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-                      plan.popular ? "bg-primary/20 text-primary" : "bg-primary/10 text-primary"
+                      plan.is_popular ? "bg-primary/20 text-primary" : "bg-primary/10 text-primary"
                     }`}>
                       <Check className="w-3 h-3 stroke-3" />
                     </div>
@@ -121,34 +104,23 @@ export function PricingSection() {
                 ))}
               </div>
 
-              <Link 
-                href="/register?plan=pro"
+              {/* CTA */}
+              <Link
+                href={getPlanHref(plan.id)}
                 className={`flex items-center justify-center w-full py-4 rounded-2xl font-black text-lg transition-all duration-300 ${
-                  plan.popular 
-                  ? "bg-white text-slate-900 hover:bg-primary hover:text-white shadow-xl shadow-white/5" 
-                  : "bg-slate-900 text-white hover:bg-primary shadow-xl shadow-black/10"
+                  plan.is_popular
+                    ? "bg-white text-slate-900 hover:bg-primary hover:text-white shadow-xl shadow-white/5"
+                    : "bg-slate-900 text-white hover:bg-primary shadow-xl shadow-black/10"
                 }`}
               >
-                {plan.cta}
+                {plan.price === null || plan.price === 0
+                  ? "Empezar gratis"
+                  : `Elegir ${plan.name}`}
               </Link>
             </div>
           ))}
         </div>
 
-        <div className="mt-20 p-8 md:p-12 rounded-[2.5rem] bg-slate-50 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="flex items-center gap-6 text-center md:text-left">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-               <ShieldCheck className="w-8 h-8 text-primary" />
-            </div>
-            <div>
-              <h4 className="text-xl font-black text-slate-900 mb-1">¿Necesitas algo a medida?</h4>
-              <p className="text-slate-500 font-medium text-sm">Contáctanos para planes corporativos o integraciones especiales.</p>
-            </div>
-          </div>
-          <button className="whitespace-nowrap bg-white border border-slate-200 text-slate-900 px-8 py-4 rounded-xl font-black hover:bg-slate-100 transition-all shadow-sm">
-             Hablar con un experto
-          </button>
-        </div>
       </div>
     </section>
   );
