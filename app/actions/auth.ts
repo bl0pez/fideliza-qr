@@ -20,15 +20,17 @@ export async function getCurrentUser(): Promise<User | null> {
 
 export async function signInWithGoogle(nextUrl: string) {
   const supabase = await createClient();
-  const origin = (await headers()).get('origin') || getSiteUrl();
-  const callbackUrl = `${origin}/auth/callback?next=${encodeURIComponent(nextUrl)}`;
+  // const origin = (await headers()).get('origin') || getSiteUrl();
+  // const callbackUrl = `${origin}/auth/callback?next=${encodeURIComponent(nextUrl)}`;
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: callbackUrl,
+      redirectTo: 'https://www.fidelilocal.com',
     },
   });
+
+  console.log(data, error);
 
   if (error) {
     throw error;
