@@ -1,10 +1,5 @@
 import { Suspense } from "react";
-import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/app/actions/auth";
-import { createSubscriptionCheckout } from "@/app/actions/billing";
-import { activatePlan } from "@/app/actions/plans";
 import { PricingSection } from "@/components/register/pricing-section";
-import { PLAN_IDS, type PlanId } from "@/lib/constants";
 import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -13,39 +8,10 @@ interface RegisterPageProps {
 }
 
 export default async function RegisterPage({ searchParams }: RegisterPageProps) {
-  const { plan, error } = await searchParams;
+  const { error } = await searchParams;
 
-  // Si hay un plan en la URL, ejecutar el auth guard + checkout
-  if (plan) {
-    const user = await getCurrentUser();
-
-    // Sin sesión → login con next param para volver aquí tras autenticar
-    if (!user) {
-      redirect(`/login?next=/register?plan=${plan}`);
-    }
-
-    // Plan básico (gratis) → activar rol y dashboard directo
-    if (plan === PLAN_IDS.basic) {
-      await activatePlan(plan);
-      redirect("/dashboard");
-    }
-
-    // Validar que el planId sea uno que conocemos
-    const validPlanIds = Object.values(PLAN_IDS) as string[];
-    if (!validPlanIds.includes(plan)) {
-      redirect("/register");
-    }
-
-    // Crear checkout en MercadoPago y redirigir
-    const result = await createSubscriptionCheckout(plan as PlanId);
-
-    if (result.success && result.checkoutUrl) {
-      redirect(result.checkoutUrl);
-    }
-
-    // Si falla el checkout, volver a la selección de planes
-    redirect("/register?error=checkout_failed");
-  }
+  // No hacemos nada automático aquí para evitar errores de renderizado.
+  // Todo se maneja a través de PricingSection con Server Actions.
 
   // Sin plan → mostrar selección de planes
   return (

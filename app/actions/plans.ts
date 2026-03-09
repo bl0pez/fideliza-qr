@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { PLAN_IDS } from "@/lib/constants";
 import { revalidatePath } from "next/cache";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 export interface Plan {
   id: string;
@@ -43,18 +44,21 @@ export async function activatePlan(planId: string) {
   // En este contexto, el usuario dice que "no hace nada" al elegir el gratis.
   
   if (planId === PLAN_IDS.basic) {
-    const { error: profileError } = await supabase
+    const adminSupabase = createAdminClient();
+
+    // 1. Actualizar el rol del perfil usando el cliente Admin (omite RLS)
+    const { error: profileError } = await adminSupabase
       .from("profiles")
       .update({ role: "business_owner" })
       .eq("id", user.id);
 
     if (profileError) {
-      console.error("Error updating profile role:", profileError);
+      console.error("Error updating profile role (Admin):", profileError);
       return { error: "No se pudo actualizar el perfil: " + profileError.message };
     }
     
-    // También creamos una suscripción "gratis" en owner_subscriptions si no existe
-    const { error: subError } = await supabase
+    // 2. Crear suscripción gratuita usando el cliente Admin (omite RLS)
+    const { error: subError } = await adminSupabase
       .from("owner_subscriptions")
       .upsert({
         owner_id: user.id,
@@ -64,8 +68,7 @@ export async function activatePlan(planId: string) {
       }, { onConflict: "owner_id" });
 
     if (subError) {
-      console.error("Error creating free subscription:", subError);
-      // No bloqueamos por esto si el rol ya cambió, pero es bueno tenerlo
+      console.error("Error creating free subscription (Admin):", subError);
     }
 
     revalidatePath("/dashboard");

@@ -1,8 +1,9 @@
 import { Check } from "lucide-react";
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { getPlans } from "@/app/actions/plans";
 import { getCurrentUser } from "@/app/actions/auth";
+import { handlePlanSelection } from "@/app/actions/plan-selection";
+import { PlanSubmitButton } from "./plan-submit-button";
 
 export async function PricingSection() {
   // Cargar usuario y planes en paralelo a través de Server Actions
@@ -10,14 +11,6 @@ export async function PricingSection() {
     getCurrentUser(),
     getPlans(),
   ]);
-
-  // Determina el href del CTA segun si hay sesion activa
-  const getPlanHref = (planId: string): string => {
-    // Todos los planes deben pasar por /register?plan=ID para activar el rol/pago
-    return user
-      ? `/register?plan=${planId}`
-      : `/login?next=/register?plan=${planId}`;
-  };
 
   const formatPrice = (price: number | null): string => {
     if (price === null || price === 0) return "Gratis";
@@ -99,19 +92,15 @@ export async function PricingSection() {
                 ))}
               </div>
 
-              {/* CTA */}
-              <Link
-                href={getPlanHref(plan.id)}
-                className={`flex items-center justify-center w-full py-4 rounded-2xl font-black text-lg transition-all duration-300 ${
-                  plan.is_popular
-                    ? "bg-white text-slate-900 hover:bg-primary hover:text-white shadow-xl shadow-white/5"
-                    : "bg-slate-900 text-white hover:bg-primary shadow-xl shadow-black/10"
-                }`}
-              >
-                {plan.price === null || plan.price === 0
-                  ? "Empezar gratis"
-                  : `Elegir ${plan.name}`}
-              </Link>
+              {/* CTA Form */}
+              <form action={handlePlanSelection}>
+                <input type="hidden" name="planId" value={plan.id} />
+                <input type="hidden" name="isLoggedIn" value={user ? "true" : "false"} />
+                <PlanSubmitButton 
+                  isPopular={plan.is_popular} 
+                  label={plan.price === null || plan.price === 0 ? "Empezar gratis" : `Elegir ${plan.name}`} 
+                />
+              </form>
             </div>
           ))}
         </div>
