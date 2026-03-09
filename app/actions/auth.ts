@@ -6,8 +6,9 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
 import { getSiteUrl } from "@/lib/constants";
+import { cache } from "react";
 
-export async function getCurrentUser(): Promise<User | null> {
+export const getCurrentUser = cache(async (): Promise<User | null> => {
   const supabase = await createClient();
   const { data: { user }, error } = await supabase.auth.getUser();
   
@@ -16,22 +17,25 @@ export async function getCurrentUser(): Promise<User | null> {
   }
   
   return user;
-}
+});
 
-export async function getProfile() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
+/**
+ * Obtiene el perfil del usuario actual mediante una Server Action controlada.
+ * Se asume que el perfil existe previamente (vía trigger u otro mecanismo).
+ */
+export const getProfile = cache(async () => {
+  const user = await getCurrentUser();
   if (!user) return null;
 
+  const supabase = await createClient();
   const { data: profile } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
   return profile;
-}
+});
 
 export async function signInWithGoogle(nextUrl: string) {
   const supabase = await createClient();

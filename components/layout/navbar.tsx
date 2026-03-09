@@ -1,22 +1,14 @@
 import { Ticket, LogIn } from "lucide-react";
-import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { DropdownMenuAvatar } from "@/components/auth/dropdown-menu-avatar";
 import { APP_NAME } from "@/lib/constants";
 
+import { getProfile } from "@/app/actions/auth";
+
 export async function Navbar() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  let role = 'client';
-  if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-    if (profile) role = profile.role;
-  }
+  const profile = await getProfile();
+  const user = profile ? { email: profile.email, id: profile.id, user_metadata: { avatar_url: profile.avatar_url, full_name: profile.full_name } } : null;
+  const role = profile?.role || 'client';
 
   return (
     <nav className="sticky top-0 z-50 px-4 py-3 bg-background/80 backdrop-blur-md border-b border-border">

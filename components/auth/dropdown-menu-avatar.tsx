@@ -75,10 +75,12 @@ export function DropdownMenuAvatar({ user, role }: DropdownMenuAvatarProps) {
               </DropdownMenuItem>
             </Link>
           )}
-          <DropdownMenuItem className="cursor-pointer">
-            <User className="mr-2 h-4 w-4" />
-            <span>Perfil</span>
-          </DropdownMenuItem>
+          <Link href="/profile" className="w-full">
+            <DropdownMenuItem className="cursor-pointer">
+              <User className="mr-2 h-4 w-4" />
+              <span>Perfil</span>
+            </DropdownMenuItem>
+          </Link>
           <Link href="/rewards" className="w-full">
             <DropdownMenuItem className="cursor-pointer">
               <Ticket className="mr-2 h-4 w-4" />
