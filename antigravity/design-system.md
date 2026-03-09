@@ -1,4 +1,4 @@
-# 🧭 Fideliza QR - Premium Design System
+# 🧭 Fidelilocal - Premium Design System
 
 Este documento define los lineamientos visuales y de experiencia de usuario (UX) que hemos implementado para elevar la aplicación a una estética profesional, única y de alto impacto.
 
@@ -154,18 +154,8 @@ import { DS } from "@/lib/constants";
 
 ---
 
-## 7. Arquitectura y Rendimiento (Next.js)
+## 7. Referencias
 
-Para asegurar una aplicación rápida, mantenible y escalable, sigue estas reglas estructurales:
+Para reglas de implementación técnica, manejo de datos y arquitectura de archivos, consultar:
 
-### Server Actions
-
-1. **Prioridad Absoluta:** Toda petición o mutación de datos debe realizarse mediante **Server Actions**.
-2. **Ubicación Centralizada:** Todas las Server Actions deben residir en la carpeta `app/actions`.
-3. **Reutilización:** Antes de crear una nueva Server Action, verifica si ya existe una acción que cumpla el mismo propósito dentro de `app/actions`.
-
-### Componentes de Servidor Asíncronos (Suspense)
-
-1. **Carga Selectiva:** En un Server Component, mantén el código asíncrono lo más aislado posible.
-2. **Uso de Suspense:** Envuelve únicamente las partes de la interfaz que dependan de la carga de datos dentro de componentes `<Suspense>`.
-3. **HTML Estático Inmediato:** El HTML que no requiera datos asíncronos debe ser síncrono para que se renderice inmediatamente sin bloquear la experiencia del usuario.
+- [Technical Architecture & Best Practices](file:///c%3A/Users/blope/OneDrive/Escritorio/fideliza-qr/antigravity/technical-architecture.md)
