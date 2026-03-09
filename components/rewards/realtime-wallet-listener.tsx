@@ -46,28 +46,32 @@ export function RealtimeWalletListener({ userId }: RealtimeWalletListenerProps) 
 
           const oldCount = (payload.old as Record<string, number>)?.scans_count;
           const newCount = (payload.new as Record<string, number>)?.scans_count;
+          const rewardId = (payload.new as Record<string, string>)?.reward_id;
 
-          if (oldCount !== undefined && newCount !== undefined) {
-             if (newCount > oldCount) {
+          if (newCount !== undefined) {
+             // Si newCount > oldCount (o si oldCount es undefined pero sabemos que es un scan)
+             if (oldCount === undefined || newCount > oldCount) {
                toast.success(
-                 `🎉 ¡Visita registrada! Ahora tienes ${newCount} visitas en esta recompensa.`,
-                 { duration: 5000 }
+                 `🎉 ¡Visita registrada! Ahora tienes ${newCount} visitas.`,
+                 { 
+                   duration: 5000,
+                   id: `scan-${rewardId}-${newCount}` // ID único para forzar refresco del mensaje
+                 }
                );
-               // Broadcast the event so we can close the specific modal
+               
                if (typeof window !== "undefined") {
                  window.dispatchEvent(new CustomEvent('reward-scanned', { 
-                   detail: { rewardId: (payload.new as Record<string, string>).reward_id } 
+                   detail: { rewardId } 
                  }));
                }
              } else if (newCount < oldCount) {
                toast.success(
-                 `🎁 ¡Premio canjeado exitosamente! Te quedan ${newCount} visitas.`,
-                 { duration: 5000 }
+                 `🎁 ¡Premio canjeado! Te quedan ${newCount} visitas.`,
+                 { id: `redeem-${rewardId}-${newCount}` }
                );
              }
           }
 
-          // Refresh the server components to show updated data
           router.refresh();
         }
       )
@@ -82,15 +86,16 @@ export function RealtimeWalletListener({ userId }: RealtimeWalletListenerProps) 
         (payload) => {
           console.log("[Realtime] Received insert:", payload);
           const newCount = (payload.new as Record<string, number>)?.scans_count;
+          const rewardId = (payload.new as Record<string, string>)?.reward_id;
           
           if (newCount !== undefined) {
              toast.success(
-                `🎉 ¡Primera visita registrada! Ahora tienes ${newCount} visita/s.`,
-                { duration: 5000 }
+                `🎉 ¡Primera visita registrada! Tienes ${newCount} visita.`,
+                { duration: 5000, id: `insert-${rewardId}` }
              );
              if (typeof window !== "undefined") {
                window.dispatchEvent(new CustomEvent('reward-scanned', { 
-                 detail: { rewardId: (payload.new as Record<string, string>).reward_id } 
+                 detail: { rewardId } 
                }));
              }
           }
