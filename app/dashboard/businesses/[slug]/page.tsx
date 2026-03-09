@@ -46,22 +46,31 @@ export default async function BusinessDashboardPage({ params }: { params: Promis
             Panel de fidelización y recompensas
           </p>
         </div>
-        <div className="flex gap-3">
-          <Button
-            variant="default"
-            className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
-            nativeButton={false}
-            render={
-              <Link href={`/dashboard/businesses/${slug}/scanner`}>
-                <ScanLine className="mr-2 h-4 w-4" /> Abrir Escáner
-              </Link>
-            }
-          />
-          <Button variant="outline" className="border-primary/20 hover:bg-primary/10">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto mt-4 md:mt-0">
+          <Link 
+            href={`/dashboard/businesses/${slug}/scanner`} 
+            className="flex-1 md:flex-none"
+          >
+            <Button
+              variant="default"
+              className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 h-10 px-4"
+            >
+              <ScanLine className="mr-2 h-4 w-4" /> 
+              <span className="whitespace-nowrap">Abrir Escáner</span>
+            </Button>
+          </Link>
+          
+          <Button 
+            variant="outline" 
+            className="flex-1 md:flex-none border-primary/20 hover:bg-primary/10 h-10 px-4"
+          >
             <QrCode className="mr-2 h-4 w-4 text-primary" />
-            Descargar QR
+            <span className="whitespace-nowrap">Descargar QR</span>
           </Button>
-          <RewardForm businessId={businessId} />
+
+          <div className="w-full md:w-auto">
+            <RewardForm businessId={businessId} />
+          </div>
         </div>
       </div>
 

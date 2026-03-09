@@ -111,9 +111,13 @@ export function RewardForm({ businessId }: RewardFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-md">
-          <Plus className="mr-2 h-4 w-4" /> Nueva Tarjeta (Recompensa)
-        </Button>}>
+      <DialogTrigger render={
+        <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-md h-10 px-4">
+          <Plus className="mr-2 h-4 w-4" /> 
+          <span className="whitespace-nowrap">Nueva Tarjeta</span>
+          <span className="hidden sm:inline ml-1 text-xs opacity-90">(Recompensa)</span>
+        </Button>
+      }>
       </DialogTrigger>
       
       <DialogContent className="sm:max-w-[500px] border-border shadow-2xl bg-card">
