@@ -18,6 +18,21 @@ export async function getCurrentUser(): Promise<User | null> {
   return user;
 }
 
+export async function getProfile() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  return profile;
+}
+
 export async function signInWithGoogle(nextUrl: string) {
   const supabase = await createClient();
   const origin = (await headers()).get('origin') || getSiteUrl();

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/app/actions/auth";
 import { createSubscriptionCheckout } from "@/app/actions/billing";
+import { activatePlan } from "@/app/actions/plans";
 import { PricingSection } from "@/components/register/pricing-section";
 import { PLAN_IDS, type PlanId } from "@/lib/constants";
 import { Loader2, ArrowLeft } from "lucide-react";
@@ -23,8 +24,9 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
       redirect(`/login?next=/register?plan=${plan}`);
     }
 
-    // Plan básico (gratis) → dashboard directo
+    // Plan básico (gratis) → activar rol y dashboard directo
     if (plan === PLAN_IDS.basic) {
+      await activatePlan(plan);
       redirect("/dashboard");
     }
 

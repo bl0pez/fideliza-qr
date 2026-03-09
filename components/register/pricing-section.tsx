@@ -1,7 +1,6 @@
 import { Check } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { PLAN_IDS } from "@/lib/constants";
 import { getPlans } from "@/app/actions/plans";
 import { getCurrentUser } from "@/app/actions/auth";
 
@@ -14,11 +13,7 @@ export async function PricingSection() {
 
   // Determina el href del CTA segun si hay sesion activa
   const getPlanHref = (planId: string): string => {
-    if (planId === PLAN_IDS.basic) {
-      // Plan gratuito: si ya esta logueado va al dashboard, sino al login
-      return user ? "/dashboard" : `/login?next=/dashboard`;
-    }
-    // Planes de pago: si esta logueado va directo al checkout, sino al login con redirect
+    // Todos los planes deben pasar por /register?plan=ID para activar el rol/pago
     return user
       ? `/register?plan=${planId}`
       : `/login?next=/register?plan=${planId}`;

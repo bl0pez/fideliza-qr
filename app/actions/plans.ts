@@ -1,6 +1,8 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { PLAN_IDS } from "@/lib/constants";
+import { revalidatePath } from "next/cache";
 
 export interface Plan {
   id: string;
@@ -24,4 +26,51 @@ export async function getPlans(): Promise<Plan[]> {
     .order("sort_order", { ascending: true });
 
   return (plans ?? []) as Plan[];
+}
+
+export async function activatePlan(planId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Debes iniciar sesión para activar un plan." };
+  }
+
+  // 1. Si es el plan básico, actualizamos el rol a business_owner directamente
+  // Si es un plan de pago, esto normalmente lo manejaría el webhook de pago,
+  // pero para asegurar que el usuario tenga acceso inmediato podemos hacerlo aquí también
+  // si confiamos en el flujo (o simplemente si ya pagó).
+  // En este contexto, el usuario dice que "no hace nada" al elegir el gratis.
+  
+  if (planId === PLAN_IDS.basic) {
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({ role: "business_owner" })
+      .eq("id", user.id);
+
+    if (profileError) {
+      console.error("Error updating profile role:", profileError);
+      return { error: "No se pudo actualizar el perfil: " + profileError.message };
+    }
+    
+    // También creamos una suscripción "gratis" en owner_subscriptions si no existe
+    const { error: subError } = await supabase
+      .from("owner_subscriptions")
+      .upsert({
+        owner_id: user.id,
+        plan_id: planId,
+        status: "active",
+        current_period_end: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365 * 10).toISOString(), // 10 años
+      }, { onConflict: "owner_id" });
+
+    if (subError) {
+      console.error("Error creating free subscription:", subError);
+      // No bloqueamos por esto si el rol ya cambió, pero es bueno tenerlo
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/settings/billing");
+  }
+
+  return { success: true };
 }
