@@ -1,24 +1,13 @@
 "use client";
-
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { APP_NAME } from "@/lib/constants";
+import { APP_NAME, DS } from "@/lib/constants";
 import { useSearchParams } from "next/navigation";
 
-// Definimos el esquema de validación con Yup, acorde a la regla del usuario
-const loginSchema = yup.object().shape({
-  email: yup.string().email("Correo inválido").required("El correo es requerido"),
-});
-
-type LoginFormValues = yup.InferType<typeof loginSchema>;
+import { signInWithGoogle } from "@/app/actions/auth";
+import { LoginForm } from "@/components/auth/login-form";
 
 export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState<boolean>(false);
@@ -26,44 +15,11 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const nextUrl = searchParams.get("next") ?? "/dashboard";
 
-  const supabase = createClient();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({
-    resolver: yupResolver(loginSchema),
-  });
-
-  const onSubmit = async (data: LoginFormValues) => {
-    setMessage(null);
-    try {
-      const callbackUrl = `${location.origin}/auth/callback?next=${encodeURIComponent(nextUrl)}`;
-      const { error } = await supabase.auth.signInWithOtp({
-        email: data.email,
-        options: { emailRedirectTo: callbackUrl },
-      });
-
-      if (error) throw error;
-
-      setMessage({ type: 'success', text: 'Revisa tu bandeja de entrada para el enlace de inicio de sesión.' });
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Error al enviar el correo.';
-      setMessage({ type: 'error', text: errorMessage });
-    }
-  };
-
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     setMessage(null);
     try {
-      const callbackUrl = `${location.origin}/auth/callback?next=${encodeURIComponent(nextUrl)}`;
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: callbackUrl },
-      });
-      if (error) throw error;
+      await signInWithGoogle(nextUrl);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Ocurrió un error con Google Auth.';
       setMessage({ type: 'error', text: errorMessage });
@@ -72,22 +28,36 @@ export default function LoginPage() {
   };
 
   return (
-    <>
-      <div className="sm:mx-auto sm:w-full sm:max-w-md mb-8 flex justify-center">
-        <h2 className="text-3xl font-extrabold text-primary flex items-center gap-2">
-           <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <div className="relative min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
+      {/* Background Glow */}
+      <div className={`absolute top-0 left-1/4 w-96 h-96 -z-10 ${DS.glow.light}`} />
+      <div className={`absolute bottom-0 right-1/4 w-96 h-96 -z-10 ${DS.glow.accent}`} />
+
+      <div className="sm:mx-auto sm:w-full sm:max-w-md mb-8 flex flex-col items-center">
+        <div className="flex items-center gap-3 mb-4">
+           <svg className="w-10 h-10 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          {APP_NAME}
-        </h2>
+          <h1 className={`text-4xl ${DS.typography.heading}`}>
+            {APP_NAME}
+          </h1>
+        </div>
+        
+        <div className="flex items-center gap-4 mb-2">
+          <div className={DS.typography.sectionLabelLine} />
+          <span className={DS.typography.sectionLabel}>Acceso Seguro</span>
+          <div className={DS.typography.sectionLabelLine} />
+        </div>
       </div>
 
-      <Card className="border-border shadow-md">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">Bienvenido de nuevo</CardTitle>
-          <CardDescription>
+      <Card className={`sm:mx-auto sm:w-full sm:max-w-md border-border shadow-2xl ${DS.card.rounded} ${DS.glass.card}`}>
+        <CardHeader className="space-y-1 text-center items-center">
+          <CardTitle className={`text-3xl ${DS.typography.headingMd}`}>
+            Bienvenido de <span className={DS.gradient.primaryText}>nuevo</span>
+          </CardTitle>
+          <CardDescription className="text-base">
             Inicia sesión o regístrate para continuar.
           </CardDescription>
         </CardHeader>
@@ -97,7 +67,7 @@ export default function LoginPage() {
             variant="outline" 
             className="w-full flex items-center justify-center gap-2 py-6 text-foreground border-border hover:bg-secondary/50"
             onClick={handleGoogleLogin}
-            disabled={googleLoading || isSubmitting}
+            disabled={googleLoading}
           >
             {googleLoading ? (
                <Loader2 className="w-5 h-5 animate-spin" />
@@ -123,38 +93,24 @@ export default function LoginPage() {
             </div>
           </div>
 
+          <LoginForm nextUrl={nextUrl} />
+
           {message && (
             <div className={`p-3 rounded-lg text-sm ${message.type === 'error' ? 'bg-destructive/15 text-destructive' : 'bg-primary/15 text-primary'}`}>
               {message.text}
             </div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground">Correo electrónico</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="nombre@ejemplo.com"
-                className={`col-span-3 ${errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}`}
-                {...register("email")}
-                disabled={isSubmitting || googleLoading}
-              />
-              {errors.email && (
-                <p className="text-xs text-destructive font-medium">{errors.email.message}</p>
-              )}
-            </div>
-            <Button className="w-full py-6 font-semibold" type="submit" disabled={isSubmitting || googleLoading}>
-              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              {isSubmitting ? "Enviando enlace..." : "Iniciar sesión por correo"}
-            </Button>
-          </form>
+          
           
         </CardContent>
-        <CardFooter className="flex justify-center text-sm text-muted-foreground pb-6">
-          Al iniciar sesión, aceptas nuestros Términos y Política de Privacidad.
-        </CardFooter>
       </Card>
-    </>
+      
+      <div className="mt-8 text-center sm:mx-auto sm:w-full sm:max-w-md">
+        <p className="text-xs text-muted-foreground">
+          Al continuar, aceptas nuestros <span className="underline cursor-pointer hover:text-primary transition-colors">Términos</span> y <span className="underline cursor-pointer hover:text-primary transition-colors">Política de Privacidad</span>.
+        </p>
+      </div>
+    </div>
   );
 }
