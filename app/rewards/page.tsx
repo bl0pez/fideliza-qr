@@ -7,6 +7,8 @@ import Link from "next/link";
 import { RedeemQrModal } from "@/components/public/redeem-qr-modal";
 import { CustomerQrModal } from "@/components/public/customer-qr-modal";
 import { Navbar } from "@/components/layout/navbar";
+import { BottomNav } from "@/components/layout/bottom-nav";
+import { Footer } from "@/components/layout/footer";
 import { RealtimeWalletListener } from "@/components/rewards/realtime-wallet-listener";
 
 export const metadata = {
@@ -39,7 +41,7 @@ export default async function RewardsWalletPage() {
       <Navbar />
       <RealtimeWalletListener userId={user.id} />
 
-      <main className="flex-1 max-w-2xl mx-auto w-full p-4 sm:p-6 lg:p-8 space-y-6">
+      <main className="flex-1 max-w-2xl mx-auto w-full p-4 sm:p-6 lg:p-8 pb-32 space-y-6">
         
         <div className="flex items-center gap-3 pb-2 border-b">
           <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
@@ -166,8 +168,9 @@ export default async function RewardsWalletPage() {
             })}
           </div>
         )}
-
       </main>
+      <Footer />
+      <BottomNav />
     </div>
   );
 }

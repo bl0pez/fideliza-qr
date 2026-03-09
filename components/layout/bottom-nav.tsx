@@ -35,11 +35,11 @@ export async function BottomNav() {
               <span className="text-[10px] font-bold uppercase tracking-wider">Escanear</span>
             </Link>
           )}
-          <Link href="/cards" className="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+          <Link href="/rewards" className="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
             <Ticket className="w-6 h-6" />
             <span className="text-[10px] font-bold uppercase tracking-wider">Tarjetas</span>
           </Link>
-          <Link href="/profile" className="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+          <Link href="/dashboard/settings" className="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
             <User className="w-6 h-6" />
             <span className="text-[10px] font-bold uppercase tracking-wider">Perfil</span>
           </Link>
