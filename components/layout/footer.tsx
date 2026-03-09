@@ -26,7 +26,7 @@ export function Footer() {
           </div>
         </div>
         <div className="pt-8 border-t border-slate-200 dark:border-slate-800 text-center">
-          <p className="text-slate-400 text-xs">© 2024 {APP_NAME}. Todos los derechos reservados.</p>
+          <p className="text-slate-400 text-xs">© {new Date().getFullYear()} {APP_NAME}. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>
