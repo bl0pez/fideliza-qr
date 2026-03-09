@@ -101,73 +101,93 @@ export function ExploreHero({ categories, countries }: Props) {
           </p>
         </div>
 
-        {/* Filters - Simplified and more integrated (No card wrapper) */}
-        <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-            {/* Search Input */}
-            <div className="lg:col-span-12 xl:col-span-6 group relative">
-              <div className="absolute -inset-0.5 bg-linear-to-r from-primary/20 to-orange-500/20 rounded-2xl blur-sm opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
-              <div className="relative">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-primary transition-colors" />
-                <Input
-                  placeholder="Buscar por nombre o categoría..."
-                  className="pl-13 h-16 rounded-2xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-lg md:text-xl focus-visible:ring-primary/20 focus-visible:ring-offset-0 border shadow-lg transition-all"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+        {/* Integrated Filter Bar */}
+        <div className="max-w-4xl mx-auto w-full">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center bg-white p-2 lg:p-3 rounded-[2rem] lg:rounded-[2.5rem] border border-slate-200/60 shadow-2xl relative group/bar gap-1 lg:gap-0">
+            {/* Ambient hover effect for the whole bar */}
+            <div className="absolute -inset-1 bg-linear-to-r from-primary/5 to-orange-500/5 rounded-[3rem] blur-xl opacity-0 group-hover/bar:opacity-100 transition duration-1000"></div>
+
+            {/* Search Input - Primary field */}
+            <div className="flex-1 relative group z-10 py-1 lg:py-0">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-primary transition-colors" />
+              <Input
+                placeholder="¿Qué buscas hoy?"
+                className="pl-13 h-14 lg:h-16 border-none bg-transparent text-slate-900 placeholder:text-slate-400 text-base lg:text-lg focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none transition-all font-bold py-0 w-full"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
 
-            {/* Location Filters - More compact */}
-            <div className="lg:col-span-12 xl:col-span-6 grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
-               <div className="relative group">
-                 <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 group-focus-within:text-primary transition-colors" />
-                 <Select 
-                   value={selectedCountry} 
-                   onValueChange={(val: string | null) => {
-                     const value = val ?? "";
-                     setSelectedCountry(value);
-                     updateParams("country", value);
-                   }}
-                 >
-                   <SelectTrigger className="h-14 md:h-16 pl-11 rounded-2xl border-slate-200 bg-white text-slate-900 focus:ring-1 focus:ring-primary/20 shadow-md text-base font-bold transition-all hover:border-primary/30">
-                     <SelectValue placeholder="País" />
-                   </SelectTrigger>
-                   <SelectContent className="bg-white border-slate-200 text-slate-900 rounded-2xl shadow-2xl">
-                     <SelectItem value="all" className="font-medium">Todos los países</SelectItem>
-                     {countries.map((country) => (
-                       <SelectItem key={country.id} value={country.name} className="font-medium">
-                         {country.name}
-                       </SelectItem>
-                     ))}
-                   </SelectContent>
-                 </Select>
-               </div>
+            {/* Mobile Divider (Horizontal) / Desktop Divider (Vertical) */}
+            <div className="h-px w-full bg-slate-100/80 lg:hidden" />
+            <div className="hidden lg:block w-px h-10 bg-slate-100 mx-2" />
 
-               <div className="relative group">
-                 <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 group-focus-within:text-primary transition-colors" />
-                 <Select 
-                   value={selectedCity} 
-                   onValueChange={(val: string | null) => {
-                     const value = val ?? "";
-                     setSelectedCity(value);
-                     updateParams("city", value);
-                   }}
-                   disabled={!selectedCountry || selectedCountry === "all" || cities.length === 0}
-                 >
-                   <SelectTrigger className="h-14 md:h-16 pl-11 rounded-2xl border-slate-200 bg-white text-slate-900 focus:ring-1 focus:ring-primary/20 shadow-md text-base font-bold disabled:opacity-50 transition-all hover:border-primary/30">
-                     <SelectValue placeholder={selectedCountry && selectedCountry !== "all" ? "Ciudad" : "País primero"} />
-                   </SelectTrigger>
-                   <SelectContent className="bg-white border-slate-200 text-slate-900 rounded-2xl shadow-2xl">
-                     <SelectItem value="all" className="font-medium">Todas las ciudades</SelectItem>
-                     {cities.map((city) => (
-                       <SelectItem key={city.id} value={city.name} className="font-medium">
-                         {city.name}
-                       </SelectItem>
-                     ))}
-                   </SelectContent>
-                 </Select>
-               </div>
+            {/* Country Select */}
+            <div className="w-full lg:w-[180px] relative group z-10 py-1 lg:py-0">
+              <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 group-focus-within:text-primary transition-colors" />
+              <Select 
+                value={selectedCountry} 
+                onValueChange={(val: string | null) => {
+                  const value = val ?? "";
+                  setSelectedCountry(value);
+                  updateParams("country", value);
+                }}
+              >
+                <SelectTrigger className="h-14 lg:h-16 pl-11 border-none bg-transparent text-slate-900 focus:ring-0 shadow-none text-base font-bold transition-all hover:bg-slate-50/50 rounded-xl lg:rounded-2xl w-full text-left justify-start">
+                  <SelectValue placeholder="País" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-slate-200 text-slate-900 rounded-2xl shadow-2xl p-2 min-w-[200px]">
+                  <SelectItem value="all" className="font-bold py-3 rounded-xl hover:bg-slate-50 focus:bg-slate-50 transition-colors">Todos los países</SelectItem>
+                  <div className="h-px bg-slate-100 my-2" />
+                  {countries.map((country) => (
+                    <SelectItem key={country.id} value={country.name} className="font-bold py-3 rounded-xl hover:bg-slate-50 focus:bg-slate-50 transition-colors">
+                      {country.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Mobile Divider (Horizontal) / Desktop Divider (Vertical) */}
+            <div className="h-px w-full bg-slate-100/80 lg:hidden" />
+            <div className="hidden lg:block w-px h-10 bg-slate-100 mx-2" />
+
+            {/* City Select */}
+            <div className="w-full lg:w-[180px] relative group z-10 py-1 lg:py-0">
+              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 group-focus-within:text-primary transition-colors" />
+              <Select 
+                value={selectedCity} 
+                onValueChange={(val: string | null) => {
+                  const value = val ?? "";
+                  setSelectedCity(value);
+                  updateParams("city", value);
+                }}
+                disabled={!selectedCountry || selectedCountry === "all" || cities.length === 0}
+              >
+                <SelectTrigger className="h-14 lg:h-16 pl-11 border-none bg-transparent text-slate-900 focus:ring-0 shadow-none text-base font-bold disabled:opacity-50 transition-all hover:bg-slate-50/50 rounded-xl lg:rounded-2xl w-full text-left justify-start">
+                  <SelectValue placeholder={selectedCountry && selectedCountry !== "all" ? "Ciudad" : "Ciudad"} />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-slate-200 text-slate-900 rounded-2xl shadow-2xl p-2 min-w-[200px]">
+                  <SelectItem value="all" className="font-bold py-3 rounded-xl hover:bg-slate-50 focus:bg-slate-50 transition-colors">Todas las ciudades</SelectItem>
+                  <div className="h-px bg-slate-100 my-2" />
+                  {cities.map((city) => (
+                    <SelectItem key={city.id} value={city.name} className="font-bold py-3 rounded-xl hover:bg-slate-50 focus:bg-slate-50 transition-colors">
+                      {city.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* CTA Button */}
+            <div className="p-1 lg:pl-2 pt-2 lg:pt-0">
+              <button className="h-14 lg:h-12 w-full lg:w-12 rounded-xl lg:rounded-full bg-slate-900 flex items-center justify-center text-white shadow-lg hover:bg-primary transition-all active:scale-95 group/btn overflow-hidden relative">
+                <div className="absolute inset-0 bg-linear-to-r from-primary to-orange-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
+                <span className="lg:hidden relative z-10 font-bold uppercase tracking-[0.2em] text-xs flex items-center gap-2">
+                  <Search className="w-4 h-4" /> Buscar ahora
+                </span>
+                <Search className="hidden lg:block relative z-10 w-5 h-5 group-hover/btn:scale-110 transition-transform" />
+              </button>
             </div>
           </div>
         </div>
