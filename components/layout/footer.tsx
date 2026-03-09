@@ -1,32 +1,87 @@
 import Link from "next/link";
-import { Ticket } from "lucide-react";
-import { APP_NAME } from "@/lib/constants";
+import { Ticket, Twitter, Instagram, Linkedin, Heart } from "lucide-react";
+import { APP_NAME, DS } from "@/lib/constants";
 
 export function Footer() {
   return (
-    <footer className="bg-secondary px-6 py-12 border-t border-border mb-16">
-      <div className="flex flex-col gap-8 container mx-auto">
-        <div>
-          <div className="flex items-center gap-2 mb-4">
-            <Ticket className="text-primary w-6 h-6" />
-            <span className="text-lg font-bold">{APP_NAME}</span>
+    <footer className="relative overflow-hidden bg-white border-t border-slate-100 pt-24 pb-20 px-6 lg:px-12 mt-20">
+      {/* Premium Decorative Elements */}
+      <div className={`absolute -bottom-24 -left-24 w-96 h-96 ${DS.glow.light} opacity-50`} />
+      <div className={`absolute -top-48 -right-24 w-[500px] h-[500px] ${DS.glow.accent} opacity-30`} />
+      
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 lg:gap-8 pb-16">
+          {/* Brand Identity Column */}
+          <div className="lg:col-span-5 space-y-8">
+            <Link href="/" className="flex items-center gap-3.5 group">
+              <div className="bg-primary/10 p-3 rounded-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm border border-primary/5">
+                <Ticket className="text-primary w-7 h-7" />
+              </div>
+              <span className={`text-2xl ${DS.typography.heading} tracking-tighter text-slate-900 uppercase`}>
+                {APP_NAME}
+              </span>
+            </Link>
+            
+            <p className="text-slate-500 text-lg md:text-xl leading-relaxed max-w-sm font-medium">
+              Transformando la lealtad local en una <span className="text-slate-900 font-bold">experiencia digital extraordinaria</span> para todos.
+            </p>
+
+            <div className="flex items-center gap-4">
+              <Link href="#" className="w-12 h-12 rounded-2xl flex items-center justify-center bg-slate-50 border border-slate-200/60 text-slate-400 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-500 group/social">
+                <Twitter className="w-5 h-5 group-hover/social:scale-110 transition-transform" />
+              </Link>
+              <Link href="#" className="w-12 h-12 rounded-2xl flex items-center justify-center bg-slate-50 border border-slate-200/60 text-slate-400 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-500 group/social">
+                <Instagram className="w-5 h-5 group-hover/social:scale-110 transition-transform" />
+              </Link>
+              <Link href="#" className="w-12 h-12 rounded-2xl flex items-center justify-center bg-slate-50 border border-slate-200/60 text-slate-400 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-500 group/social">
+                <Linkedin className="w-5 h-5 group-hover/social:scale-110 transition-transform" />
+              </Link>
+            </div>
           </div>
-          <p className="text-slate-500 text-sm">Empoderando a los negocios locales a través de la tecnología y la fidelización.</p>
+
+          <div className="lg:col-span-1 hidden lg:block" />
+
+          {/* Links Columns */}
+          <div className="lg:col-span-6 grid grid-cols-2 sm:grid-cols-3 gap-10">
+            <div className="space-y-6">
+              <h4 className={DS.typography.sectionLabel}>Plataforma</h4>
+              <ul className="space-y-4">
+                <li><Link href="/explore" className="text-slate-500 hover:text-primary font-bold transition-colors">Explorar</Link></li>
+                <li><Link href="/how-it-works" className="text-slate-500 hover:text-primary font-bold transition-colors">Cómo funciona</Link></li>
+                <li><Link href="/register" className="text-slate-500 hover:text-primary font-bold transition-colors">Precios</Link></li>
+              </ul>
+            </div>
+
+            <div className="space-y-6">
+              <h4 className={DS.typography.sectionLabel}>Negocios</h4>
+              <ul className="space-y-4">
+                <li><Link href="/register" className="text-slate-500 hover:text-primary font-bold transition-colors">Crear Cuenta</Link></li>
+                <li><Link href="/login" className="text-slate-500 hover:text-primary font-bold transition-colors">Panel Control</Link></li>
+                <li><Link href="/contact" className="text-slate-500 hover:text-primary font-bold transition-colors">Soporte</Link></li>
+              </ul>
+            </div>
+
+            <div className="space-y-6 col-span-2 sm:col-span-1">
+              <h4 className={DS.typography.sectionLabel}>Legal</h4>
+              <ul className="space-y-4">
+                <li><Link href="#" className="text-slate-500 hover:text-primary font-bold transition-colors">Términos</Link></li>
+                <li><Link href="#" className="text-slate-500 hover:text-primary font-bold transition-colors">Privacidad</Link></li>
+              </ul>
+            </div>
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-8">
-          <div className="flex flex-col gap-4">
-            <p className="font-bold text-sm uppercase tracking-widest text-slate-400">Plataforma</p>
-            <Link href="/explore" className="text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">Explorar</Link>
-            <Link href="/how-it-works" className="text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">Cómo funciona</Link>
+
+        {/* Footer Bottom */}
+        <div className="pt-10 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-8 pb-10">
+          <p className="text-slate-400 text-sm font-bold tracking-tight">
+            © {new Date().getFullYear()} <span className="text-slate-900">{APP_NAME}</span>. Todos los derechos reservados.
+          </p>
+          
+          <div className="flex items-center gap-6">
+             <div className="flex items-center gap-2 text-slate-500 text-sm font-bold bg-slate-50 px-4 py-2 rounded-full border border-slate-100 italic">
+               Hecho con <Heart className="w-4 h-4 text-primary fill-primary animate-pulse" /> por <span className="text-slate-900 not-italic">bryanlopezdev@gmail.com</span>
+             </div>
           </div>
-          <div className="flex flex-col gap-4">
-            <p className="font-bold text-sm uppercase tracking-widest text-slate-400">Compañía</p>
-            <Link href="/business" className="text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">Para negocios</Link>
-            <Link href="/contact" className="text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">Contacto</Link>
-          </div>
-        </div>
-        <div className="pt-8 border-t border-slate-200 dark:border-slate-800 text-center">
-          <p className="text-slate-400 text-xs">© {new Date().getFullYear()} {APP_NAME}. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>
