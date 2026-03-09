@@ -15,31 +15,30 @@ interface Props {
 export default function BusinessCarousel({ businesses }: Props) {
   return (
     <div className="w-full relative px-4 md:px-8">
-      {/* Optional: Add custom navigation buttons here if needed, 
-          but Autoplay + Loop is usually enough for a clean look */}
       <Carousel
-        opts={{ 
-          align: "start", 
+        opts={{
+          align: "start",
           loop: true,
-          containScroll: "trimSnaps"
+          containScroll: "trimSnaps",
         }}
         className="w-full max-w-7xl mx-auto"
         plugins={[
-          Autoplay({ 
-            delay: 4000, 
+          Autoplay({
+            delay: 4000,
             stopOnInteraction: true,
-            stopOnMouseEnter: true 
-          })
+            stopOnMouseEnter: true,
+          }),
         ]}
       >
         <CarouselContent className="-ml-6 md:-ml-8">
           {businesses.map((business) => (
             <CarouselItem
               key={business.id}
-              // Mobile: 1.1 cards visible to hint scroll, sm: 2, md: 2.5, lg: 3
               className="pl-6 md:pl-8 basis-[85%] sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
             >
-              <div className="pb-12"> {/* Spacing for card shadows */}
+              <div className="pb-12">
+                {" "}
+                {/* Spacing for card shadows */}
                 <BusinessCard business={business} />
               </div>
             </CarouselItem>
