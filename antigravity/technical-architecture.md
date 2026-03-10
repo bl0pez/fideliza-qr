@@ -122,5 +122,36 @@ Seguimos la guía oficial de Next.js: https://nextjs.org/docs/app/guides/analyti
 
 ---
 
+## 8. SEO & Posicionamiento
+
+### A. Archivos de Metadatos (Next.js File Convention)
+
+| Archivo              | Ruta          | Propósito                                                    |
+| :------------------- | :------------ | :----------------------------------------------------------- |
+| `sitemap.ts`         | `app/`        | Genera `/sitemap.xml` dinámicamente. Solo rutas públicas.    |
+| `robots.ts`          | `app/`        | Genera `/robots.txt`. Bloquea `/dashboard`, `/api`, `/auth`. |
+| `manifest.ts`        | `app/`        | Genera `/manifest.webmanifest` para PWA readiness.           |
+
+### B. Metadata en `layout.tsx`
+
+- **`metadataBase`:** URL canónica base para resolver rutas relativas.
+- **`title.template`:** `%s | Fidelilocal` — Todas las páginas heredan el sufijo automáticamente.
+- **`openGraph`:** locale `es_CL`, `type: website`.
+- **`twitter`:** `card: summary_large_image`.
+- **`robots.googleBot`:** Max snippet, max image preview habilitados.
+
+### C. Structured Data (JSON-LD)
+
+- **Componente:** `components/seo/json-ld.tsx` — Server Component con schema `SoftwareApplication`.
+- **Regla:** Si agregas nuevos tipos de structured data (ej: `LocalBusiness` para negocios), crea un nuevo componente en `components/seo/`.
+
+### D. Reglas
+
+- **Nunca** uses `lang="en"` — el idioma es `es`.
+- **Nunca** pegues `<script>` raw en HTML — usa `next/script` o `dangerouslySetInnerHTML` para JSON-LD.
+- **Siempre** usa `getSiteUrl()` para URLs absolutas, nunca hardcodees dominios.
+
+---
+
 > [!IMPORTANT]
 > **No aceptamos mediocridad.** El código debe ser tan hermoso como la interfaz. Si algo genera deuda técnica, resuélvelo antes de pasar a la siguiente tarea.
