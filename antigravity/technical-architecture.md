@@ -94,5 +94,33 @@ Como asistente AI, antes de proponer una solución técnica, debes verificar tus
 
 ---
 
+## 7. Analytics & Monitoring (Next.js Official Guide)
+
+Seguimos la guía oficial de Next.js: https://nextjs.org/docs/app/guides/analytics
+
+### A. Google Analytics 4 (`gtag.js`)
+
+- **Componente:** `components/analytics/google-analytics.tsx` — Carga `gtag.js` via `next/script` con estrategia `afterInteractive`.
+- **Integración:** Incluido en `app/layout.tsx` como `<GoogleAnalytics />`.
+- **Regla:** Nunca pegues `<script>` raw en el HTML. Siempre usa `next/script`.
+
+### B. Web Vitals (`useReportWebVitals`)
+
+- **Componente:** `components/analytics/web-vitals.tsx` — Envía TTFB, FCP, LCP, CLS, INP directamente a GA4 via `window.gtag`.
+- **Integración:** Incluido en `app/layout.tsx` como `<WebVitals />`.
+
+### C. Client Instrumentation (`instrumentation-client.ts`)
+
+- **Archivo:** `instrumentation-client.ts` en la raíz del proyecto.
+- **Propósito:** Se ejecuta **antes** de que el código frontend inicie. Captura errores globales y rechazos de promesas no manejados.
+
+### D. Variables de Entorno
+
+| Variable               | Propósito                                   |
+| :--------------------- | :------------------------------------------ |
+| `NEXT_PUBLIC_GA_ID`    | Measurement ID de Google Analytics 4.       |
+
+---
+
 > [!IMPORTANT]
 > **No aceptamos mediocridad.** El código debe ser tan hermoso como la interfaz. Si algo genera deuda técnica, resuélvelo antes de pasar a la siguiente tarea.
