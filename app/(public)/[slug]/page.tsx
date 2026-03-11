@@ -279,10 +279,10 @@ export default async function PublicBusinessPage({
                         <div className="grid gap-2">
                           {rewards.map((reward: PublicReward) => {
                             const reached =
-                              subscription.scans_count >= reward.scans_required;
+                              (reward.scans_count || 0) >= reward.scans_required;
                             const progress = Math.min(
                               100,
-                              (subscription.scans_count /
+                              ((reward.scans_count || 0) /
                                 reward.scans_required) *
                                 100,
                             );
@@ -306,7 +306,7 @@ export default async function PublicBusinessPage({
                                       {reward.title}
                                     </h4>
                                     <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">
-                                      {subscription.scans_count} /{" "}
+                                      {reward.scans_count || 0} /{" "}
                                       {reward.scans_required} escaneos
                                     </p>
                                   </div>

@@ -32,6 +32,7 @@ export interface PublicReward {
   description: string | null;
   requirements: string | null;
   scans_required: number;
+  scans_count: number;
   max_redemptions_per_user: number | null;
   is_active: boolean;
   expires_at: string | null;
@@ -88,25 +89,43 @@ export async function getPublicBusinessData(slug: string): Promise<{
   const userRedemptions: Record<string, number> = {};
 
   if (user && rewardsData) {
-    // Parallel fetch for subscription and redemptions
-    const [subResult, redemptionsResult] = await Promise.all([
+    // Parallel fetch for subscription, redemptions, and reward progress
+    const [subResult, redemptionsResult, progressResult] = await Promise.all([
       supabase.from("business_customers").select("*").eq("business_id", business.id).eq("user_id", user.id).maybeSingle(),
-      supabase.from("reward_redemptions").select("reward_id").eq("business_id", business.id).eq("user_id", user.id)
+      supabase.from("reward_redemptions").select("reward_id").eq("business_id", business.id).eq("user_id", user.id),
+      supabase.from("reward_progress").select("reward_id, scans_count").eq("business_id", business.id).eq("user_id", user.id)
     ]);
       
     subscription = subResult.data as PublicSubscription | null;
     
+    // Create map for easy lookup
+    const progressMap = new Map((progressResult.data || []).map(p => [p.reward_id, p.scans_count]));
+
     // Count redemptions per reward
     (redemptionsResult.data || []).forEach((r: { reward_id: string }) => {
       userRedemptions[r.reward_id] = (userRedemptions[r.reward_id] || 0) + 1;
     });
+
+    // Map rewards including user specific status and REAL reward-specific progress
+    const mappedRewards = (rewardsData as (DatabaseReward[]) || []).map((r) => {
+      const rewardScans = progressMap.get(r.id) || 0;
+      return {
+        ...r,
+        scans_count: rewardScans, // REAL progress for this specific reward
+        user_redemptions_count: userRedemptions[r.id] || 0,
+        is_limit_reached: r.max_redemptions_per_user !== null && (userRedemptions[r.id] || 0) >= r.max_redemptions_per_user
+      };
+    }) as PublicReward[];
+
+    return { business, user, subscription, rewards: mappedRewards };
   }
 
-  // Map rewards including user specific status
+  // If no user, return default rewards mapping
   const mappedRewards = (rewardsData as (DatabaseReward[]) || []).map((r) => ({
     ...r,
-    user_redemptions_count: userRedemptions[r.id] || 0,
-    is_limit_reached: r.max_redemptions_per_user !== null && (userRedemptions[r.id] || 0) >= r.max_redemptions_per_user
+    scans_count: 0,
+    user_redemptions_count: 0,
+    is_limit_reached: false
   })) as PublicReward[];
 
   return { business, user, subscription, rewards: mappedRewards };
