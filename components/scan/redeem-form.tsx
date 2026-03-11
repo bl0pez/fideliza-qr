@@ -33,6 +33,11 @@ export function RedeemForm({ businessId, businessSlug, customerId, rewardId }: R
       setSuccess(true);
       toast.success(`CANJE EXITOSO: ${result.rewardTitle}`);
       
+      // Update URL to include success param to prevent flicker on refresh
+      const url = new URL(window.location.href);
+      url.searchParams.set('success', 'true');
+      router.replace(url.pathname + url.search, { scroll: false });
+      
       setTimeout(() => {
         router.push(`/dashboard/businesses/${businessSlug}`);
       }, 2500);

@@ -13,9 +13,10 @@ export const metadata = {
 export default async function RedeemScanPage({
   searchParams,
 }: {
-  searchParams: Promise<{ b?: string; u?: string; r?: string }>;
+  searchParams: Promise<{ b?: string; u?: string; r?: string; success?: string }>;
 }) {
-  const { b: businessSlug, u: customerId, r: rewardId } = await searchParams;
+  const { b: businessSlug, u: customerId, r: rewardId, success } = await searchParams;
+  const isSuccess = success === "true";
 
   if (!businessSlug || !customerId || !rewardId) {
     return (
@@ -47,7 +48,7 @@ export default async function RedeemScanPage({
 
   const currentRewardScans = progress?.scans_count || 0;
 
-  if (currentRewardScans < reward.scans_required) {
+  if (!isSuccess && currentRewardScans < reward.scans_required) {
     return (
       <InvalidRedeemPage 
         message={`El cliente solo tiene ${currentRewardScans} visitas de las ${reward.scans_required} requeridas para este premio.`} 
