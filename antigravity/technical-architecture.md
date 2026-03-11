@@ -11,7 +11,9 @@ Estamos utilizando la arquitectura más moderna de React. No se aceptan patrones
 ### A. Server Components por Defecto
 
 - **Regla:** Todos los componentes son Server Components a menos que requieran interactividad (`useState`, `useEffect`, `usePathname`).
-- **Suspense:** No bloquees el renderizado de toda la página por una consulta lenta. Envuelve los componentes que obtienen datos en `<Suspense fallback={<LoadingSkeleton />} />`.
+- **Suspense & Streaming:** No bloquees el renderizado de toda la página por una consulta lenta. 
+  - **Regla:** El "Static Shell" (headers, sidebar, layouts) debe enviarse inmediatamente.
+  - **Acción:** Envuelve los componentes que obtienen datos en `<Suspense fallback={<LoadingSkeleton />} />`. Nunca hagas `await` de datos pesados en la raíz de un Server Component si hay HTML estático que puede mostrarse antes.
 
 ### B. Logic-in-Actions (LIA)
 

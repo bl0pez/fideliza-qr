@@ -215,3 +215,36 @@ export async function updateBusiness(id: string, data: {
 
   return { success: true };
 }
+
+export async function getBusinessCustomers(slug: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  // 1. Verify business ownership
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("id, owner_id")
+    .eq("slug", slug)
+    .single();
+
+  if (!business || business.owner_id !== user.id) {
+    return null;
+  }
+
+  // 2. Fetch from our new view (business_customers_view)
+  // Which already has the joins for names, emails, and redemption counts.
+  const { data: customers, error } = await supabase
+    .from("business_customers_view")
+    .select("*")
+    .eq("business_id", business.id)
+    .order("last_visit", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching customers from view:", error);
+    return null;
+  }
+
+  return customers;
+}
