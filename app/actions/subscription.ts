@@ -123,6 +123,28 @@ export async function addScanToCustomer(businessId: string, customerUserId: stri
     if (insertError) return { error: "Error al registrar la primera visita: " + insertError.message };
   }
 
+  // 2.5 Sincronizar con el contador GLOBAL del cliente en este negocio (CRM)
+  const { error: globalUpdateError } = await supabase.rpc('increment_customer_scans', {
+      p_business_id: businessId,
+      p_user_id: customerUserId
+  });
+
+  // Si el RPC no existe o falla, fallback a un update tradicional (menos atómico pero funcional)
+  if (globalUpdateError) {
+      const { data: currentGlobal } = await supabase
+        .from("business_customers")
+        .select("scans_count")
+        .eq("business_id", businessId)
+        .eq("user_id", customerUserId)
+        .single();
+      
+      await supabase
+        .from("business_customers")
+        .update({ scans_count: (currentGlobal?.scans_count || 0) + 1 })
+        .eq("business_id", businessId)
+        .eq("user_id", customerUserId);
+  }
+
   // 3. Incrementar el contador mensual del NEGOCIO
   const { error: businessUpdateError } = await supabase
     .from("businesses")

@@ -43,12 +43,14 @@ export default async function RedeemScanPage({
     return <InvalidRedeemPage message="Error desconocido al procesar el código QR." />;
   }
 
-  const { business, reward, subscription, customerName } = result;
+  const { business, reward, progress, customerName } = result;
 
-  if (subscription.scans_count < reward.scans_required) {
+  const currentRewardScans = progress?.scans_count || 0;
+
+  if (currentRewardScans < reward.scans_required) {
     return (
       <InvalidRedeemPage 
-        message={`El cliente solo tiene ${subscription.scans_count} visitas de las ${reward.scans_required} requeridas.`} 
+        message={`El cliente solo tiene ${currentRewardScans} visitas de las ${reward.scans_required} requeridas para este premio.`} 
       />
     );
   }
