@@ -21,6 +21,11 @@ export function LoginClient() {
     try {
       await signInWithGoogle(nextUrl);
     } catch (error: unknown) {
+      // Evitar capturar errores de redirección de Next.js
+      const err = error as Error & { digest?: string };
+      if (err?.message === "NEXT_REDIRECT" || (typeof err?.digest === "string" && err.digest.startsWith("NEXT_REDIRECT"))) {
+        throw error;
+      }
       const errorMessage = error instanceof Error ? error.message : 'Ocurrió un error con Google Auth.';
       setMessage({ type: 'error', text: errorMessage });
       setGoogleLoading(false);

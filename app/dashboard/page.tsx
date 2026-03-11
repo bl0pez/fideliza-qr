@@ -1,7 +1,7 @@
 import { Store, Ticket, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { PLAN_DEFAULTS, PLAN_IDS } from "@/lib/constants";
+import { PLAN_IDS } from "@/lib/constants";
 
 
 import { CreateBusinessButton } from "@/components/dashboard/create-business-button";
@@ -10,6 +10,7 @@ import { PlanUsageCard } from "@/components/dashboard/plan-usage-card";
 import { getDashboardStats } from "@/app/actions/dashboard";
 import { getUserBusinesses } from "@/app/actions/business";
 import { getCurrentUser } from "@/app/actions/auth";
+import { getPlans } from "@/app/actions/plans";
 
 interface Business {
   id: string;
@@ -30,18 +31,23 @@ interface Business {
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
-  const rawBusinesses = await getUserBusinesses();
+  const [rawBusinesses, plans] = await Promise.all([
+    getUserBusinesses(),
+    getPlans()
+  ]);
   
   const businesses = rawBusinesses as unknown as Business[];
 
   // Use the first business as the primary for plan limits (standard for SaaS with 1 owner)
   const primaryBusiness = businesses?.[0];
+  const basicPlan = plans.find(p => p.id === PLAN_IDS.basic);
 
   const { totalCustomers, totalRewardsDelivered } = await getDashboardStats();
 
   // Determine if branch limit is reached
   const branchCount = businesses?.length || 0;
-  const maxBranches = primaryBusiness?.plans?.max_branches || PLAN_DEFAULTS[PLAN_IDS.basic].maxBranches;
+  const maxBranches = primaryBusiness?.plans?.max_branches || basicPlan?.max_branches || 1;
+  const maxScans = primaryBusiness?.plans?.max_scans_monthly || basicPlan?.max_scans_monthly || 100;
   const hasReachedLimit = branchCount >= maxBranches;
 
   // Calculate days until monthly reset (end of current month)
@@ -66,11 +72,11 @@ export default async function DashboardPage() {
         
         <div className="w-full lg:w-auto shrink-0">
           <PlanUsageCard 
-            planName={primaryBusiness?.plans?.name || "Básico"}
+            planName={primaryBusiness?.plans?.name || basicPlan?.name || "Básico"}
             usage={primaryBusiness?.scans_this_month || 0}
-            limit={primaryBusiness?.plans?.max_scans_monthly || PLAN_DEFAULTS[PLAN_IDS.basic].maxScansMonthly}
+            limit={maxScans}
             branchesUsage={businesses?.length || 0}
-            branchesLimit={primaryBusiness?.plans?.max_branches || PLAN_DEFAULTS[PLAN_IDS.basic].maxBranches}
+            branchesLimit={maxBranches}
             daysUntilReset={daysUntilReset}
           />
         </div>
