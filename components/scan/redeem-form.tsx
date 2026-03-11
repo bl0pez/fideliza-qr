@@ -9,11 +9,12 @@ import { useRouter } from "next/navigation";
 
 interface RedeemFormProps {
   businessId: string;
+  businessSlug: string;
   customerId: string;
   rewardId: string;
 }
 
-export function RedeemForm({ businessId, customerId, rewardId }: RedeemFormProps) {
+export function RedeemForm({ businessId, businessSlug, customerId, rewardId }: RedeemFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const router = useRouter();
@@ -33,10 +34,10 @@ export function RedeemForm({ businessId, customerId, rewardId }: RedeemFormProps
       toast.success(`CANJE EXITOSO: ${result.rewardTitle}`);
       
       setTimeout(() => {
-        router.push(`/dashboard/businesses/${businessId}`);
+        router.push(`/dashboard/businesses/${businessSlug}`);
       }, 2500);
       
-    } catch (e) {
+    } catch {
       toast.error("Ocurrió un error inesperado al autorizar el canje.");
       setIsSubmitting(false);
     }

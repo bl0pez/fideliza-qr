@@ -79,7 +79,12 @@ export default async function RedeemScanPage({
              </div>
           </div>
 
-          <RedeemForm businessId={business.id} customerId={customerId} rewardId={rewardId} />
+          <RedeemForm 
+            businessId={business.id} 
+            businessSlug={business.slug} 
+            customerId={customerId} 
+            rewardId={rewardId} 
+          />
 
         </div>
 
