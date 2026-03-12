@@ -31,7 +31,7 @@ import Image from "next/image";
 const businessSchema = yup.object({
   name: yup.string().required("El nombre del negocio es requerido").min(3, "Mínimo 3 caracteres"),
   type: yup.string().required("Debe seleccionar una categoría"),
-  description: yup.string().max(300, "Máximo 300 caracteres").optional().default(""),
+  description: yup.string().max(600, "Máximo 600 caracteres").optional().default(""),
   website_url: yup.string().url("Debe ser una URL válida").optional().default(""),
   image_url: yup.string().url("Debe ser una URL válida").required("La imagen es requerida"),
   country_id: yup.string().required("El país es requerido"),
