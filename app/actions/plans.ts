@@ -58,12 +58,14 @@ export async function activatePlan(planId: string) {
     }
     
     // 2. Crear suscripción gratuita usando el cliente Admin (omite RLS)
+    // El campo provider es NULL para planes gratuitos
     const { error: subError } = await adminSupabase
       .from("owner_subscriptions")
       .upsert({
         owner_id: user.id,
         plan_id: planId,
         status: "active",
+        provider: null,
         current_period_end: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365 * 10).toISOString(), // 10 años
       }, { onConflict: "owner_id" });
 
