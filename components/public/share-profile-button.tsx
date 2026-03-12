@@ -34,7 +34,6 @@ export function ShareProfileButton({
     if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
       try {
         await navigator.share(shareData);
-        toast.success("¡Compartido con éxito!");
       } catch (err) {
         // Ignorar si el usuario canceló el intercambio
         if ((err as Error).name !== "AbortError") {
@@ -52,7 +51,6 @@ export function ShareProfileButton({
     try {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
-      toast.success("Enlace copiado al portapapeles");
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Error copying to clipboard:", err);

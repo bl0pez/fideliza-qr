@@ -1,3 +1,5 @@
+import { getPublicBusinessData, PublicReward } from "@/app/actions/public";
+import { APP_NAME } from "@/lib/constants";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,18 +10,17 @@ import { CustomerQrModal } from "@/components/public/customer-qr-modal";
 import { RedeemQrModal } from "@/components/public/redeem-qr-modal";
 import {
   Instagram,
+  Globe,
   MapPin,
   Ticket,
   ExternalLink,
   Phone,
-  Globe,
 } from "lucide-react";
 import { ShareProfileButton } from "@/components/public/share-profile-button";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { getPublicBusinessData, PublicReward } from "@/app/actions/public";
-import { APP_NAME } from "@/lib/constants";
+import { BusinessJsonLd } from "@/components/seo/business-json-ld";
 
 interface PublicBusinessPageProps {
   params: Promise<{ slug: string }>;
@@ -32,15 +33,31 @@ export async function generateMetadata({
   const supabase = await createClient();
   const { data: business } = await supabase
     .from("businesses")
-    .select("name, type")
+    .select("name, type, description, image_url")
     .eq("slug", slug)
     .single();
 
   if (!business) return { title: "Negocio no encontrado" };
 
+  const title = `${business.name} | ${APP_NAME}`;
+  const description = business.description || `Descubre las recompensas de ${business.name} (${business.type}) en ${APP_NAME}.`;
+  const image = business.image_url;
+
   return {
-    title: `${business.name} | ${APP_NAME}`,
-    description: `Descubre las recompensas de ${business.name} (${business.type}) en ${APP_NAME}.`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [image],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
   };
 }
 
@@ -59,6 +76,7 @@ export default async function PublicBusinessPage({
 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 pb-24">
+      <BusinessJsonLd business={business} />
       {/* 
         ====================================================
         BANNER DE IMAGEN SUPERIOR (Sin texto adentro)
