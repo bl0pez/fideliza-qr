@@ -8,6 +8,8 @@ import { DEFAULT_PLAN_ID, BUSINESS_INITIAL_REWARDS, ROUTES, PLAN_DEFAULTS } from
 export async function createBusiness(data: {
   name: string;
   type: string;
+  description?: string;
+  website_url?: string;
   image_url: string;
   country_id: string;
   city: string;
@@ -88,6 +90,8 @@ export async function createBusiness(data: {
   const { error } = await supabase.from("businesses").insert({
     name: data.name,
     type: data.type,
+    description: data.description || null,
+    website_url: data.website_url || null,
     image_url: data.image_url,
     country_id: data.country_id,
     city: data.city,
@@ -159,6 +163,8 @@ export async function getBusinessBySlug(slug: string) {
 export async function updateBusiness(id: string, data: {
   name: string;
   type: string;
+  description?: string;
+  website_url?: string;
   image_url: string;
   country_id: string;
   city: string;
@@ -194,6 +200,8 @@ export async function updateBusiness(id: string, data: {
     .update({
       name: data.name,
       type: data.type,
+      description: data.description || null,
+      website_url: data.website_url || null,
       image_url: data.image_url,
       country_id: data.country_id,
       city: data.city,

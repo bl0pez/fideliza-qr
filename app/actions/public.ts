@@ -7,6 +7,8 @@ export interface PublicBusiness {
   id: string;
   name: string;
   type: string;
+  description: string | null;
+  website_url: string | null;
   image_url: string;
   city: string;
   address: string | null;

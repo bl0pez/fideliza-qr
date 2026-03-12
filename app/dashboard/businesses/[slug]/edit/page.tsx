@@ -45,6 +45,8 @@ export default async function EditBusinessPage({ params }: { params: Promise<{ s
           city: business.city,
           city_id: business.city_id,
           address: business.address,
+          description: business.description,
+          website_url: business.website_url,
           tiktok_url: business.tiktok_url,
           whatsapp_url: business.whatsapp_url,
           instagram_url: business.instagram_url,

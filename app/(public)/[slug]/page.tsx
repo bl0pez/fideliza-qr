@@ -12,7 +12,7 @@ import {
   Ticket,
   ExternalLink,
   Phone,
-  MessageCircle,
+  Globe,
 } from "lucide-react";
 import { ShareProfileButton } from "@/components/public/share-profile-button";
 import { Button } from "@/components/ui/button";
@@ -110,6 +110,11 @@ export default async function PublicBusinessPage({
                   {business.address ? ` • ${business.address}` : ""}
                 </span>
               </div>
+              {business.description && (
+                <p className="mt-4 text-muted-foreground text-sm leading-relaxed max-w-2xl">
+                  {business.description}
+                </p>
+              )}
             </div>
 
             <div className="shrink-0 w-full md:w-auto">
@@ -191,7 +196,17 @@ export default async function PublicBusinessPage({
                 >
                   <div className="flex items-center gap-4 bg-background hover:bg-zinc-800/10 dark:hover:bg-white/10 border border-border hover:border-foreground/30 p-4 rounded-2xl transition-all duration-300 shadow-xs">
                     <div className="w-10 h-10 rounded-xl bg-zinc-200 dark:bg-white/10 flex items-center justify-center text-zinc-800 dark:text-white">
-                      <MessageCircle className="h-5 w-5" />
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-5 w-5"
+                      >
+                        <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+                      </svg>
                     </div>
                     <div className="flex flex-col">
                       <span className="text-sm font-bold text-foreground">
@@ -202,6 +217,30 @@ export default async function PublicBusinessPage({
                       </span>
                     </div>
                     <ExternalLink className="ml-auto h-4 w-4 text-muted-foreground group-hover:text-foreground" />
+                  </div>
+                </a>
+              )}
+
+              {business.website_url && (
+                <a
+                  href={business.website_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block group"
+                >
+                  <div className="flex items-center gap-4 bg-background hover:bg-primary/10 border border-border hover:border-primary/30 p-4 rounded-2xl transition-all duration-300 shadow-xs">
+                    <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+                      <Globe className="h-5 w-5" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-foreground">
+                        Sitio Web
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">
+                        Visita nuestra página
+                      </span>
+                    </div>
+                    <ExternalLink className="ml-auto h-4 w-4 text-muted-foreground group-hover:text-primary" />
                   </div>
                 </a>
               )}

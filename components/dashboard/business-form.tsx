@@ -25,12 +25,14 @@ import {
   FieldLabel,
   FieldError,
 } from "@/components/ui/field";
-import { CopyPlus, ImagePlus, Instagram, Store, MessageCircle, Music2, Save } from "lucide-react";
+import { CopyPlus, ImagePlus, Instagram, Store, MessageCircle, Globe, Save } from "lucide-react";
 import Image from "next/image";
 
 const businessSchema = yup.object({
   name: yup.string().required("El nombre del negocio es requerido").min(3, "Mínimo 3 caracteres"),
   type: yup.string().required("Debe seleccionar una categoría"),
+  description: yup.string().max(300, "Máximo 300 caracteres").optional().default(""),
+  website_url: yup.string().url("Debe ser una URL válida").optional().default(""),
   image_url: yup.string().url("Debe ser una URL válida").required("La imagen es requerida"),
   country_id: yup.string().required("El país es requerido"),
   city: yup.string().required("La ciudad es requerida"),
@@ -44,6 +46,8 @@ const businessSchema = yup.object({
 interface BusinessFormData {
   name: string;
   type: string;
+  description: string;
+  website_url: string;
   image_url: string;
   country_id: string;
   city: string;
@@ -67,6 +71,8 @@ export function BusinessForm({
     id: string;
     name: string;
     type: string;
+    description?: string | null;
+    website_url?: string | null;
     image_url: string;
     country_id: string;
     city: string;
@@ -86,6 +92,8 @@ export function BusinessForm({
     defaultValues: {
       name: initialData?.name || "",
       type: initialData?.type || "",
+      description: initialData?.description || "",
+      website_url: initialData?.website_url || "",
       image_url: initialData?.image_url || "",
       country_id: initialData?.country_id || "",
       city: initialData?.city || "",
@@ -231,6 +239,19 @@ export function BusinessForm({
               />
             </div>
 
+            <Field data-invalid={!!errors.description}>
+              <FieldLabel>Descripción del Negocio (Opcional)</FieldLabel>
+              <InputGroup>
+                <textarea 
+                  className="flex min-h-[100px] w-full rounded-2xl border border-input bg-background/50 px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
+                  placeholder="Cuenta brevemente de qué trata tu negocio..." 
+                  {...register("description")} 
+                  aria-invalid={!!errors.description}
+                />
+              </InputGroup>
+              <FieldError errors={[errors.description]} />
+            </Field>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Controller
                 control={control}
@@ -334,7 +355,17 @@ export function BusinessForm({
                   <FieldLabel>TikTok</FieldLabel>
                   <InputGroup>
                     <InputGroupAddon>
-                      <Music2 />
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="w-4 h-4"
+                      >
+                        <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+                      </svg>
                     </InputGroupAddon>
                     <InputGroupInput 
                       placeholder="https://tiktok.com/@tu_negocio" 
@@ -358,6 +389,21 @@ export function BusinessForm({
                     />
                   </InputGroup>
                   <FieldError errors={[errors.whatsapp_url]} />
+                </Field>
+
+                <Field data-invalid={!!errors.website_url} orientation="vertical">
+                  <FieldLabel>Sitio Web</FieldLabel>
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <Globe />
+                    </InputGroupAddon>
+                    <InputGroupInput 
+                      placeholder="https://tu_negocio.com" 
+                      {...register("website_url")} 
+                      aria-invalid={!!errors.website_url}
+                    />
+                  </InputGroup>
+                  <FieldError errors={[errors.website_url]} />
                 </Field>
               </div>
             </div>
