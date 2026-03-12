@@ -110,10 +110,17 @@ export async function createBusiness(data: {
     return { error: error.message };
   }
 
+  // Fetch the created business to return it (or just return the slug if we can)
+  const { data: newBusiness } = await supabase
+    .from("businesses")
+    .select("id, slug")
+    .eq("slug", uniqueSlug)
+    .single();
+
   // Purgar la caché de la página del dashboard para que muestre el nuevo dato inmediatamente
   revalidatePath(ROUTES.dashboard);
 
-  return { success: true };
+  return { success: true, data: newBusiness };
 }
 
 export async function getUserBusinesses() {

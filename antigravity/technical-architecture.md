@@ -155,5 +155,25 @@ Seguimos la guía oficial de Next.js: https://nextjs.org/docs/app/guides/analyti
 
 ---
 
+## 9. Sistema de Horarios Pro (PostgreSQL Range Types)
+
+Para el sistema de horarios de negocios, utilizamos un enfoque de ingeniería avanzada para garantizar eficiencia y evitar solapamientos.
+
+### A. Tipos de Rango (int4range)
+- **Lógica:** En lugar de `hora_inicio` y `hora_fin` con tipos `Time`, usamos `int4range` que representa minutos desde medianoche (0-1439).
+- **Ventaja:** Permite usar operadores de intersección (`&&`) y contención (`@>`) directamente en SQL para validaciones complejas.
+- **Índices GIST:** Usamos `btree_gist` para aplicar restricciones de exclusión, evitando que un negocio tenga turnos solapados en el mismo día a nivel de base de datos.
+
+### B. Row Level Security (RLS) en Horarios
+- **Políticas:** 
+  - `SELECT`: Público (cualquiera puede ver horarios).
+  - `INSERT/UPDATE/DELETE`: Solo el dueño del negocio (`auth.uid() = owner_id`).
+
+### C. Helper Functions (Single Source of Truth)
+- Toda la lógica de conversión y cálculo de estado Abierto/Cerrado reside en `@/lib/utils/schedule-helpers.ts`.
+- **Regla:** No recalcules si un negocio está abierto en el componente; usa `getBusinessStatus`.
+
+---
+
 > [!IMPORTANT]
 > **No aceptamos mediocridad.** El código debe ser tan hermoso como la interfaz. Si algo genera deuda técnica, resuélvelo antes de pasar a la siguiente tarea.

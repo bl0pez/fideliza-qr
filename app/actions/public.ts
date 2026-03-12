@@ -17,6 +17,8 @@ export interface PublicBusiness {
   tiktok_url: string | null;
   slug: string;
   countries?: { name: string } | { name: string }[] | null;
+  business_schedules?: { day_of_week: number; hour_range: string }[];
+  schedule_exceptions?: { date: string; is_closed: boolean; reason?: string; hour_range?: string }[];
 }
 
 export interface PublicSubscription {
@@ -63,11 +65,11 @@ export async function getPublicBusinessData(slug: string): Promise<{
 }> {
   const supabase = await createClient();
 
-  // Run both queries in parallel
+  // Run queries in parallel
   const [{ data: businessData }, { data: { user } }] = await Promise.all([
     supabase
       .from("businesses")
-      .select("*, countries(name)")
+      .select("*, countries(name), business_schedules(*)")
       .eq("slug", slug)
       .single(),
     supabase.auth.getUser()

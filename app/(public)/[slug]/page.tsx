@@ -8,6 +8,7 @@ import { createClient } from "@/utils/supabase/server";
 import { SubscribeButton } from "@/components/public/subscribe-button";
 import { CustomerQrModal } from "@/components/public/customer-qr-modal";
 import { RedeemQrModal } from "@/components/public/redeem-qr-modal";
+import { BusinessStatusBadge } from "@/components/public/business-status-badge";
 import {
   Instagram,
   Globe,
@@ -19,6 +20,7 @@ import {
 import { ShareProfileButton } from "@/components/public/share-profile-button";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { BusinessSchedulesList } from "@/components/public/business-schedules-list";
 import { Card, CardContent } from "@/components/ui/card";
 import { BusinessJsonLd } from "@/components/seo/business-json-ld";
 
@@ -33,7 +35,7 @@ export async function generateMetadata({
   const supabase = await createClient();
   const { data: business } = await supabase
     .from("businesses")
-    .select("name, type, description, image_url")
+    .select("name, type, description, image_url, city")
     .eq("slug", slug)
     .single();
 
@@ -44,7 +46,9 @@ export async function generateMetadata({
   const title = baseTitle.length < 50 ? `${baseTitle} - ${tagline}`.slice(0, 60) : baseTitle;
   
   // Truncate description for SEO (optimal is around 155-160 characters)
-  const fullDescription = business.description || `Descubre las mejores recompensas de ${business.name} (${business.type}) en ${APP_NAME}. ¡Regístrate y acumula sellos!`;
+  const locationInfo = business.city ? ` en ${business.city}` : "";
+  const defaultDesc = `Descubre las mejores recompensas de ${business.name} (${business.type})${locationInfo} en ${APP_NAME}. ¡Regístrate y acumula sellos!`;
+  const fullDescription = business.description ? `${business.description}${locationInfo ? ` | Visitamos en ${business.city}` : ""}` : defaultDesc;
   const description = fullDescription.length > 160 
     ? fullDescription.substring(0, 157) + "..." 
     : fullDescription;
@@ -139,6 +143,13 @@ export default async function PublicBusinessPage({
                       </>
                     )}
                   </span>
+                </div>
+
+                <div className="mt-2">
+                  <BusinessStatusBadge 
+                    schedules={business.business_schedules || []} 
+                    exceptions={business.schedule_exceptions || []} 
+                  />
                 </div>
 
                 {business.address && (
@@ -304,8 +315,19 @@ export default async function PublicBusinessPage({
             </div>
           </div>
 
-          {/* SECCIÓN 2: Fidelización y Beneficios (Estado de Autenticación) */}
+          {/* SECCIÓN 2: Horarios de Atención */}
           <div className="space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground px-2">
+              Horarios
+            </h3>
+            <BusinessSchedulesList 
+              schedules={business.business_schedules || []} 
+              exceptions={business.schedule_exceptions || []} 
+            />
+          </div>
+
+          {/* SECCIÓN 3: Fidelización y Beneficios (Estado de Autenticación) */}
+          <div className="col-span-1 md:col-span-2 space-y-4 pt-4">
             <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground px-2">
               Tus Beneficios
             </h3>

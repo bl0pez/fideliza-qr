@@ -6,8 +6,13 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useRouter } from "next/navigation";
 import { createBusiness, updateBusiness } from "@/app/actions/business";
+import { upsertBusinessSchedules, getBusinessSchedules } from "@/app/actions/business-schedules";
+import { timeToMinutes } from "@/lib/utils/schedule-helpers";
 import { CldUploadWidget } from "next-cloudinary";
 import { toast } from "sonner";
+import { useEffect } from "react";
+import { useFieldArray } from "react-hook-form";
+import { Plus, Trash2, Clock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
@@ -41,7 +46,43 @@ const businessSchema = yup.object({
   tiktok_url: yup.string().url("Debe ser una URL válida").optional().default(""),
   whatsapp_url: yup.string().optional().default(""),
   instagram_url: yup.string().url("Debe ser una URL válida").optional().default(""),
+  schedules: yup.array().of(
+    yup.object({
+      day_of_week: yup.number().required(),
+      start: yup.string().required("Inicio requerido").matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Formato HH:MM"),
+      end: yup.string().required("Fin requerido").matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Formato HH:MM")
+        .test("is-after", "Debe ser después del inicio", function(value) {
+          const { start } = this.parent;
+          if (!start || !value) return true;
+          return timeToMinutes(value) > timeToMinutes(start);
+        })
+    })
+  ).test("no-overlaps", "Hay horarios solapados", function(schedules) {
+    if (!schedules) return true;
+    const days: Record<number, {start: number, end: number}[]> = {};
+    for (const s of schedules) {
+      if (!s.start || !s.end) continue;
+      const start = timeToMinutes(s.start);
+      const end = timeToMinutes(s.end);
+      if (!days[s.day_of_week]) days[s.day_of_week] = [];
+      for (const existing of days[s.day_of_week]) {
+        if (start < existing.end && end > existing.start) return false;
+      }
+      days[s.day_of_week].push({ start, end });
+    }
+    return true;
+  }).default([])
 });
+
+const DAYS = [
+  { id: 1, name: "Lunes" },
+  { id: 2, name: "Martes" },
+  { id: 3, name: "Miércoles" },
+  { id: 4, name: "Jueves" },
+  { id: 5, name: "Viernes" },
+  { id: 6, name: "Sábado" },
+  { id: 0, name: "Domingo" },
+];
 
 interface BusinessFormData {
   name: string;
@@ -56,6 +97,7 @@ interface BusinessFormData {
   tiktok_url: string;
   whatsapp_url: string;
   instagram_url: string;
+  schedules: { day_of_week: number; start: string; end: string }[];
 }
 
 export function BusinessForm({ 
@@ -102,10 +144,36 @@ export function BusinessForm({
       tiktok_url: initialData?.tiktok_url || "",
       whatsapp_url: initialData?.whatsapp_url || "",
       instagram_url: initialData?.instagram_url || "",
+      schedules: [],
     },
   });
 
   const { register, control, handleSubmit, formState: { errors, isSubmitting }, setValue } = form;
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "schedules",
+  });
+
+  useEffect(() => {
+    if (isEditing && initialData) {
+      getBusinessSchedules(initialData.id).then(data => {
+        if (data) {
+          const formatted = data.map(s => {
+            const match = s.hour_range.match(/\[(\d+),\s*(\d+)\)/);
+            if (match) {
+              const startStr = Math.floor(parseInt(match[1]) / 60).toString().padStart(2, '0') + ':' + (parseInt(match[1]) % 60).toString().padStart(2, '0');
+              const endStr = Math.floor(parseInt(match[2]) / 60).toString().padStart(2, '0') + ':' + (parseInt(match[2]) % 60).toString().padStart(2, '0');
+              return { day_of_week: s.day_of_week, start: startStr, end: endStr };
+            }
+            return null;
+          }).filter(Boolean) as { day_of_week: number; start: string; end: string }[];
+          
+          setValue("schedules", formatted);
+        }
+      });
+    }
+  }, [isEditing, initialData, setValue]);
 
   // Reactivo: Filtrar ciudades por país seleccionado
   const selectedCountryId = useWatch({ control, name: "country_id" });
@@ -121,6 +189,24 @@ export function BusinessForm({
     if (result.error) {
       setSubmitError(result.error);
     } else {
+      // Si el negocio se creó/actualizó con éxito, procedemos con los horarios
+      const businessId = isEditing 
+        ? initialData?.id 
+        : (result as { success: boolean; data?: { id: string } }).data?.id;
+      
+      if (businessId) {
+        const scheduleResult = await upsertBusinessSchedules(
+          businessId,
+          data.schedules.map(s => ({
+            day_of_week: s.day_of_week,
+            hour_range: `[${timeToMinutes(s.start)}, ${timeToMinutes(s.end)})`
+          }))
+        );
+        if (scheduleResult.error) {
+          toast.error("Negocio guardado, pero hubo un error con los horarios: " + scheduleResult.error);
+        }
+      }
+      
       toast.success(isEditing ? "Negocio actualizado" : "Negocio creado");
       router.push("/dashboard");
       router.refresh();
@@ -179,7 +265,7 @@ export function BusinessForm({
                       >
                         {imageUrl ? (
                           <>
-                            <Image src={imageUrl} alt="Preview" fill className="object-cover" />
+                            <Image src={imageUrl as string} alt="Preview" fill className="object-cover" />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                               <span className="text-white font-medium flex items-center gap-2"><ImagePlus className="w-4 h-4"/> Cambiar Imagen</span>
                             </div>
@@ -405,6 +491,114 @@ export function BusinessForm({
                   </InputGroup>
                   <FieldError errors={[errors.website_url]} />
                 </Field>
+              </div>
+            </div>
+
+            <div className="space-y-4 pt-4 border-t">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">Horarios de Atención</h3>
+                  <p className="text-xs text-muted-foreground">Define los turnos en los que tu negocio está abierto.</p>
+                </div>
+                <Button 
+                  type="button" 
+                  size="sm" 
+                  variant="outline" 
+                  className="rounded-xl border-primary/30 text-primary hover:bg-primary/5"
+                  onClick={() => append({ day_of_week: 1, start: "09:00", end: "18:00" })}
+                >
+                  <Plus className="w-4 h-4 mr-2" /> Agregar Turno
+                </Button>
+              </div>
+
+              {errors.schedules?.message && (
+                <p className="text-xs text-destructive bg-destructive/10 p-2 rounded-lg border border-destructive/20">
+                  {errors.schedules.message}
+                </p>
+              )}
+
+              <div className="space-y-3">
+                {fields.map((field, index) => (
+                  <div key={field.id} className="grid grid-cols-12 gap-3 items-end bg-muted/30 p-4 rounded-2xl border border-white/10 group">
+                    <div className="col-span-4 space-y-2">
+                      <label className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Día</label>
+                      <Controller
+                        control={control}
+                        name={`schedules.${index}.day_of_week`}
+                        render={({ field }) => (
+                          <Select 
+                            onValueChange={(val: string | null) => {
+                              if (val) field.onChange(parseInt(val));
+                            }} 
+                            value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
+                          >
+                            <SelectTrigger className="h-10 rounded-xl bg-background/50 border-white/20">
+                              <SelectValue placeholder="Selecciona un día">
+                                {DAYS.find(d => d.id.toString() === field.value?.toString())?.name}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              {DAYS.map((day) => (
+                                <SelectItem key={day.id} value={day.id.toString()}>
+                                  {day.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
+                    <div className="col-span-3 space-y-2">
+                      <label className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Apertura</label>
+                      <InputGroup>
+                        <InputGroupAddon className="bg-transparent border-0 pr-0"><Clock className="w-3.5 h-3.5 opacity-50"/></InputGroupAddon>
+                        <input
+                          type="time"
+                          className="flex h-10 w-full rounded-xl border border-white/20 bg-background/50 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
+                          {...register(`schedules.${index}.start`)}
+                        />
+                      </InputGroup>
+                    </div>
+                    <div className="col-span-3 space-y-2">
+                      <label className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Cierre</label>
+                      <InputGroup>
+                        <InputGroupAddon className="bg-transparent border-0 pr-0"><Clock className="w-3.5 h-3.5 opacity-50"/></InputGroupAddon>
+                        <input
+                          type="time"
+                          className="flex h-10 w-full rounded-xl border border-white/20 bg-background/50 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
+                          {...register(`schedules.${index}.end`)}
+                        />
+                      </InputGroup>
+                    </div>
+                    <div className="col-span-2 pb-0.5">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => remove(index)}
+                        className="h-10 w-10 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    {/* Inline errors for each shift */}
+                    <div className="col-span-12">
+                      {errors.schedules?.[index]?.end?.message && (
+                        <p className="text-[10px] text-destructive ml-1">
+                          {errors.schedules[index]?.end?.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {fields.length === 0 && (
+                  <div className="text-center py-8 border-2 border-dashed border-white/10 rounded-3xl bg-muted/10">
+                    <Clock className="w-10 h-10 mx-auto text-muted-foreground/30 mb-2" />
+                    <p className="text-sm text-muted-foreground">No hay horarios configurados.</p>
+                    <p className="text-xs text-muted-foreground/60">El negocio aparecerá como &quot;Cerrado&quot; permanentemente.</p>
+                  </div>
+                )}
               </div>
             </div>
           </FieldGroup>
