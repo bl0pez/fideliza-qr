@@ -95,20 +95,47 @@ export default async function PublicBusinessPage({
               <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-2">
                 {business.name}
               </h1>
-              <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
-                <MapPin className="h-4 w-4 text-primary shrink-0" />
-                <span className="line-clamp-1">
-                  {business.city}
-                  {business.countries && (
-                    <>
-                      ,{" "}
-                      {Array.isArray(business.countries)
-                        ? business.countries[0]?.name
-                        : business.countries.name}
-                    </>
-                  )}
-                  {business.address ? ` • ${business.address}` : ""}
-                </span>
+              <div className="flex flex-col items-center md:items-start gap-1 mt-2">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
+                  <MapPin className="h-4 w-4 text-primary shrink-0" />
+                  <span className="line-clamp-1">
+                    {business.city}
+                    {business.countries && (
+                      <>
+                        ,{" "}
+                        {Array.isArray(business.countries)
+                          ? business.countries[0]?.name
+                          : (business.countries as { name: string }).name}
+                      </>
+                    )}
+                  </span>
+                </div>
+
+                {business.address && (
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                      `${business.address}, ${business.city}, ${
+                        Array.isArray(business.countries)
+                          ? business.countries[0]?.name
+                          : (business.countries as { name: string })?.name || ""
+                      }`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex mt-1 group"
+                  >
+                    <div className="flex items-center gap-2 bg-zinc-100 dark:bg-white/5 hover:bg-primary/10 border border-border group-hover:border-primary/30 px-3 py-1.5 rounded-full transition-all duration-300">
+                      <span className="text-xs font-semibold text-muted-foreground group-hover:text-foreground line-clamp-1">
+                        {business.address}
+                      </span>
+                      <div className="h-3 w-px bg-border group-hover:bg-primary/30 mx-1" />
+                      <span className="text-[10px] font-black text-primary uppercase tracking-tighter flex items-center gap-1">
+                        Cómo llegar
+                        <ExternalLink className="h-2.5 w-2.5" />
+                      </span>
+                    </div>
+                  </a>
+                )}
               </div>
               {business.description && (
                 <p className="mt-4 text-muted-foreground text-sm leading-relaxed max-w-2xl">
