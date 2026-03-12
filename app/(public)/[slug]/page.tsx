@@ -39,9 +39,21 @@ export async function generateMetadata({
 
   if (!business) return { title: "Negocio no encontrado" };
 
-  const title = `${business.name} | ${APP_NAME}`;
-  const description = business.description || `Descubre las recompensas de ${business.name} (${business.type}) en ${APP_NAME}.`;
-  const image = business.image_url;
+  const baseTitle = `${business.name} | ${APP_NAME}`;
+  const tagline = `Gana recompensas y fidelidad en ${business.name}`;
+  const title = baseTitle.length < 50 ? `${baseTitle} - ${tagline}`.slice(0, 60) : baseTitle;
+  
+  // Truncate description for SEO (optimal is around 155-160 characters)
+  const fullDescription = business.description || `Descubre las mejores recompensas de ${business.name} (${business.type}) en ${APP_NAME}. ¡Regístrate y acumula sellos!`;
+  const description = fullDescription.length > 160 
+    ? fullDescription.substring(0, 157) + "..." 
+    : fullDescription;
+    
+  // Optimize image for social sharing if it's from Cloudinary
+  let socialImage = business.image_url;
+  if (socialImage.includes("res.cloudinary.com")) {
+    socialImage = socialImage.replace("/upload/", "/upload/w_1200,h_630,c_fill,q_auto,f_auto/");
+  }
 
   return {
     title,
@@ -49,14 +61,14 @@ export async function generateMetadata({
     openGraph: {
       title,
       description,
-      images: [image],
+      images: [socialImage],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [image],
+      images: [socialImage],
     },
   };
 }
