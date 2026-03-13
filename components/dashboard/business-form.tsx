@@ -123,6 +123,7 @@ export function BusinessForm({
     tiktok_url?: string | null;
     whatsapp_url?: string | null;
     instagram_url?: string | null;
+    slug: string;
   }
 }) {
   const router = useRouter();
@@ -190,6 +191,10 @@ export function BusinessForm({
       setSubmitError(result.error);
     } else {
       // Si el negocio se creó/actualizó con éxito, procedemos con los horarios
+      const updatedSlug = (result as { success: boolean; data?: { slug: string }; slug?: string }).slug || 
+                         (result as { success: boolean; data?: { slug: string } }).data?.slug || 
+                         initialData?.slug;
+      
       const businessId = isEditing 
         ? initialData?.id 
         : (result as { success: boolean; data?: { id: string } }).data?.id;
@@ -208,7 +213,13 @@ export function BusinessForm({
       }
       
       toast.success(isEditing ? "Negocio actualizado" : "Negocio creado");
-      router.push("/dashboard");
+      
+      // Si estamos editando y el slug cambió, redirigimos a la nueva página de edición o al dashboard
+      if (isEditing && updatedSlug && updatedSlug !== initialData?.slug) {
+        router.push(`/dashboard/businesses/${updatedSlug}/edit`);
+      } else {
+        router.push("/dashboard");
+      }
       router.refresh();
     }
   };

@@ -183,8 +183,10 @@ export async function updateBusiness(id: string, data: {
 
   // Verificar si el nombre cambió para actualizar el slug
   let newSlug = business.slug;
-  if (data.name !== business.name) {
+  if (data.name.trim() !== business.name.trim()) {
+    console.log(`[updateBusiness] El nombre cambió de "${business.name}" a "${data.name}". Generando nuevo slug...`);
     newSlug = await generateUniqueSlug(data.name, supabase, id);
+    console.log(`[updateBusiness] Nuevo slug generado: ${newSlug}`);
   }
   
   const { error } = await supabase
@@ -207,20 +209,23 @@ export async function updateBusiness(id: string, data: {
     .eq("id", id);
 
   if (error) {
+    console.error("[updateBusiness] Error actualizando negocio:", error);
     return { error: error.message };
   }
 
+  // Revalidar todas las rutas posibles que usen este negocio
   revalidatePath(ROUTES.dashboard);
   revalidatePath(`/dashboard/businesses/${business.slug}`);
   revalidatePath(`/${business.slug}`);
   
   // Si el slug cambió, también revalidamos la nueva ruta
   if (newSlug !== business.slug) {
+    console.log(`[updateBusiness] Slug actualizado de ${business.slug} a ${newSlug}. Revalidando nuevas rutas.`);
     revalidatePath(`/dashboard/businesses/${newSlug}`);
     revalidatePath(`/${newSlug}`);
   }
 
-  return { success: true };
+  return { success: true, slug: newSlug };
 }
 
 export async function getBusinessCustomers(slug: string) {

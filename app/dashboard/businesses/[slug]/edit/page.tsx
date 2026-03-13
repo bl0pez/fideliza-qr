@@ -50,6 +50,7 @@ export default async function EditBusinessPage({ params }: { params: Promise<{ s
           tiktok_url: business.tiktok_url,
           whatsapp_url: business.whatsapp_url,
           instagram_url: business.instagram_url,
+          slug: business.slug,
         }} 
       />
     </div>
