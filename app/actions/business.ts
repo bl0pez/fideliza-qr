@@ -2,8 +2,8 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import slugify from "slugify";
 import { DEFAULT_PLAN_ID, BUSINESS_INITIAL_REWARDS, ROUTES, PLAN_DEFAULTS } from "@/lib/constants";
+import { generateUniqueSlug } from "@/lib/utils/slug-helpers";
 
 export async function createBusiness(data: {
   name: string;
@@ -65,26 +65,8 @@ export async function createBusiness(data: {
     };
   }
 
-  // Generar un slug único basado en el nombre
-  const baseSlug = slugify(data.name, { lower: true, strict: true });
-  let uniqueSlug = baseSlug;
-  let counter = 1;
-  let isUnique = false;
-
-  while (!isUnique) {
-    const { data: existing } = await supabase
-      .from("businesses")
-      .select("slug")
-      .eq("slug", uniqueSlug)
-      .maybeSingle();
-    
-    if (existing) {
-      uniqueSlug = `${baseSlug}-${counter}`;
-      counter++;
-    } else {
-      isUnique = true;
-    }
-  }
+  // Generar un slug único basado en el nombre usando el helper
+  const uniqueSlug = await generateUniqueSlug(data.name, supabase);
 
   // Insertar en la base de datos de manera segura
   const { error } = await supabase.from("businesses").insert({
@@ -191,7 +173,7 @@ export async function updateBusiness(id: string, data: {
   // Verificar propiedad
   const { data: business } = await supabase
     .from("businesses")
-    .select("slug, owner_id")
+    .select("name, slug, owner_id")
     .eq("id", id)
     .single();
 
@@ -199,13 +181,17 @@ export async function updateBusiness(id: string, data: {
     return { error: "No tienes permiso para editar este negocio." };
   }
 
-  // Si el nombre cambió, podemos decidir si cambiar el slug o no. 
-  // Por SEO y enlaces compartidos, es mejor NO cambiar el slug automáticamente.
+  // Verificar si el nombre cambió para actualizar el slug
+  let newSlug = business.slug;
+  if (data.name !== business.name) {
+    newSlug = await generateUniqueSlug(data.name, supabase, id);
+  }
   
   const { error } = await supabase
     .from("businesses")
     .update({
       name: data.name,
+      slug: newSlug,
       type: data.type,
       description: data.description || null,
       website_url: data.website_url || null,
@@ -227,6 +213,12 @@ export async function updateBusiness(id: string, data: {
   revalidatePath(ROUTES.dashboard);
   revalidatePath(`/dashboard/businesses/${business.slug}`);
   revalidatePath(`/${business.slug}`);
+  
+  // Si el slug cambió, también revalidamos la nueva ruta
+  if (newSlug !== business.slug) {
+    revalidatePath(`/dashboard/businesses/${newSlug}`);
+    revalidatePath(`/${newSlug}`);
+  }
 
   return { success: true };
 }
