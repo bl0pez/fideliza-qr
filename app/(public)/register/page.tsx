@@ -1,17 +1,22 @@
 import { Suspense } from "react";
 import { PricingSection } from "@/components/register/pricing-section";
+import { AutoActivatePlan } from "@/components/register/auto-activate-plan";
 import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { getCurrentUser } from "@/app/actions/auth";
+import { PLAN_IDS } from "@/lib/constants";
 
 interface RegisterPageProps {
   searchParams: Promise<{ plan?: string; error?: string }>;
 }
 
 export default async function RegisterPage({ searchParams }: RegisterPageProps) {
-  const { error } = await searchParams;
+  const { error, plan } = await searchParams;
+  const user = await getCurrentUser();
 
-  // No hacemos nada automático aquí para evitar errores de renderizado.
-  // Todo se maneja a través de PricingSection con Server Actions para ser seguro.
+  // Si el usuario ya está logueado y viene del CTA con intención de plan básico
+  // Usamos un componente de cliente para la activación para evitar errores de revalidatePath en el renderizado
+  const shouldAutoActivate = user && plan === PLAN_IDS.basic;
 
   return (
     <main className="min-h-screen bg-white">
@@ -33,15 +38,19 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
         </div>
       )}
 
-      <Suspense
-        fallback={
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <Loader2 className="w-10 h-10 text-primary animate-spin" />
-          </div>
-        }
-      >
-        <PricingSection />
-      </Suspense>
+      {shouldAutoActivate ? (
+        <AutoActivatePlan planId={plan} />
+      ) : (
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <Loader2 className="w-10 h-10 text-primary animate-spin" />
+            </div>
+          }
+        >
+          <PricingSection />
+        </Suspense>
+      )}
     </main>
   );
 }

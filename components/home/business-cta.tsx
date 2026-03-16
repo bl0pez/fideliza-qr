@@ -1,5 +1,5 @@
 import { Store, Rocket, QrCode, ClipboardList, ArrowRight, Smartphone } from "lucide-react";
-import Link from "next/link";
+import { selectFreePlan } from "@/app/actions/plan-selection";
 
 export function BusinessCTA() {
   return (
@@ -26,13 +26,15 @@ export function BusinessCTA() {
               Elimina el papel. Fideliza a tus clientes con códigos QR y ofrece recompensas que realmente valoran.
             </p>
 
-            <Link
-              href="/register"
-              className="group flex items-center gap-3 bg-white text-slate-900 px-8 py-5 rounded-2xl font-black text-lg hover:bg-primary hover:text-white transition-all duration-300 shadow-xl shadow-black/20"
-            >
-              Registra tu negocio
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            <form action={selectFreePlan}>
+              <button
+                type="submit"
+                className="group flex w-full items-center justify-center gap-3 bg-white text-slate-900 px-8 py-5 rounded-2xl font-black text-lg hover:bg-primary hover:text-white transition-all duration-300 shadow-xl shadow-black/20"
+              >
+                Registra tu negocio gratis
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </form>
           </div>
 
           <div className="hidden lg:grid grid-cols-2 gap-4">
