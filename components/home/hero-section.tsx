@@ -1,6 +1,7 @@
-import { Search, Sparkles } from "lucide-react";
+import { Search, Sparkles, ArrowRight, Store, ChevronRight } from "lucide-react";
 import { Suspense } from "react";
 import { CategoriesList } from "./categories-list";
+import { selectFreePlan } from "@/app/actions/plan-selection";
 
 export function HeroSection() {
   return (
@@ -8,24 +9,48 @@ export function HeroSection() {
       {/* Decorative background elements */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-64 bg-primary/5 blur-3xl rounded-full pointer-events-none -translate-y-1/2" />
       
-      <div className="max-w-4xl mx-auto space-y-8 relative z-10">
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] md:text-xs font-bold uppercase tracking-widest animate-pulse mx-auto">
-            <Sparkles className="w-3 h-3" />
-            <span>Fidelidad reinventada</span>
+      <div className="max-w-4xl mx-auto space-y-10 relative z-10">
+        <div className="space-y-6">
+          {/* Business Owner Top Badge - Premium Entry Point */}
+          <div className="flex justify-center mb-2">
+            <form action={selectFreePlan}>
+              <button
+                type="submit"
+                className="group relative flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/5 hover:bg-slate-900/10 border border-slate-900/10 hover:border-slate-900/20 transition-all duration-300 backdrop-blur-sm"
+              >
+                <span className="flex items-center gap-1.5 text-[10px] md:text-xs font-bold text-slate-600 uppercase tracking-wider">
+                  <Store className="w-3.5 h-3.5 text-primary" />
+                  Comercios
+                </span>
+                <div className="h-3 w-px bg-slate-300" />
+                <span className="text-[10px] md:text-xs font-medium text-slate-900 group-hover:text-primary transition-colors flex items-center gap-1">
+                  Registra tu negocio gratis
+                  <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                </span>
+                {/* Subtle glow effect on hover */}
+                <div className="absolute inset-0 rounded-full bg-primary/20 blur opacity-0 group-hover:opacity-30 transition-opacity" />
+              </button>
+            </form>
           </div>
-          
-          <h1 className="text-4xl md:text-7xl font-black tracking-tighter leading-[0.9] md:leading-[0.85] text-slate-900 border-b-4 border-transparent">
-            Descubre <span className="bg-linear-to-r from-primary to-orange-500 bg-clip-text text-transparent italic">recompensas</span> <br className="hidden md:block" /> 
-            en negocios locales
-          </h1>
-          
-          <p className="text-slate-500 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-medium">
-            La forma más <span className="text-slate-900 underline decoration-primary/30 underline-offset-4">simple</span> de apoyar a tu comunidad y ganar premios increíbles en el camino.
-          </p>
+
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] md:text-xs font-bold uppercase tracking-widest animate-pulse mx-auto">
+              <Sparkles className="w-3 h-3" />
+              <span>Fidelidad reinventada</span>
+            </div>
+            
+            <h1 className="text-4xl md:text-7xl font-black tracking-tighter leading-[0.9] md:leading-[0.85] text-slate-900">
+              Descubre <span className="bg-linear-to-r from-primary to-orange-500 bg-clip-text text-transparent italic">recompensas</span> <br className="hidden md:block" /> 
+              en negocios locales
+            </h1>
+            
+            <p className="text-slate-500 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-medium">
+              La forma más <span className="text-slate-900 underline decoration-primary/30 underline-offset-4">simple</span> de apoyar a tu comunidad y ganar premios increíbles en el camino.
+            </p>
+          </div>
         </div>
 
-        {/* Premium Search Bar */}
+        {/* Premium Search Bar - Clean & Centered */}
         <div className="relative max-w-2xl mx-auto group">
           <div className="absolute -inset-1 bg-linear-to-r from-primary/20 to-orange-500/20 rounded-3xl blur opacity-25 group-focus-within:opacity-100 transition duration-1000 group-focus-within:duration-200"></div>
           <div className="relative">
