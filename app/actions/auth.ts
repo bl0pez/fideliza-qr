@@ -37,6 +37,24 @@ export const getProfile = cache(async () => {
   return profile;
 });
 
+export const getOwnerProfiles = cache(async () => {
+  const profile = await getProfile();
+  if (!profile || profile.role !== "admin") return [];
+
+  const supabase = await createClient();
+  const { data: profiles, error } = await supabase
+    .from("profiles")
+    .select("id, full_name, role")
+    .order("full_name", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching profiles:", error);
+    return [];
+  }
+
+  return profiles || [];
+});
+
 export async function signInWithGoogle(nextUrl: string) {
   const supabase = await createClient();
   const origin = (await headers()).get('origin') || getSiteUrl();
