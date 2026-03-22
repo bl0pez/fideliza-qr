@@ -15,6 +15,7 @@ export interface PublicBusiness {
   whatsapp_url: string | null;
   instagram_url: string | null;
   tiktok_url: string | null;
+  google_maps_url: string | null;
   slug: string;
   countries?: { name: string } | { name: string }[] | null;
   business_schedules?: { day_of_week: number; hour_range: string }[];

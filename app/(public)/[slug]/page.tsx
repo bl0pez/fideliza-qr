@@ -154,7 +154,7 @@ export default async function PublicBusinessPage({
 
                 {business.address && (
                   <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    href={business.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
                       `${business.address}, ${business.city}, ${
                         Array.isArray(business.countries)
                           ? business.countries[0]?.name
@@ -327,155 +327,157 @@ export default async function PublicBusinessPage({
           </div>
 
           {/* SECCIÓN 3: Fidelización y Beneficios (Estado de Autenticación) */}
-          <div className="col-span-1 md:col-span-2 space-y-4 pt-4">
-            <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground px-2">
-              Tus Beneficios
-            </h3>
+          {rewards && rewards.length > 0 && (
+            <div className="col-span-1 md:col-span-2 space-y-4 pt-4">
+              <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground px-2">
+                Tus Beneficios
+              </h3>
 
-            {!user ? (
-              // ESTADO 1: NO LOGUEADO
-              <Card className="rounded-3xl border-border text-center shadow-2xl">
-                <CardContent className="p-6 space-y-5">
-                  <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <Ticket className="h-7 w-7 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-xl text-foreground">
-                      Únete al club
-                    </h4>
-                    <p className="text-sm text-muted-foreground px-4 mt-2">
-                      Inicia sesión y suscríbete para empezar a acumular visitas
-                      en {business.name}.
-                    </p>
-                  </div>
-                  <Link href="/login" className="block w-full pt-2">
-                    <Button size="lg" className="w-full">
-                      INICIAR SESIÓN
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ) : !subscription ? (
-              // ESTADO 2: LOGUEADO PERO NO SUSCRITO
-              <Card className="bg-primary/5 rounded-3xl border-primary/30 text-center shadow-xl shadow-primary/5 relative overflow-hidden group">
-                <CardContent className="p-6 space-y-4">
-                  <div className="absolute inset-0 bg-linear-to-b from-primary/10 to-transparent opacity-50 pointer-events-none" />
-                  <h4 className="font-bold text-2xl text-primary relative z-10 pt-2">
-                    ¡Empieza a ganar!
-                  </h4>
-                  <p className="text-sm text-muted-foreground relative z-10 w-4/5 mx-auto">
-                    Conviértete en miembro frecuente y obtén beneficios únicos.
-                    Activa tu suscripción gratis.
-                  </p>
-                  <div className="relative z-10 pt-4">
-                    {/* Client Component que inserta la suscripción */}
-                    <SubscribeButton businessId={business.id} slug={slug} />
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              // ESTADO 3: SUSCRITO (Panel Premium de Visitas)
-              <div className="space-y-4">
-                <Card className="rounded-3xl border-primary/20 shadow-2xl shadow-primary/10 bg-primary/5">
+              {!user ? (
+                // ESTADO 1: NO LOGUEADO
+                <Card className="rounded-3xl border-border text-center shadow-2xl">
                   <CardContent className="p-6 space-y-5">
-                    {/* Contenedor de Visitas */}
-                    <div className="bg-background border border-primary/20 shadow-inner rounded-3xl p-6 text-center">
-                      <p className="text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-2">
-                        Total de Visitas Activas
-                      </p>
-                      <p className="text-7xl font-black text-primary leading-none tracking-tighter mix-blend-multiply dark:mix-blend-screen drop-shadow-xs">
-                        {subscription.scans_count || 0}
+                    <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2">
+                      <Ticket className="h-7 w-7 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-xl text-foreground">
+                        Únete al club
+                      </h4>
+                      <p className="text-sm text-muted-foreground px-4 mt-2">
+                        Inicia sesión y suscríbete para empezar a acumular visitas
+                        en {business.name}.
                       </p>
                     </div>
-
-                    {/* Meta/Recompensas Dispobles */}
-                    {rewards && rewards.length > 0 ? (
-                      <div className="space-y-3 pt-2">
-                        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground text-center">
-                          Recompensas Disponibles
-                        </p>
-                        <div className="grid gap-2">
-                          {rewards.map((reward: PublicReward) => {
-                            const reached =
-                              (reward.scans_count || 0) >= reward.scans_required;
-                            const progress = Math.min(
-                              100,
-                              ((reward.scans_count || 0) /
-                                reward.scans_required) *
-                                100,
-                            );
-
-                            return (
-                              <div
-                                key={reward.id}
-                                className="bg-background border border-border rounded-xl p-4 overflow-hidden relative"
-                              >
-                                {/* Barra de Progreso de fondo */}
-                                <div
-                                  className={`absolute top-0 left-0 bottom-0 opacity-10 transition-all duration-1000 ${reached ? "bg-emerald-500" : "bg-primary"}`}
-                                  style={{ width: `${progress}%` }}
-                                />
-
-                                <div className="relative z-10 flex items-center justify-between gap-4">
-                                  <div className="flex-1">
-                                    <h4
-                                      className={`font-bold text-sm ${reached ? "text-emerald-500" : "text-foreground"}`}
-                                    >
-                                      {reward.title}
-                                    </h4>
-                                    <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">
-                                      {reward.scans_count || 0} /{" "}
-                                      {reward.scans_required} escaneos
-                                    </p>
-                                  </div>
-                                  <div className="shrink-0 flex items-center gap-1.5 bg-secondary/50 px-2 py-1 rounded-md border border-border shadow-xs">
-                                    <Ticket
-                                      className={`h-3 w-3 ${reached ? "text-emerald-500" : "text-muted-foreground"}`}
-                                    />
-                                    <span className="text-xs font-bold tabular-nums">
-                                      {reward.scans_required}
-                                    </span>
-                                  </div>
-                                </div>
-                                {/* Action Area for reached rewards */}
-                                {reached ? (
-                                  <div className="relative z-10 w-full animate-in fade-in slide-in-from-top-2 mt-3">
-                                    <RedeemQrModal 
-                                      businessSlug={slug} 
-                                      userId={user.id} 
-                                      rewardId={reward.id} 
-                                      rewardTitle={reward.title} 
-                                      scansRequired={reward.scans_required} 
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="relative z-10 w-full mt-3">
-                                    <CustomerQrModal 
-                                      businessSlug={slug} 
-                                      userId={user.id} 
-                                      rewardId={reward.id} 
-                                      rewardTitle={reward.title} 
-                                    />
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-center py-4 text-muted-foreground bg-background rounded-xl border border-dashed border-border">
-                        <Ticket className="h-6 w-6 mx-auto mb-2 opacity-50" />
-                        <p className="text-xs font-medium">
-                          No hay recompensas activas, pero sigue sumando.
-                        </p>
-                      </div>
-                    )}
+                    <Link href="/login" className="block w-full pt-2">
+                      <Button size="lg" className="w-full">
+                        INICIAR SESIÓN
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
-              </div>
-            )}
-          </div>
+              ) : !subscription ? (
+                // ESTADO 2: LOGUEADO PERO NO SUSCRITO
+                <Card className="bg-primary/5 rounded-3xl border-primary/30 text-center shadow-xl shadow-primary/5 relative overflow-hidden group">
+                  <CardContent className="p-6 space-y-4">
+                    <div className="absolute inset-0 bg-linear-to-b from-primary/10 to-transparent opacity-50 pointer-events-none" />
+                    <h4 className="font-bold text-2xl text-primary relative z-10 pt-2">
+                      ¡Empieza a ganar!
+                    </h4>
+                    <p className="text-sm text-muted-foreground relative z-10 w-4/5 mx-auto">
+                      Conviértete en miembro frecuente y obtén beneficios únicos.
+                      Activa tu suscripción gratis.
+                    </p>
+                    <div className="relative z-10 pt-4">
+                      {/* Client Component que inserta la suscripción */}
+                      <SubscribeButton businessId={business.id} slug={slug} />
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                // ESTADO 3: SUSCRITO (Panel Premium de Visitas)
+                <div className="space-y-4">
+                  <Card className="rounded-3xl border-primary/20 shadow-2xl shadow-primary/10 bg-primary/5">
+                    <CardContent className="p-6 space-y-5">
+                      {/* Contenedor de Visitas */}
+                      <div className="bg-background border border-primary/20 shadow-inner rounded-3xl p-6 text-center">
+                        <p className="text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-2">
+                          Total de Visitas Activas
+                        </p>
+                        <p className="text-7xl font-black text-primary leading-none tracking-tighter mix-blend-multiply dark:mix-blend-screen drop-shadow-xs">
+                          {subscription.scans_count || 0}
+                        </p>
+                      </div>
+
+                      {/* Meta/Recompensas Dispobles */}
+                      {rewards && rewards.length > 0 ? (
+                        <div className="space-y-3 pt-2">
+                          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground text-center">
+                            Recompensas Disponibles
+                          </p>
+                          <div className="grid gap-2">
+                            {rewards.map((reward: PublicReward) => {
+                              const reached =
+                                (reward.scans_count || 0) >= reward.scans_required;
+                              const progress = Math.min(
+                                100,
+                                ((reward.scans_count || 0) /
+                                  reward.scans_required) *
+                                  100,
+                              );
+
+                              return (
+                                <div
+                                  key={reward.id}
+                                  className="bg-background border border-border rounded-xl p-4 overflow-hidden relative"
+                                >
+                                  {/* Barra de Progreso de fondo */}
+                                  <div
+                                    className={`absolute top-0 left-0 bottom-0 opacity-10 transition-all duration-1000 ${reached ? "bg-emerald-500" : "bg-primary"}`}
+                                    style={{ width: `${progress}%` }}
+                                  />
+
+                                  <div className="relative z-10 flex items-center justify-between gap-4">
+                                    <div className="flex-1">
+                                      <h4
+                                        className={`font-bold text-sm ${reached ? "text-emerald-500" : "text-foreground"}`}
+                                      >
+                                        {reward.title}
+                                      </h4>
+                                      <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">
+                                        {reward.scans_count || 0} /{" "}
+                                        {reward.scans_required} escaneos
+                                      </p>
+                                    </div>
+                                    <div className="shrink-0 flex items-center gap-1.5 bg-secondary/50 px-2 py-1 rounded-md border border-border shadow-xs">
+                                      <Ticket
+                                        className={`h-3 w-3 ${reached ? "text-emerald-500" : "text-muted-foreground"}`}
+                                      />
+                                      <span className="text-xs font-bold tabular-nums">
+                                        {reward.scans_required}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  {/* Action Area for reached rewards */}
+                                  {reached ? (
+                                    <div className="relative z-10 w-full animate-in fade-in slide-in-from-top-2 mt-3">
+                                      <RedeemQrModal 
+                                        businessSlug={slug} 
+                                        userId={user.id} 
+                                        rewardId={reward.id} 
+                                        rewardTitle={reward.title} 
+                                        scansRequired={reward.scans_required} 
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div className="relative z-10 w-full mt-3">
+                                      <CustomerQrModal 
+                                        businessSlug={slug} 
+                                        userId={user.id} 
+                                        rewardId={reward.id} 
+                                        rewardTitle={reward.title} 
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center py-4 text-muted-foreground bg-background rounded-xl border border-dashed border-border">
+                          <Ticket className="h-6 w-6 mx-auto mb-2 opacity-50" />
+                          <p className="text-xs font-medium">
+                            No hay recompensas activas, pero sigue sumando.
+                          </p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer Cierre */}
