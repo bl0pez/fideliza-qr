@@ -21,6 +21,7 @@ export async function createAdminBusiness(data: {
   tiktok_url?: string;
   whatsapp_url?: string;
   instagram_url?: string;
+  google_maps_url?: string;
   owner_id?: string;
   schedules?: { day_of_week: number; start: string; end: string }[];
 }) {
@@ -48,6 +49,7 @@ export async function createAdminBusiness(data: {
     tiktok_url: data.tiktok_url || null,
     whatsapp_url: data.whatsapp_url || null,
     instagram_url: data.instagram_url || null,
+    google_maps_url: data.google_maps_url || null,
     rewards_available: BUSINESS_INITIAL_REWARDS,
     owner_id: data.owner_id || profile.id,
     slug: uniqueSlug,
@@ -141,6 +143,7 @@ interface AdminBusinessWithSchedules {
   tiktok_url: string | null;
   whatsapp_url: string | null;
   instagram_url: string | null;
+  google_maps_url: string | null;
   website_url: string | null;
   owner_id: string | null;
   created_at: string;
@@ -191,6 +194,7 @@ export async function getAdminBusinessBySlug(slug: string) {
     tiktok_url: business.tiktok_url || "",
     whatsapp_url: business.whatsapp_url || "",
     instagram_url: business.instagram_url || "",
+    google_maps_url: business.google_maps_url || "",
     owner_id: business.owner_id || "",
     schedules: formattedSchedules
   };
@@ -209,6 +213,7 @@ export async function updateAdminBusiness(id: string, data: {
   tiktok_url?: string;
   whatsapp_url?: string;
   instagram_url?: string;
+  google_maps_url?: string;
   owner_id?: string;
   schedules?: { day_of_week: number; start: string; end: string }[];
 }) {
@@ -247,6 +252,7 @@ export async function updateAdminBusiness(id: string, data: {
       tiktok_url: data.tiktok_url || null,
       whatsapp_url: data.whatsapp_url || null,
       instagram_url: data.instagram_url || null,
+      google_maps_url: data.google_maps_url || null,
       owner_id: data.owner_id || undefined, // Si no se provee, no lo cambiamos
       slug: newSlug,
     })

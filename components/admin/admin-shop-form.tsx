@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { createAdminBusiness, updateAdminBusiness } from "@/app/actions/admin-business";
 import { CldUploadWidget } from "next-cloudinary";
 import { toast } from "sonner";
-import { Store, ImagePlus, Instagram, MessageCircle, Globe, ArrowLeft, Rocket, Plus, Trash2, Clock, ShieldCheck } from "lucide-react";
+import { Store, ImagePlus, Instagram, MessageCircle, Globe, ArrowLeft, Rocket, Plus, Trash2, Clock, ShieldCheck, MapPin } from "lucide-react";
 import Image from "next/image";
 import { DS } from "@/lib/constants";
 import { useFieldArray } from "react-hook-form";
@@ -43,10 +43,11 @@ const adminBusinessSchema = yup.object({
   country_id: yup.string().required("El país es requerido"),
   city: yup.string().required("La ciudad es requerida"),
   city_id: yup.string().required("Selecciona una ciudad de la lista"),
-  address: yup.string().required("La dirección es requerida"),
+  address: yup.string().required("La dirección o punto de referencia es requerida"),
   tiktok_url: yup.string().url("Debe ser una URL válida").optional().default(""),
   whatsapp_url: yup.string().optional().default(""),
   instagram_url: yup.string().url("Debe ser una URL válida").optional().default(""),
+  google_maps_url: yup.string().url("Debe ser una URL de Maps válida").optional().default(""),
   owner_id: yup.string().optional().default(""),
   schedules: yup.array().of(
     yup.object({
@@ -84,6 +85,7 @@ interface AdminBusinessFormData {
   tiktok_url: string;
   whatsapp_url: string;
   instagram_url: string;
+  google_maps_url: string;
   owner_id: string;
   schedules: { day_of_week: number; start: string; end: string }[];
 }
@@ -126,6 +128,7 @@ export function AdminShopForm({ categories, cities: allCities, countries, profil
       tiktok_url: initialData?.tiktok_url || "",
       whatsapp_url: initialData?.whatsapp_url || "",
       instagram_url: initialData?.instagram_url || "",
+      google_maps_url: initialData?.google_maps_url || "",
       owner_id: initialData?.owner_id || "",
       schedules: initialData?.schedules || [],
     },
@@ -368,21 +371,45 @@ export function AdminShopForm({ categories, cities: allCities, countries, profil
             </div>
 
             {/* Dirección */}
-            <Field data-invalid={!!errors.address}>
-              <FieldLabel className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Dirección Física</FieldLabel>
-              <InputGroup>
-                <InputGroupAddon className="bg-indigo-500/5 text-indigo-600 border-r border-border/40">
-                  <Globe className="w-4 h-4" />
-                </InputGroupAddon>
-                <InputGroupInput 
-                  placeholder="Calle, número, oficina/local..." 
-                  className="h-12 font-medium"
-                  {...register("address")} 
-                  aria-invalid={!!errors.address}
-                />
-              </InputGroup>
-              <FieldError errors={[errors.address]} />
-            </Field>
+            <div className="space-y-4">
+              <Field data-invalid={!!errors.address}>
+                <FieldLabel className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Dirección o Punto de Referencia</FieldLabel>
+                <InputGroup>
+                  <InputGroupAddon className="bg-indigo-500/5 text-indigo-600 border-r border-border/40">
+                    <Globe className="w-4 h-4" />
+                  </InputGroupAddon>
+                  <InputGroupInput 
+                    placeholder="Calle, número o 'Itinerante (Carrito)'" 
+                    className="h-12 font-medium"
+                    {...register("address")} 
+                    aria-invalid={!!errors.address}
+                  />
+                </InputGroup>
+                <FieldError errors={[errors.address]} />
+              </Field>
+
+              <Field data-invalid={!!errors.google_maps_url}>
+                <FieldLabel className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-indigo-600" />
+                  Enlace de Google Maps (Opcional)
+                </FieldLabel>
+                <InputGroup>
+                  <InputGroupAddon className="bg-indigo-500/5 text-indigo-600 border-r border-border/40">
+                    <MapPin className="w-4 h-4" />
+                  </InputGroupAddon>
+                  <InputGroupInput 
+                    placeholder="https://maps.app.goo.gl/..." 
+                    className="h-12 font-medium"
+                    {...register("google_maps_url")} 
+                    aria-invalid={!!errors.google_maps_url}
+                  />
+                </InputGroup>
+                <FieldError errors={[errors.google_maps_url]} />
+                <p className="text-[10px] text-muted-foreground mt-1 italic font-medium">
+                  Ideal para carritos de comida o negocios sin dirección fija exacta.
+                </p>
+              </Field>
+            </div>
 
             {/* Redes Sociales - Glassmorphism Container */}
             <div className="p-8 rounded-[2rem] bg-indigo-500/5 border border-indigo-500/10 space-y-6">

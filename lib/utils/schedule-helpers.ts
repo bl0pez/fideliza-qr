@@ -26,8 +26,11 @@ export const timeToMinutes = (time: string): number => {
  * Converts 570 to "09:30"
  */
 export const minutesToTime = (min: number): string => {
-  const hours = Math.floor(min / 60);
-  const minutes = min % 60;
+  // Use modulo 1440 to ensure we stay within 00:00 - 23:59
+  // This is critical for <input type="time"> which doesn't support "24:00"
+  const normalizedMin = min % 1440;
+  const hours = Math.floor(normalizedMin / 60);
+  const minutes = normalizedMin % 60;
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 };
 
