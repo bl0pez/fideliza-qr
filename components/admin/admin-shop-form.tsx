@@ -5,7 +5,7 @@ import { useForm, useWatch, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useRouter } from "next/navigation";
-import { createAdminBusiness } from "@/app/actions/admin-business";
+import { createAdminBusiness, updateAdminBusiness } from "@/app/actions/admin-business";
 import { CldUploadWidget } from "next-cloudinary";
 import { toast } from "sonner";
 import { Store, ImagePlus, Instagram, MessageCircle, Globe, ArrowLeft, Rocket, Plus, Trash2, Clock, ShieldCheck } from "lucide-react";
@@ -108,29 +108,31 @@ interface AdminShopFormProps {
   cities: { id: string; name: string; country_id: string }[];
   countries: { id: string; name: string }[];
   profiles: { id: string; full_name: string | null; role: string | null }[];
+  initialData?: Partial<AdminBusinessFormData> & { id?: string };
 }
 
-export function AdminShopForm({ categories, cities: allCities, countries, profiles }: AdminShopFormProps) {
+export function AdminShopForm({ categories, cities: allCities, countries, profiles, initialData }: AdminShopFormProps) {
   const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const isEditing = !!initialData?.id;
 
   const form = useForm<AdminBusinessFormData>({
     resolver: yupResolver(adminBusinessSchema),
     defaultValues: {
-      name: "",
-      type: "",
-      description: "",
-      website_url: "",
-      image_url: "",
-      country_id: "",
-      city: "",
-      city_id: "",
-      address: "",
-      tiktok_url: "",
-      whatsapp_url: "",
-      instagram_url: "",
-      owner_id: "",
-      schedules: [],
+      name: initialData?.name || "",
+      type: initialData?.type || "",
+      description: initialData?.description || "",
+      website_url: initialData?.website_url || "",
+      image_url: initialData?.image_url || "",
+      country_id: initialData?.country_id || "",
+      city: initialData?.city || "",
+      city_id: initialData?.city_id || "",
+      address: initialData?.address || "",
+      tiktok_url: initialData?.tiktok_url || "",
+      whatsapp_url: initialData?.whatsapp_url || "",
+      instagram_url: initialData?.instagram_url || "",
+      owner_id: initialData?.owner_id || "",
+      schedules: initialData?.schedules || [],
     },
   });
 
@@ -147,7 +149,13 @@ export function AdminShopForm({ categories, cities: allCities, countries, profil
 
   const onSubmit = async (data: AdminBusinessFormData) => {
     setSubmitError(null);
-    const result = await createAdminBusiness(data);
+    let result;
+    
+    if (isEditing && initialData?.id) {
+      result = await updateAdminBusiness(initialData.id, data);
+    } else {
+      result = await createAdminBusiness(data);
+    }
 
     if (result.error) {
       setSubmitError(result.error);
@@ -155,7 +163,7 @@ export function AdminShopForm({ categories, cities: allCities, countries, profil
         toast.error(result.error);
       }
     } else {
-      toast.success("Negocio creado exitosamente (Modo Admin)");
+      toast.success(isEditing ? "Negocio actualizado exitosamente" : "Negocio creado exitosamente (Modo Admin)");
       router.push("/admin");
       router.refresh();
     }
@@ -174,15 +182,15 @@ export function AdminShopForm({ categories, cities: allCities, countries, profil
           {/* Heading Badge Pattern */}
           <div className="flex items-center justify-center gap-4 mb-6">
             <div className={DS.typography.sectionLabelLine} />
-            <span className={DS.typography.sectionLabel}>Creación Maestra</span>
+            <span className={DS.typography.sectionLabel}>{isEditing ? "Edición Maestra" : "Creación Maestra"}</span>
             <div className={DS.typography.sectionLabelLine} />
           </div>
           
           <h1 className={`text-4xl md:text-5xl ${DS.typography.heading} text-slate-900 dark:text-white mb-4`}>
-            Desplegar Nuevo <span className={DS.gradient.primaryText}>Comercio</span>
+            {isEditing ? "Gestionar" : "Desplegar Nuevo"} <span className={DS.gradient.primaryText}>Comercio</span>
           </h1>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto italic font-medium">
-            Configuración global de negocio con privilegios de <span className="text-primary font-black uppercase tracking-widest text-xs">Administrador</span>.
+            {isEditing ? "Actualiza la configuración global del negocio." : "Configuración global de negocio con privilegios de administrador."}
           </p>
         </div>
 
@@ -608,7 +616,7 @@ export function AdminShopForm({ categories, cities: allCities, countries, profil
             ) : (
               <>
                 <Rocket className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                <span>DESPLEGAR NEGOCIO</span>
+                <span>{isEditing ? "GUARDAR CAMBIOS" : "DESPLEGAR NEGOCIO"}</span>
               </>
             )}
           </button>
