@@ -132,7 +132,7 @@ export default async function AdminDashboardPage() {
                   </div>
 
                   <div className="flex items-center gap-3 mt-6">
-                    <Link href={`/admin/shops/${business.id}/edit`} className="flex-1">
+                    <Link href={`/admin/shops/${business.slug}/edit`} className="flex-1">
                       <button className={`w-full h-10 ${DS.card.rounded} bg-slate-100 dark:bg-slate-800 hover:bg-primary hover:text-white text-slate-900 dark:text-slate-100 transition-all font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 group/btn`}>
                         <Edit2 className="h-3.5 w-3.5 group-hover/btn:rotate-12 transition-transform" />
                         Editar Comercio

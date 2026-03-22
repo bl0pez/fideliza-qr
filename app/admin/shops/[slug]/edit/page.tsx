@@ -2,7 +2,7 @@ import { getCategories } from "@/app/actions/categories";
 import { getCities } from "@/app/actions/cities";
 import { getCountries } from "@/app/actions/countries";
 import { getOwnerProfiles } from "@/app/actions/auth";
-import { getAdminBusinessById } from "@/app/actions/admin-business";
+import { getAdminBusinessBySlug } from "@/app/actions/admin-business";
 import { AdminShopForm } from "@/components/admin/admin-shop-form";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,13 +29,13 @@ function AdminFormSkeleton() {
   );
 }
 
-async function EditAdminShopContent({ id }: { id: string }) {
+async function EditAdminShopContent({ slug }: { slug: string }) {
   const [categories, cities, countries, profiles, business] = await Promise.all([
     getCategories(),
     getCities(),
     getCountries(),
     getOwnerProfiles(),
-    getAdminBusinessById(id)
+    getAdminBusinessBySlug(slug)
   ]);
 
   if (!business) {
@@ -53,13 +53,13 @@ async function EditAdminShopContent({ id }: { id: string }) {
   );
 }
 
-export default async function EditAdminShopPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function EditAdminShopPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
       <Suspense fallback={<AdminFormSkeleton />}>
-        <EditAdminShopContent id={id} />
+        <EditAdminShopContent slug={slug} />
       </Suspense>
     </div>
   );

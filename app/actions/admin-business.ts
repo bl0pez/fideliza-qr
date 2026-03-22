@@ -148,7 +148,7 @@ interface AdminBusinessWithSchedules {
   schedules: BusinessSchedule[];
 }
 
-export async function getAdminBusinessById(id: string) {
+export async function getAdminBusinessBySlug(slug: string) {
   const profile = await getProfile();
 
   if (!profile || profile.role !== "admin") {
@@ -164,7 +164,7 @@ export async function getAdminBusinessById(id: string) {
       *,
       schedules:business_schedules(*)
     `)
-    .eq("id", id)
+    .eq("slug", slug)
     .single();
 
   if (error || !business) {
@@ -272,7 +272,7 @@ export async function updateAdminBusiness(id: string, data: {
 
   revalidatePath(ROUTES.dashboard);
   revalidatePath("/admin");
-  revalidatePath(`/admin/shops/${id}/edit`);
+  revalidatePath(`/admin/shops/${newSlug}/edit`);
 
   return { success: true };
 }
