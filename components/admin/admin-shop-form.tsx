@@ -52,12 +52,7 @@ const adminBusinessSchema = yup.object({
     yup.object({
       day_of_week: yup.number().required(),
       start: yup.string().required("Inicio requerido").matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Formato HH:MM"),
-      end: yup.string().required("Fin requerido").matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Formato HH:MM")
-        .test("is-after", "Debe ser después del inicio", function(value) {
-          const { start } = this.parent;
-          if (!start || !value) return true;
-          return timeToMinutes(value) > timeToMinutes(start);
-        })
+      end: yup.string().required("Fin requerido").matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Formato HH:MM"),
     })
   ).test("no-overlaps", "Hay horarios solapados", function(schedules) {
     if (!schedules) return true;

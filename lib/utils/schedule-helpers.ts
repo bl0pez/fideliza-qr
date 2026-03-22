@@ -36,7 +36,13 @@ export const minutesToTime = (min: number): string => {
  */
 export const formatRangeForSupabase = (start: string, end: string): string => {
   const startMin = timeToMinutes(start);
-  const endMin = timeToMinutes(end);
+  let endMin = timeToMinutes(end);
+  
+  // Si el fin es menor que el inicio, asumimos que es el día siguiente (overnight)
+  if (endMin <= startMin) {
+    endMin += 1440;
+  }
+  
   return `[${startMin}, ${endMin})`;
 };
 
@@ -76,28 +82,42 @@ export const getBusinessStatus = (
   }
 
   // 2. Check Regular Schedules
-  const todaySchedules = schedules
-    .filter((s) => s.day_of_week === currentDay)
-    .map((s) => parseRange(s.hour_range))
-    .sort((a, b) => a.start - b.start);
+  // We check both today and yesterday (in case of overnight shifts)
+  const yesterday = (currentDay + 6) % 7;
+  
+  const relevantSchedules = [
+    ...schedules
+      .filter((s) => s.day_of_week === yesterday)
+      .map((s) => ({ ...parseRange(s.hour_range), isYesterday: true })),
+    ...schedules
+      .filter((s) => s.day_of_week === currentDay)
+      .map((s) => ({ ...parseRange(s.hour_range), isYesterday: false }))
+  ].sort((a, b) => (a.isYesterday ? a.start - 1440 : a.start) - (b.isYesterday ? b.start - 1440 : b.start));
 
-  if (todaySchedules.length === 0) return { status: 'closed' };
+  for (const range of relevantSchedules) {
+    const start = range.isYesterday ? range.start - 1440 : range.start;
+    const end = range.isYesterday ? range.end - 1440 : range.end;
 
-  for (const range of todaySchedules) {
-    if (currentMinutes >= range.start && currentMinutes < range.end) {
-      // Closing soon if less than 30 mins remaining
-      if (range.end - currentMinutes <= 30) {
-        return { status: 'closing_soon', nextChange: minutesToTime(range.end) };
+    // A range is active if currentMinutes is between start and end
+    // (start/end can be negative if it peaked from yesterday into today)
+    if (currentMinutes >= start && currentMinutes < end) {
+      if (end - currentMinutes <= 30) {
+        return { status: 'closing_soon', nextChange: minutesToTime(end < 0 ? end + 1440 : (end >= 1440 ? end - 1440 : end)) };
       }
-      return { status: 'open', nextChange: minutesToTime(range.end) };
-    }
-    
-    // If it's before the first shift or between shifts
-    if (currentMinutes < range.start) {
-      return { status: 'closed', nextChange: minutesToTime(range.start) };
+      return { status: 'open', nextChange: minutesToTime(end < 0 ? end + 1440 : (end >= 1440 ? end - 1440 : end)) };
     }
   }
 
-  // After all shifts
+  // Find next opening
+  const nextOpening = schedules
+    .filter(s => s.day_of_week === currentDay)
+    .map(s => parseRange(s.hour_range))
+    .filter(r => r.start > currentMinutes)
+    .sort((a, b) => a.start - b.start)[0];
+
+  if (nextOpening) {
+    return { status: 'closed', nextChange: minutesToTime(nextOpening.start) };
+  }
+
   return { status: 'closed' };
 };
