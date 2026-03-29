@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { BUSINESS_INITIAL_REWARDS, ROUTES } from "@/lib/constants";
 import { generateUniqueSlug } from "@/lib/utils/slug-helpers";
@@ -94,8 +95,9 @@ interface AdminBusinessListEntry {
   address: string;
   created_at: string;
   plan_id: string;
+  scans_this_month: number;
   plans: { name: string } | null;
-  profiles: { full_name: string | null; email: string | null } | null;
+  profiles: { full_name: string | null } | null;
 }
 
 export async function getAllBusinesses() {
@@ -115,8 +117,7 @@ export async function getAllBusinesses() {
         name
       ),
       profiles:owner_id (
-        full_name,
-        email
+        full_name
       )
     `)
     .order("created_at", { ascending: false });
@@ -127,6 +128,22 @@ export async function getAllBusinesses() {
   }
 
   return businesses;
+}
+
+export async function getAdminStats() {
+  const profile = await getProfile();
+
+  if (!profile || profile.role !== "admin") {
+    return { activeUsers: 0 };
+  }
+
+  const supabaseAdmin = createAdminClient();
+
+  const { count } = await supabaseAdmin
+    .from("business_customers")
+    .select("user_id", { count: "exact", head: true });
+
+  return { activeUsers: count ?? 0 };
 }
 
 interface AdminBusinessWithSchedules {

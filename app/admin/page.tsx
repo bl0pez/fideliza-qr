@@ -1,15 +1,20 @@
 import { PlusCircle, Store, Users, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { getProfile } from "@/app/actions/auth";
-import { getAllBusinesses } from "@/app/actions/admin-business";
+import { getAllBusinesses, getAdminStats } from "@/app/actions/admin-business";
 import { DS } from "@/lib/constants";
 import { Edit2, ExternalLink, MapPin, BadgeCheck } from "lucide-react";
 import Image from "next/image";
 export default async function AdminDashboardPage() {
-  const [profile, businesses] = await Promise.all([
+  const [profile, businesses, stats] = await Promise.all([
     getProfile(),
-    getAllBusinesses()
+    getAllBusinesses(),
+    getAdminStats()
   ]);
+
+  const totalScansThisMonth = businesses?.reduce(
+    (sum, b) => sum + (b.scans_this_month ?? 0), 0
+  ) ?? 0;
 
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000 pb-20">
@@ -32,8 +37,8 @@ export default async function AdminDashboardPage() {
         {[
           { title: "Locales Totales", icon: Store, value: businesses?.length || 0, color: "indigo" },
           { title: "Planes Pro", icon: BadgeCheck, value: businesses?.filter(b => b.plan_id === 'pro').length || 0, color: "amber" },
-          { title: "Usuarios Activos", icon: Users, value: "--", color: "emerald" },
-          { title: "Escaneos Mes", icon: BarChart3, value: "--", color: "pink" },
+          { title: "Usuarios Activos", icon: Users, value: stats.activeUsers, color: "emerald" },
+          { title: "Escaneos Mes", icon: BarChart3, value: totalScansThisMonth, color: "pink" },
         ].map((stat, i) => (
           <div 
             key={i}
