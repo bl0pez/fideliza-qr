@@ -1,8 +1,9 @@
 import { Suspense } from "react";
-import { APP_NAME, DS } from "@/lib/constants";
+import { DS } from "@/lib/constants";
 import { LoginClient } from "@/components/auth/login-client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import { Logo } from "@/components/brand/logo";
 
 export default function LoginPage() {
   return (
@@ -13,14 +14,7 @@ export default function LoginPage() {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md mb-8 flex flex-col items-center">
         <div className="flex items-center gap-3 mb-4">
-           <svg className="w-10 h-10 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <h1 className={`text-4xl ${DS.typography.heading}`}>
-            {APP_NAME}
-          </h1>
+          <Logo size={48} />
         </div>
         
         <div className="flex items-center gap-4 mb-2">

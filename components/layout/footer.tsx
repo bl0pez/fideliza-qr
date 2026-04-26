@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Ticket, Twitter, Instagram, Linkedin, Heart } from "lucide-react";
+import { Twitter, Instagram, Linkedin, Heart } from "lucide-react";
 import { APP_NAME, DS } from "@/lib/constants";
+import { Logo } from "@/components/brand/logo";
 
 export function Footer() {
   return (
@@ -13,13 +14,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 lg:gap-8 pb-16">
           {/* Brand Identity Column */}
           <div className="lg:col-span-5 space-y-8">
-            <Link href="/" className="flex items-center gap-3.5 group">
-              <div className="bg-primary/10 p-3 rounded-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm border border-primary/5">
-                <Ticket className="text-primary w-7 h-7" />
-              </div>
-              <span className={`text-2xl ${DS.typography.heading} tracking-tighter text-slate-900 uppercase`}>
-                {APP_NAME}
-              </span>
+            <Link href="/">
+              <Logo size={40} />
             </Link>
             
             <p className="text-slate-500 text-lg md:text-xl leading-relaxed max-w-sm font-medium">
