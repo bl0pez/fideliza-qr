@@ -29,10 +29,20 @@ export function QuickQrDrawer({ userId, open, onOpenChange }: QuickQrDrawerProps
     if (open) {
       loadWallet();
     } else {
-      // Reset view when closing
       setSelectedBusiness(null);
     }
   }, [open]);
+
+  useEffect(() => {
+    const currentRewardId = selectedBusiness?.available_rewards?.[0]?.id;
+    if (!currentRewardId || !open) return;
+
+    const handleScanEvent = (e: CustomEvent<{ rewardId: string }>) => {
+      if (e.detail?.rewardId === currentRewardId) onOpenChange(false);
+    };
+    window.addEventListener('reward-scanned', handleScanEvent as EventListener);
+    return () => window.removeEventListener('reward-scanned', handleScanEvent as EventListener);
+  }, [selectedBusiness, open, onOpenChange]);
 
   async function loadWallet() {
     setLoading(true);

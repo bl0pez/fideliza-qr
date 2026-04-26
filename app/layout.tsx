@@ -4,6 +4,8 @@ import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { WebVitals } from "@/components/analytics/web-vitals";
 import { SoftwareApplicationJsonLd } from "@/components/seo/json-ld";
 import { APP_NAME, APP_DESCRIPTION, getSiteUrl } from "@/lib/constants";
+import { getCurrentUser } from "@/app/actions/auth";
+import { RealtimeWalletListener } from "@/components/rewards/realtime-wallet-listener";
 import "./globals.css";
 import { plusJakartaSans } from "@/app/config/fonts";
 
@@ -57,17 +59,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getCurrentUser();
+
   return (
     <html lang="es">
       <body className={`${plusJakartaSans.variable} antialiased`}>
         <SoftwareApplicationJsonLd />
         <GoogleAnalytics />
         <WebVitals />
+        {user && <RealtimeWalletListener userId={user.id} />}
         {children}
         <Toaster position="top-right" richColors />
       </body>
