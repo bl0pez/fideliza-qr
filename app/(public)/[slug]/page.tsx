@@ -90,6 +90,11 @@ export default async function PublicBusinessPage({
     notFound();
   }
 
+  const schedules = business.business_schedules || [];
+  const exceptions = business.schedule_exceptions || [];
+  const hasSchedules = schedules.length > 0;
+  const hasExceptions = exceptions.length > 0;
+
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 pb-24">
       <BusinessJsonLd business={business} />
@@ -145,12 +150,11 @@ export default async function PublicBusinessPage({
                   </span>
                 </div>
 
-                <div className="mt-2">
-                  <BusinessStatusBadge 
-                    schedules={business.business_schedules || []} 
-                    exceptions={business.schedule_exceptions || []} 
-                  />
-                </div>
+                {hasSchedules && (
+                  <div className="mt-2">
+                    <BusinessStatusBadge schedules={schedules} exceptions={exceptions} />
+                  </div>
+                )}
 
                 {business.address && (
                   <a
@@ -316,15 +320,14 @@ export default async function PublicBusinessPage({
           </div>
 
           {/* SECCIÓN 2: Horarios de Atención */}
-          <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground px-2">
-              Horarios
-            </h3>
-            <BusinessSchedulesList 
-              schedules={business.business_schedules || []} 
-              exceptions={business.schedule_exceptions || []} 
-            />
-          </div>
+          {(hasSchedules || hasExceptions) && (
+            <div className="space-y-4">
+              <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground px-2">
+                Horarios
+              </h3>
+              <BusinessSchedulesList schedules={schedules} exceptions={exceptions} />
+            </div>
+          )}
 
           {/* SECCIÓN 3: Fidelización y Beneficios (Estado de Autenticación) */}
           {rewards && rewards.length > 0 && (
