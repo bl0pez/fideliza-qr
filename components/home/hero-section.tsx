@@ -1,9 +1,13 @@
-import { Search, Sparkles, ArrowRight, Store, ChevronRight } from "lucide-react";
+import { Search, Sparkles, ArrowRight, Store, ChevronRight, UserPlus, Wallet } from "lucide-react";
 import { Suspense } from "react";
+import Link from "next/link";
 import { CategoriesList } from "./categories-list";
 import { selectFreePlan } from "@/app/actions/plan-selection";
+import { getCurrentUser } from "@/app/actions/auth";
 
-export function HeroSection() {
+export async function HeroSection() {
+  const user = await getCurrentUser();
+
   return (
     <header className="px-4 pt-16 pb-12 bg-linear-to-b from-primary/15 via-background to-background text-center relative overflow-hidden">
       {/* Decorative background elements */}
@@ -55,12 +59,40 @@ export function HeroSection() {
           <div className="absolute -inset-1 bg-linear-to-r from-primary/20 to-orange-500/20 rounded-3xl blur opacity-25 group-focus-within:opacity-100 transition duration-1000 group-focus-within:duration-200"></div>
           <div className="relative">
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 w-6 h-6 group-focus-within:text-primary transition-colors" />
-            <input 
-              className="w-full pl-14 pr-6 py-5 rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-xl shadow-xl focus:ring-4 focus:ring-primary/10 text-xl transition-all outline-none placeholder:text-slate-400" 
-              placeholder="¿Qué buscas hoy?" 
-              type="text" 
+            <input
+              className="w-full pl-14 pr-6 py-5 rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-xl shadow-xl focus:ring-4 focus:ring-primary/10 text-xl transition-all outline-none placeholder:text-slate-400"
+              placeholder="¿Qué buscas hoy?"
+              type="text"
             />
           </div>
+        </div>
+
+        {/* Customer CTA — adapts to auth state */}
+        <div className="flex flex-col items-center gap-3 max-w-md mx-auto">
+          {user ? (
+            <Link
+              href="/rewards"
+              className="group inline-flex w-full items-center justify-center gap-2 bg-slate-900 hover:bg-primary text-white px-8 py-4 rounded-2xl font-black text-base shadow-xl shadow-slate-900/20 hover:shadow-primary/30 transition-all duration-300"
+            >
+              <Wallet className="w-5 h-5" />
+              Ver mis tarjetas
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="group inline-flex w-full items-center justify-center gap-2 bg-slate-900 hover:bg-primary text-white px-8 py-4 rounded-2xl font-black text-base shadow-xl shadow-slate-900/20 hover:shadow-primary/30 transition-all duration-300"
+              >
+                <UserPlus className="w-5 h-5" />
+                Crear cuenta gratis
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <p className="text-xs text-slate-500 font-medium">
+                Acumula visitas y canjea premios en segundos.
+              </p>
+            </>
+          )}
         </div>
 
         {/* Categories Section */}

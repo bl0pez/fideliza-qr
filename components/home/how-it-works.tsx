@@ -1,6 +1,10 @@
-import { Search, UserPlus, Gift } from "lucide-react";
+import { Search, UserPlus, Gift, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { getCurrentUser } from "@/app/actions/auth";
 
-export function HowItWorks() {
+export async function HowItWorks() {
+  const user = await getCurrentUser();
+
   return (
     <section className="py-20 px-4 bg-slate-50/50">
       <div className="max-w-4xl mx-auto">
@@ -43,6 +47,18 @@ export function HowItWorks() {
             </div>
           </div>
         </div>
+
+        {!user && (
+          <div className="mt-16 flex justify-center">
+            <Link
+              href="/login"
+              className="group inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-2xl font-black text-base shadow-xl shadow-primary/20 transition-all duration-300"
+            >
+              Crear mi cuenta gratis
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );
