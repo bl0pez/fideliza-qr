@@ -41,6 +41,6 @@ export function cldForStorage(url: string): string {
     .replace(/\.(jpe?g|png|gif|bmp|tiff|avif)$/i, ".webp");
 }
 
-export const cldHero  = (u?: string | null) => cldUrl(u, { mode: "fill", gravity: "auto", w: 1600, h: 900 });
+export const cldHero  = (u?: string | null) => cldUrl(u, { mode: "fill", gravity: "auto", w: 1600, h: 500 });
 export const cldCard  = (u?: string | null) => cldUrl(u, { mode: "fill", gravity: "auto", w: 800,  h: 600 });
 export const cldThumb = (u?: string | null) => cldUrl(u, { mode: "fill", gravity: "auto", w: 120,  h: 120 });

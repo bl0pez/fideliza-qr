@@ -233,8 +233,8 @@ export function AdminShopForm({ categories, cities: allCities, countries, profil
                             <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-inner">
                               <ImagePlus className="w-8 h-8 opacity-80" />
                             </div>
-                            <span className="font-black tracking-tight text-xl">Subir Logotipo</span>
-                            <span className="text-xs font-medium opacity-60 mt-1 uppercase tracking-widest">PNG, JPG hasta 5MB</span>
+                            <span className="font-black tracking-tight text-xl">Subir imagen de portada</span>
+                            <span className="text-xs font-medium opacity-60 mt-1 uppercase tracking-widest">Horizontal · mín. 1200×400 px · no logos verticales</span>
                           </div>
                         )}
                       </div>

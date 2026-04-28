@@ -285,8 +285,8 @@ export function BusinessForm({
                         ) : (
                           <div className="flex flex-col items-center text-primary/70">
                             <ImagePlus className="w-10 h-10 mb-3 opacity-80 group-hover:scale-110 transition-transform" />
-                            <span className="font-medium">Haz clic para subir logotipo</span>
-                            <span className="text-xs opacity-70 mt-1">Recomendado: 800x600px en formato cuadrado</span>
+                            <span className="font-medium">Haz clic para subir imagen de portada</span>
+                            <span className="text-xs opacity-70 mt-1">Horizontal · mínimo 1200×400 px · no logos verticales</span>
                           </div>
                         )}
                       </div>
