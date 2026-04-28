@@ -103,7 +103,7 @@ export default async function PublicBusinessPage({
         BANNER DE IMAGEN SUPERIOR (Sin texto adentro)
         ====================================================
       */}
-      <div className="relative h-48 md:h-64 lg:h-80 w-full overflow-hidden bg-zinc-900 border-b border-border">
+      <div className="relative h-52 md:h-72 lg:h-96 w-full overflow-hidden bg-zinc-900 border-b border-border">
         <Image
           src={business.image_url || "/placeholder-business.jpg"}
           alt={business.name}
