@@ -13,6 +13,7 @@ import { QrCode, Store, ChevronRight, Loader2, Info } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
+import { cldThumb } from "@/lib/cloudinary";
 
 interface QuickQrDrawerProps {
   userId: string;
@@ -167,12 +168,12 @@ export function QuickQrDrawer({ userId, open, onOpenChange }: QuickQrDrawerProps
                     <div className="flex items-center gap-5 text-left">
                       <div className="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-slate-400 group-hover:text-primary group-hover:bg-primary/5 transition-colors overflow-hidden border border-slate-100 dark:border-slate-600">
                         {sub.businesses?.image_url ? (
-                          <Image 
-                            src={sub.businesses.image_url} 
-                            alt={sub.businesses.name} 
+                          <Image
+                            src={cldThumb(sub.businesses.image_url)}
+                            alt={sub.businesses.name}
                             width={56}
                             height={56}
-                            className="w-full h-full object-cover" 
+                            className="w-full h-full object-cover"
                           />
                         ) : (
                           <Store className="w-7 h-7" />

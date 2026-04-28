@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { cldCard } from "@/lib/cloudinary";
 import { ExternalLink, LayoutDashboard, Ticket, QrCode, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,9 +25,10 @@ export function BusinessDashboardCard({ business }: BusinessDashboardCardProps) 
       {/* Header Image Section */}
       <div className="relative h-48 w-full overflow-hidden">
         <Image
-          src={business.image_url || "/placeholder-business.jpg"}
+          src={cldCard(business.image_url) || "/placeholder-business.jpg"}
           alt={business.name}
           fill
+          sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover"
         />
         <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />

@@ -7,6 +7,7 @@ import * as yup from "yup";
 import { useRouter } from "next/navigation";
 import { createAdminBusiness, updateAdminBusiness } from "@/app/actions/admin-business";
 import { CldUploadWidget } from "next-cloudinary";
+import { cldForStorage } from "@/lib/cloudinary";
 import { toast } from "sonner";
 import { Store, ImagePlus, Instagram, MessageCircle, Globe, ArrowLeft, Rocket, Plus, Trash2, Clock, ShieldCheck, MapPin } from "lucide-react";
 import Image from "next/image";
@@ -211,13 +212,13 @@ export function AdminShopForm({ categories, cities: allCities, countries, profil
                     onSuccess={(result) => {
                       const info = result.info as { secure_url: string };
                       if (info?.secure_url) {
-                        field.onChange(info.secure_url);
+                        field.onChange(cldForStorage(info.secure_url));
                       }
                     }}
                   >
                     {({ open }) => (
                       <div 
-                        onClick={() => open()}
+                        onClick={() => open?.()}
                         className="w-full h-64 border-2 border-dashed border-indigo-500/30 bg-indigo-500/5 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:bg-indigo-500/10 transition-all duration-500 group relative overflow-hidden"
                       >
                         {imageUrl ? (

@@ -9,6 +9,7 @@ import { createBusiness, updateBusiness } from "@/app/actions/business";
 import { upsertBusinessSchedules, getBusinessSchedules } from "@/app/actions/business-schedules";
 import { timeToMinutes } from "@/lib/utils/schedule-helpers";
 import { CldUploadWidget } from "next-cloudinary";
+import { cldForStorage } from "@/lib/cloudinary";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { useFieldArray } from "react-hook-form";
@@ -265,13 +266,13 @@ export function BusinessForm({
                     onSuccess={(result) => {
                       const info = result.info as { secure_url: string };
                       if (info?.secure_url) {
-                        field.onChange(info.secure_url);
+                        field.onChange(cldForStorage(info.secure_url));
                       }
                     }}
                   >
                     {({ open }) => (
                       <div 
-                        onClick={() => open()}
+                        onClick={() => open?.()}
                         className="w-full h-48 border-2 border-dashed border-primary/30 bg-primary/5 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-primary/10 transition-all duration-300 relative overflow-hidden group"
                       >
                         {imageUrl ? (

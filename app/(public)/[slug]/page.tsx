@@ -1,5 +1,6 @@
 import { getPublicBusinessData, PublicReward } from "@/app/actions/public";
 import { APP_NAME } from "@/lib/constants";
+import { cldHero } from "@/lib/cloudinary";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -105,9 +106,10 @@ export default async function PublicBusinessPage({
       */}
       <div className="relative h-52 md:h-72 lg:h-96 w-full overflow-hidden bg-zinc-900 border-b border-border">
         <Image
-          src={business.image_url || "/placeholder-business.jpg"}
+          src={cldHero(business.image_url) || "/placeholder-business.jpg"}
           alt={business.name}
           fill
+          sizes="100vw"
           className="object-cover"
           priority
         />

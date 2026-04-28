@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Business } from "@/lib/data/api";
+import { cldCard } from "@/lib/cloudinary";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, ArrowRight, Ticket } from "lucide-react";
 import Link from "next/link";
@@ -14,9 +15,9 @@ export function BusinessCard({ business }: BusinessCardProps) {
       <div className="relative overflow-hidden rounded-[2rem] bg-white transition-all duration-500 hover:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border-transparent">
         {/* Image Container with Zoom Effect */}
         <div className="relative h-56 md:h-64 overflow-hidden">
-          <Image 
-            src={business.image_url} 
-            alt={`Imagen de ${business.name}`} 
+          <Image
+            src={cldCard(business.image_url)}
+            alt={`Imagen de ${business.name}`}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover transition-transform duration-700 group-hover:scale-110"
