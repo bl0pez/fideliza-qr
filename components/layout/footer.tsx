@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Twitter, Instagram, Linkedin, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import { APP_NAME, DS } from "@/lib/constants";
 import { Logo } from "@/components/brand/logo";
 
@@ -23,14 +23,15 @@ export function Footer() {
             </p>
 
             <div className="flex items-center gap-4">
-              <Link href="#" className="w-12 h-12 rounded-2xl flex items-center justify-center bg-slate-50 border border-slate-200/60 text-slate-400 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-500 group/social">
-                <Twitter className="w-5 h-5 group-hover/social:scale-110 transition-transform" />
-              </Link>
-              <Link href="#" className="w-12 h-12 rounded-2xl flex items-center justify-center bg-slate-50 border border-slate-200/60 text-slate-400 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-500 group/social">
-                <Instagram className="w-5 h-5 group-hover/social:scale-110 transition-transform" />
-              </Link>
-              <Link href="#" className="w-12 h-12 rounded-2xl flex items-center justify-center bg-slate-50 border border-slate-200/60 text-slate-400 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-500 group/social">
-                <Linkedin className="w-5 h-5 group-hover/social:scale-110 transition-transform" />
+              <Link
+                href="https://www.tiktok.com/@fidelilocal"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-12 h-12 rounded-2xl flex items-center justify-center bg-slate-50 border border-slate-200/60 text-slate-400 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-500 group/social"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 group-hover/social:scale-110 transition-transform">
+                  <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+                </svg>
               </Link>
             </div>
           </div>
